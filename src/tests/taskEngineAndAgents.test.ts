@@ -7,6 +7,7 @@ import { UniversalModelGateway } from '../core/gateway/universalGateway.js';
 import { MockProviderAdapter } from '../core/gateway/mockAdapter.js';
 import { UIEventEmitter } from '../core/events/uiEventEmitter.js';
 import { CancellationToken } from '../core/cancellation/cancellationToken.js';
+import { CloudConsentGuard } from '../core/security/cloudConsentGuard.js';
 
 test('TaskStore manages task state with standardized task IDs', () => {
   const store = new TaskStore();
@@ -22,6 +23,8 @@ test('TaskStore manages task state with standardized task IDs', () => {
 });
 
 test('AgentOrchestrator executes multi-agent lifecycle and verifies results', async () => {
+  CloudConsentGuard.grantConsent(process.cwd());
+
   const taskStore = new TaskStore();
   const gateway = new UniversalModelGateway();
   gateway.registerAdapter(new MockProviderAdapter());

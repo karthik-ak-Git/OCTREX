@@ -5,6 +5,7 @@ import { AutoRepairLoop } from '../core/verification/repairLoop.js';
 import { ModelRouter } from '../core/router/modelRouter.js';
 import { UniversalModelGateway } from '../core/gateway/universalGateway.js';
 import { MockProviderAdapter } from '../core/gateway/mockAdapter.js';
+import { CloudConsentGuard } from '../core/security/cloudConsentGuard.js';
 
 test('VerificationEngine generates structured empirical verification report card', async () => {
   const report = await VerificationEngine.evaluate({
@@ -29,6 +30,8 @@ test('VerificationEngine generates structured empirical verification report card
 });
 
 test('AutoRepairLoop completes and returns verified report', async () => {
+  CloudConsentGuard.grantConsent(process.cwd());
+
   const gateway = new UniversalModelGateway();
   gateway.registerAdapter(new MockProviderAdapter());
   const router = new ModelRouter(gateway);
