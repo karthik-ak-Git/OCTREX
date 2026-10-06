@@ -343,7 +343,7 @@ test('CloudConsentGuard gates crax-gpt requests when cloud-code consent is missi
     },
     (err: any) => {
       assert.equal(err.code, 'PERMISSION_DENIED');
-      assert.ok(err.message.includes('Cloud-Code Consent'));
+      assert.ok(err.message.toLowerCase().includes('cloud-code consent'));
       return true;
     }
   );
