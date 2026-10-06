@@ -11,7 +11,9 @@ import { GeminiAdapter } from './core/gateway/adapters/geminiAdapter.js';
 import { OpenRouterAdapter } from './core/gateway/adapters/openRouterAdapter.js';
 import { NvidiaAdapter } from './core/gateway/adapters/nvidiaAdapter.js';
 import { GroqAdapter } from './core/gateway/adapters/groqAdapter.js';
+import { CraxGptAdapter } from './core/gateway/adapters/craxGptAdapter.js';
 import { OpenAICompatibleAdapter } from './core/gateway/adapters/openAICompatibleAdapter.js';
+import { ProviderLogoService } from './core/gateway/providerLogos.js';
 import { ModelRouter } from './core/router/modelRouter.js';
 import { TaskStore } from './core/task/taskStore.js';
 import { AgentOrchestrator } from './core/agents/agentOrchestrator.js';
@@ -50,13 +52,16 @@ async function main() {
   gateway.registerAdapter(new OpenRouterAdapter({ apiKey: process.env.OPENROUTER_API_KEY }));
   gateway.registerAdapter(new NvidiaAdapter({ apiKey: process.env.NVIDIA_API_KEY }));
   gateway.registerAdapter(new GroqAdapter({ apiKey: process.env.GROQ_API_KEY }));
+  gateway.registerAdapter(new CraxGptAdapter({ apiKey: process.env.CRAX_GPT_API_KEY }));
   gateway.registerAdapter(new OpenAICompatibleAdapter({ baseUrl: 'http://127.0.0.1:8000/v1' }));
 
   // Check health across registered providers
   const healthMap = await gateway.checkAllHealth();
-  console.log('[OCTREX] Provider Health Status:');
+  console.log('[OCTREX] Provider Health & Visual Route Badges:');
   for (const [providerId, status] of healthMap.entries()) {
-    console.log(`  - ${providerId.padEnd(20)}: [${status}]`);
+    const meta = ProviderLogoService.getMetadata(providerId);
+    const badge = ProviderLogoService.formatRouteBadge(providerId, 'default');
+    console.log(`  - ${meta.name.padEnd(24)}: [${status.padEnd(10)}] | Route Badge: ${badge.textBadge}`);
   }
 
   // 3. Initialize Model Router
