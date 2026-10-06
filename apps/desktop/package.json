@@ -2,10 +2,46 @@
   "name": "@altrex/desktop",
   "version": "0.1.0",
   "private": true,
-  "description": "OCTREX CODE desktop AI coding workspace",
-  "author": "OCTREX CODE",
+  "description": "OCTREX CODE Desktop App",
+  "main": "out/main/index.js",
   "type": "module",
-  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "dev:web": "vite src/renderer",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "dist:win": "pnpm build && electron-builder --win --publish never",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p src/renderer/tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@altrex/contracts": "workspace:*",
+    "@fontsource-variable/inter": "^5.1.0",
+    "@fontsource-variable/jetbrains-mono": "^5.1.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.475.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.0.1",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.9",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.2.0",
+    "@types/node": "^24.1.0",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^43.3.0",
+    "electron-builder": "^26.15.3",
+    "electron-vite": "^5.0.0",
+    "jsdom": "^26.0.0",
+    "tailwindcss": "^4.0.9",
+    "typescript": "^5.7.3",
+    "vite": "^7.3.6",
+    "vitest": "^3.2.7"
+  },
   "build": {
     "appId": "com.octrex.code",
     "productName": "OCTREX CODE",
@@ -13,81 +49,17 @@
       "output": "../../release"
     },
     "files": [
-      "out/**/*",
-      "!out/qa/**/*",
-      "package.json"
+      "out/**/*"
     ],
-    "asar": true,
-    "npmRebuild": false,
     "win": {
-      "icon": "assets/branding/altrex-app-icon.ico",
       "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        },
-        {
-          "target": "portable",
-          "arch": [
-            "x64"
-          ]
-        }
+        "nsis",
+        "portable"
       ]
     },
     "nsis": {
-      "artifactName": "OCTREX-CODE-Setup-${version}-${arch}.${ext}",
       "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "deleteAppDataOnUninstall": false
-    },
-    "portable": {
-      "artifactName": "OCTREX-CODE-Portable-${version}-${arch}.${ext}"
+      "allowToChangeInstallationDirectory": true
     }
-  },
-  "scripts": {
-    "postinstall": "install-electron",
-    "dev": "electron-vite dev",
-    "dev:web": "vite --config vite.web.config.ts --host 127.0.0.1",
-    "build": "electron-vite build",
-    "dist:win": "pnpm build && electron-builder --win --publish never",
-    "verify:release": "node scripts/verify-windows-release.cjs",
-    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
-    "test": "vitest run",
-    "preview": "electron-vite preview",
-    "smoke": "cross-env ALTREX_SMOKE_TEST=1 electron-vite preview",
-    "smoke:scale-125": "cross-env ALTREX_SMOKE_TEST=1 ALTREX_DEVICE_SCALE_FACTOR=1.25 electron-vite preview",
-    "smoke:scale-150": "cross-env ALTREX_SMOKE_TEST=1 ALTREX_DEVICE_SCALE_FACTOR=1.5 electron-vite preview"
-  },
-  "dependencies": {
-    "@fontsource-variable/inter": "^5.2.8",
-    "@fontsource-variable/jetbrains-mono": "^5.2.8",
-    "lucide-react": "^0.536.0",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1"
-  },
-  "devDependencies": {
-    "@altrex/contracts": "workspace:*",
-    "@altrex/core": "workspace:*",
-    "@tailwindcss/vite": "^4.3.3",
-    "@testing-library/react": "^16.3.0",
-    "@types/node": "^24.2.1",
-    "@types/react": "^19.1.10",
-    "@types/react-dom": "^19.1.7",
-    "@vitejs/plugin-react": "^5.0.0",
-    "cross-env": "^10.0.0",
-    "electron": "^43.2.0",
-    "electron-builder": "^26.15.3",
-    "electron-vite": "^5.0.0",
-    "jsdom": "^26.1.0",
-    "simple-icons": "16.32.0",
-    "tailwindcss": "^4.3.3",
-    "typescript": "^5.9.2",
-    "vite": "^7.0.0",
-    "vitest": "^3.2.4"
   }
 }

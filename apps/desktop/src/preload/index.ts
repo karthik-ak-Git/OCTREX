@@ -32,7 +32,7 @@ const desktopApi: DesktopApi = Object.freeze({
 contextBridge.exposeInMainWorld('altrex', desktopApi)
 contextBridge.exposeInMainWorld('octrex', desktopApi)
 
-// Contract-v1 core bridge. Commands are validated in the main process; events arrive pre-validated.
+// Contract-v1 core bridge
 const coreBridge: AltrexCoreBridge = Object.freeze({
   contractVersion: CONTRACT_VERSION,
   onEvent: (listener: (event: AltrexEvent) => void) => {
@@ -40,7 +40,6 @@ const coreBridge: AltrexCoreBridge = Object.freeze({
     ipcRenderer.on(coreChannels.event, wrapped)
     return () => ipcRenderer.removeListener(coreChannels.event, wrapped)
   },
-  // The main process always answers with a result envelope; `invoke` turns failures into Errors.
   invoke: (async (name: string, request: unknown) => {
     const result = await ipcRenderer.invoke(coreChannels.command, name, request) as { ok: boolean; value?: unknown; error?: { code: string; message: string } }
     if (!result.ok) throw new Error(`${result.error?.code ?? 'INTERNAL'}: ${result.error?.message ?? 'The command failed.'}`)
@@ -51,4 +50,3 @@ const coreBridge: AltrexCoreBridge = Object.freeze({
 
 contextBridge.exposeInMainWorld(CORE_BRIDGE_GLOBAL, coreBridge)
 contextBridge.exposeInMainWorld('octrexCore', coreBridge)
-
