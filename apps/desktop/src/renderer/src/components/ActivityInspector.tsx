@@ -1,195 +1,222 @@
-import { FileCode, Image as ImageIcon } from 'lucide-react'
+import { FileCode, Image as ImageIcon, Terminal, Activity, Layers } from 'lucide-react';
+import { ChatSession, BackgroundTask } from '../state';
 
 export type ActivityInspectorProps = {
-  agents?: Array<{ agentId: string; label: string; role: string; status: string; summary: string }>
-  skillsRead?: string[]
-  toolsUsed?: Record<string, number>
-  createdFiles?: Array<{ name: string; size?: string; slides?: number }>
-  uploadedFiles?: Array<{ name: string; size?: string }>
-  backgroundTasks?: Array<{ id: string; command: string; status: string; duration: string }>
-  contextUsedPercent?: number
-  contextTokens?: { used: number; total: number }
-  onOpenFile?: (fileName: string) => void
-  onOpenTerminalTask?: (taskId: string) => void
-}
+  activeSession: ChatSession;
+  tasks: BackgroundTask[];
+  onOpenFile: (fileName: string) => void;
+  onOpenTerminalTask: (taskId: string) => void;
+};
 
-export function ActivityInspector({
-  agents = [
-    { agentId: 'main', label: 'Main agent', role: 'Architect', status: 'running', summary: 'Building deck' },
-    { agentId: 'sub', label: 'Sub-agent', role: 'Tester', status: 'running', summary: 'Running build check' },
-  ],
-  skillsRead = ['pptx', 'file-reading', 'frontend-design'],
-  toolsUsed = {
-    'Read file': 4,
-    'Write file': 2,
-    Terminal: 3,
-    'Web search': 1,
-  },
-  createdFiles = [
-    { name: 'roadmap-q4.pptx', slides: 6 },
-    { name: 'outline.md', size: '2 KB' },
-  ],
-  uploadedFiles = [
-    { name: 'brand-guide.png', size: '240 KB' },
-    { name: 'notes.pdf', size: '1.1 MB' },
-  ],
-  backgroundTasks = [
-    { id: 'task-1', command: 'npm run build', status: 'Running', duration: '00:42' },
-  ],
-  contextUsedPercent = 42,
-  contextTokens = { used: 84000, total: 200000 },
+export const ActivityInspector: React.FC<ActivityInspectorProps> = ({
+  activeSession,
+  tasks,
   onOpenFile,
-  onOpenTerminalTask,
-}: ActivityInspectorProps) {
+  onOpenTerminalTask
+}) => {
+  const tokenMax = 200000;
+  const tokenUsed = activeSession.tokensUsed || 84200;
+  const tokenPercent = Math.min(Math.round((tokenUsed / tokenMax) * 100), 100);
+
+  // Derive created files from session artifacts
+  const createdArtifacts = activeSession.messages
+    .flatMap((m) => m.artifacts || [])
+    .filter((v, i, a) => a.findIndex((t) => t.name === v.name) === i);
+
+  const skillsRead = activeSession.skillsUsed.length > 0
+    ? activeSession.skillsUsed
+    : ['pptx', 'file-reading', 'frontend-design'];
+
+  const toolsCount = Object.keys(activeSession.toolsCount).length > 0
+    ? activeSession.toolsCount
+    : { 'Read file': 4, 'Write file': 2, Terminal: 3, 'Web search': 1 };
+
   return (
-    <div className="flex flex-col gap-6 p-4 text-slate-800 text-xs select-none">
-      {/* AGENTS (FIGMA IMAGE 4) */}
-      <div>
-        <div className="flex items-center justify-between mb-2.5">
-          <span className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Agents</span>
-          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600 border border-slate-200/60">
-            {agents.length} active
-          </span>
-        </div>
-        <div className="space-y-1.5">
-          {agents.map((agent) => (
-            <div
-              key={agent.agentId}
-              className="flex items-center gap-2.5 rounded-xl bg-white p-2.5 border border-slate-150 shadow-2xs"
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-semibold text-slate-900 truncate">{agent.label}</div>
-                <div className="text-[11px] text-slate-500 truncate">{agent.summary}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* SKILLS READ */}
-      <div>
-        <div className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase mb-2">
-          Skills Read
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          {skillsRead.map((skill) => (
-            <span
-              key={skill}
-              className="rounded-full bg-white px-3 py-1 text-[11px] font-medium text-slate-700 border border-slate-200 shadow-2xs"
-            >
-              {skill}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* TOOLS USED */}
-      <div>
-        <div className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase mb-2">
-          Tools Used
-        </div>
-        <div className="space-y-1 bg-white rounded-xl p-2.5 border border-slate-150 shadow-2xs">
-          {Object.entries(toolsUsed).map(([tool, count]) => (
-            <div key={tool} className="flex items-center justify-between py-1 text-slate-600 border-b border-slate-50 last:border-0">
-              <span className="text-xs font-medium text-slate-700">{tool}</span>
-              <span className="text-xs font-mono text-slate-500 font-semibold">{count}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* CREATED FILES */}
-      {createdFiles.length > 0 && (
+    <div className="flex flex-col h-full justify-between p-4 space-y-6 text-slate-800 text-xs select-none overflow-y-auto custom-scrollbar">
+      <div className="space-y-6">
+        {/* ACTIVE AGENTS (FIGMA IMAGE 4) */}
         <div>
-          <div className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase mb-2">
-            Created Files
+          <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2.5">
+            <span className="flex items-center gap-1.5">
+              <Activity size={13} className="text-cyan-600" />
+              <span>Agents</span>
+            </span>
+            <span className="rounded-full bg-slate-100 text-slate-700 px-2 py-0.5 text-[10px] font-bold">
+              2 active
+            </span>
           </div>
-          <div className="space-y-1.5">
-            {createdFiles.map((file) => (
-              <div
-                key={file.name}
-                onClick={() => onOpenFile?.(file.name)}
-                className="flex items-center justify-between rounded-xl bg-white p-2.5 border border-slate-150 shadow-2xs hover:border-slate-300 cursor-pointer transition-colors"
-              >
-                <div className="flex items-center gap-2 truncate">
-                  <FileCode size={14} className="text-slate-500 shrink-0" />
-                  <span className="text-xs font-medium text-slate-800 truncate">{file.name}</span>
+
+          <div className="space-y-2">
+            <div className="rounded-2xl glass-card border border-white/80 p-3 shadow-2xs space-y-1">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="font-semibold text-slate-900">Main agent</span>
                 </div>
-                <span className="text-[11px] text-slate-400 shrink-0">
-                  {file.slides ? `${file.slides} slides` : file.size}
+                <span className="text-[10px] rounded-md bg-slate-100 px-1.5 py-0.5 font-medium text-slate-600">
+                  Architect
+                </span>
+              </div>
+              <div className="text-[11px] text-slate-500">Executing task in {activeSession.workspaceName}</div>
+            </div>
+
+            <div className="rounded-2xl glass-card border border-white/80 p-3 shadow-2xs space-y-1">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-cyan-500 animate-pulse" />
+                  <span className="font-semibold text-slate-900">Sub-agent</span>
+                </div>
+                <span className="text-[10px] rounded-md bg-slate-100 px-1.5 py-0.5 font-medium text-slate-600">
+                  Verifier
+                </span>
+              </div>
+              <div className="text-[11px] text-slate-500">Checking build outputs & verification</div>
+            </div>
+          </div>
+        </div>
+
+        {/* SKILLS READ */}
+        <div>
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
+            <Layers size={13} className="text-indigo-500" />
+            <span>Skills read</span>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {skillsRead.map((sk) => (
+              <span
+                key={sk}
+                className="rounded-lg glass-card px-2.5 py-1 font-mono text-[11px] font-medium text-slate-700 border border-slate-200/80 shadow-2xs"
+              >
+                {sk}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* TOOLS USED BREAKDOWN TABLE */}
+        <div>
+          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
+            Tools used
+          </div>
+          <div className="rounded-2xl glass-card border border-white/80 p-2 shadow-2xs divide-y divide-slate-100">
+            {Object.entries(toolsCount).map(([tool, count]) => (
+              <div key={tool} className="flex items-center justify-between px-2.5 py-1.5 text-xs">
+                <span className="text-slate-700 font-medium">{tool}</span>
+                <span className="font-mono text-slate-900 font-bold bg-slate-100 px-2 py-0.5 rounded-md text-[11px]">
+                  {count}
                 </span>
               </div>
             ))}
           </div>
         </div>
-      )}
 
-      {/* UPLOADED FILES */}
-      {uploadedFiles.length > 0 && (
+        {/* CREATED FILES */}
         <div>
-          <div className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase mb-2">
-            Uploaded
+          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
+            Created files
           </div>
           <div className="space-y-1.5">
-            {uploadedFiles.map((file) => (
+            {createdArtifacts.length > 0 ? (
+              createdArtifacts.map((file) => (
+                <div
+                  key={file.id}
+                  onClick={() => onOpenFile(file.name)}
+                  className="flex items-center justify-between rounded-xl glass-card border border-white/80 p-2.5 hover:bg-slate-50/80 cursor-pointer transition-all shadow-2xs group"
+                >
+                  <div className="flex items-center gap-2">
+                    <FileCode size={14} className="text-amber-500 group-hover:scale-110 transition-transform" />
+                    <span className="font-semibold text-slate-800">{file.name}</span>
+                  </div>
+                  <span className="text-[11px] font-mono text-slate-400">
+                    {file.slidesCount ? `${file.slidesCount} slides` : file.size}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div
+                onClick={() => onOpenFile('roadmap-q4.pptx')}
+                className="flex items-center justify-between rounded-xl glass-card border border-white/80 p-2.5 hover:bg-slate-50/80 cursor-pointer transition-all shadow-2xs group"
+              >
+                <div className="flex items-center gap-2">
+                  <FileCode size={14} className="text-amber-500 group-hover:scale-110 transition-transform" />
+                  <span className="font-semibold text-slate-800">roadmap-q4.pptx</span>
+                </div>
+                <span className="text-[11px] font-mono text-slate-400">6 slides</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* UPLOADED ASSETS */}
+        <div>
+          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
+            Uploaded files
+          </div>
+          <div className="space-y-1.5">
+            {[
+              { name: 'brand-guide.png', size: '240 KB' },
+              { name: 'notes.pdf', size: '1.1 MB' }
+            ].map((file) => (
               <div
                 key={file.name}
-                onClick={() => onOpenFile?.(file.name)}
-                className="flex items-center justify-between rounded-xl bg-white p-2.5 border border-slate-150 shadow-2xs hover:border-slate-300 cursor-pointer transition-colors"
+                onClick={() => onOpenFile(file.name)}
+                className="flex items-center justify-between rounded-xl glass-card border border-white/80 p-2.5 hover:bg-slate-50/80 cursor-pointer transition-all shadow-2xs group"
               >
-                <div className="flex items-center gap-2 truncate">
-                  <ImageIcon size={14} className="text-slate-500 shrink-0" />
-                  <span className="text-xs font-medium text-slate-800 truncate">{file.name}</span>
+                <div className="flex items-center gap-2">
+                  <ImageIcon size={14} className="text-purple-500 group-hover:scale-110 transition-transform" />
+                  <span className="font-semibold text-slate-800">{file.name}</span>
                 </div>
-                <span className="text-[11px] text-slate-400 shrink-0">{file.size}</span>
+                <span className="text-[11px] font-mono text-slate-400">{file.size}</span>
               </div>
             ))}
           </div>
         </div>
-      )}
 
-      {/* BACKGROUND TASKS */}
-      {backgroundTasks.length > 0 && (
+        {/* BACKGROUND TASKS */}
         <div>
-          <div className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase mb-2">
-            Background Tasks
+          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
+            Background tasks
           </div>
           <div className="space-y-1.5">
-            {backgroundTasks.map((task) => (
+            {tasks.map((task) => (
               <div
                 key={task.id}
-                onDoubleClick={() => onOpenTerminalTask?.(task.id)}
-                className="flex items-center gap-2 rounded-xl bg-white p-2.5 border border-slate-150 shadow-2xs hover:border-slate-300 cursor-pointer transition-colors"
+                onClick={() => onOpenTerminalTask(task.id)}
+                className="flex items-center justify-between rounded-xl glass-card border border-white/80 p-2.5 hover:bg-slate-50/80 cursor-pointer transition-all shadow-2xs"
               >
-                <span className="h-2 w-2 rounded-full bg-slate-900"></span>
-                <div className="flex-1 truncate font-mono text-xs font-semibold text-slate-900">{task.command}</div>
-                <span className="text-[11px] text-slate-500">{task.status} · {task.duration}</span>
+                <div className="flex items-center gap-2">
+                  <Terminal size={14} className="text-emerald-600" />
+                  <span className="font-mono text-xs font-semibold text-slate-900">{task.command}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] rounded-md bg-emerald-100 text-emerald-800 font-semibold px-1.5 py-0.5">
+                    {task.status}
+                  </span>
+                  <span className="font-mono text-[11px] text-slate-400">{task.duration}</span>
+                </div>
               </div>
             ))}
           </div>
         </div>
-      )}
+      </div>
 
-      {/* CONTEXT GAUGE */}
-      <div>
-        <div className="flex items-center justify-between mb-1.5 text-[11px] text-slate-500">
-          <span className="font-semibold tracking-wider text-slate-400 uppercase">Context</span>
-          <span>{contextUsedPercent}% used</span>
+      {/* CONTEXT BUDGET GAUGE */}
+      <div className="rounded-2xl glass-card border border-white/80 p-3.5 space-y-2 shadow-2xs">
+        <div className="flex items-center justify-between">
+          <span className="text-slate-600 font-semibold">Context window</span>
+          <span className="font-mono text-[11px] font-bold text-slate-900">{tokenPercent}% used</span>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+        <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
           <div
-            className="h-full bg-slate-900 transition-all duration-500"
-            style={{ width: `${contextUsedPercent}%` }}
+            className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-emerald-500 transition-all duration-500"
+            style={{ width: `${tokenPercent}%` }}
           />
         </div>
-        <div className="mt-1 text-[10px] text-slate-400">
-          {Math.round(contextTokens.used / 1000)}k / {Math.round(contextTokens.total / 1000)}k tokens
+        <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
+          <span>{tokenUsed.toLocaleString()} tokens</span>
+          <span>{tokenMax.toLocaleString()} limit</span>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

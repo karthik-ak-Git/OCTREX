@@ -3,22 +3,17 @@ import { Sidebar } from './components/Sidebar';
 import { ChatCanvas } from './components/ChatCanvas';
 import { InspectorPanel, InspectorTab } from './components/InspectorPanel';
 import { OnboardingModal } from './components/OnboardingModal';
-import { SettingsHub } from './components/SettingsHub';
+import { SettingsHub, SettingsHubTab } from './components/SettingsHub';
+import { useOctrexStore } from './state';
 
 export const App: React.FC = () => {
-  // Modal states
+  const store = useOctrexStore();
+
+  // Modals & Inspector Navigation
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [settingsInitialTab, setSettingsInitialTab] = useState<
-    'sessions' | 'skills' | 'mcp' | 'chats' | 'permissions'
-  >('sessions');
+  const [settingsInitialTab, setSettingsInitialTab] = useState<SettingsHubTab>('sessions');
 
-  // Workspace and Session state
-  const [activeWorkspace, setActiveWorkspace] = useState<string>('octrex-web');
-  const [activeSessionId, setActiveSessionId] = useState<string>('session-1');
-  const [activeModel, setActiveModel] = useState<string>('Claude Sonnet 3.5');
-
-  // Inspector panel tab and open previews
   const [inspectorTab, setInspectorTab] = useState<InspectorTab>('activity');
   const [openPreviews, setOpenPreviews] = useState<
     Array<{ id: string; name: string; type: 'document' | 'image' }>
@@ -27,7 +22,7 @@ export const App: React.FC = () => {
     { id: 'p2', name: 'brand-guide.png', type: 'image' }
   ]);
 
-  // Initial check for onboarding
+  // First launch onboarding check
   useEffect(() => {
     const hasCompletedOnboarding = localStorage.getItem('octrex_onboarded_v4');
     if (!hasCompletedOnboarding) {
@@ -40,9 +35,7 @@ export const App: React.FC = () => {
     setIsOnboardingOpen(false);
   };
 
-  const handleOpenSettings = (
-    tab: 'sessions' | 'skills' | 'mcp' | 'chats' | 'permissions' = 'sessions'
-  ) => {
+  const handleOpenSettings = (tab: SettingsHubTab = 'sessions') => {
     setSettingsInitialTab(tab);
     setIsSettingsOpen(true);
   };
@@ -54,46 +47,78 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleOpenProjectFolder = async () => {
+    try {
+      if (window.octrex?.openProject) {
+        const res = await window.octrex.openProject();
+        if (res && res.path) {
+          const newProj = store.addProject(res.name, res.path);
+          store.createNewSession(newProj.id);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('Native open project failed, fallback:', err);
+    }
+    // Fallback: prompt for directory name
+    const folderName = prompt('Enter project folder name:', 'my-awesome-app');
+    if (folderName) {
+      const newProj = store.addProject(folderName, `~/dev/${folderName}`);
+      store.createNewSession(newProj.id);
+    }
+  };
+
+  const handleOpenFilePreview = (fileName: string) => {
+    if (fileName.endsWith('.png') || fileName.endsWith('.jpg') || fileName.endsWith('.svg')) {
+      if (!openPreviews.some((p) => p.type === 'image')) {
+        setOpenPreviews((prev) => [
+          ...prev,
+          { id: `img-${Date.now()}`, name: fileName, type: 'image' }
+        ]);
+      }
+      setInspectorTab('image');
+    } else {
+      if (!openPreviews.some((p) => p.type === 'document')) {
+        setOpenPreviews((prev) => [
+          ...prev,
+          { id: `doc-${Date.now()}`, name: fileName, type: 'document' }
+        ]);
+      }
+      setInspectorTab('document');
+    }
+  };
+
   return (
-    <div className="flex h-screen w-screen bg-[#f4f6f8] text-slate-900 overflow-hidden font-sans select-none antialiased">
+    <div className="flex h-screen w-screen bg-[#f4f6f8] text-slate-900 overflow-hidden font-sans select-none antialiased relative">
+      {/* Ambient background blur spheres for rich glassmorphism depth */}
+      <div className="ambient-glow ambient-cyan w-[500px] h-[500px] top-10 left-48 opacity-25" />
+      <div className="ambient-glow ambient-indigo w-[600px] h-[600px] -bottom-32 right-64 opacity-20" />
+
       {/* 1. Left Sidebar Navigation */}
       <Sidebar
-        activeWorkspace={activeWorkspace}
-        onSelectWorkspace={(ws) => setActiveWorkspace(ws)}
-        activeSessionId={activeSessionId}
-        onSelectSession={(id) => setActiveSessionId(id)}
+        projects={store.projects}
+        activeWorkspaceId={store.activeWorkspaceId}
+        onSelectWorkspace={(wsId) => store.setActiveWorkspaceId(wsId)}
+        activeSessionId={store.activeSessionId}
+        sessions={store.sessions}
+        onSelectSession={(id) => store.setActiveSessionId(id)}
+        onNewChat={() => store.createNewSession()}
+        onOpenProject={handleOpenProjectFolder}
         onOpenSettings={handleOpenSettings}
-        onNewChat={() => {
-          const newId = `session-${Date.now()}`;
-          setActiveSessionId(newId);
-        }}
       />
 
       {/* 2. Center Chat & Task Canvas */}
       <ChatCanvas
-        activeWorkspace={activeWorkspace}
-        activeModel={activeModel}
-        onSelectModel={(model) => setActiveModel(model)}
-        onOpenFilePreview={(file) => {
-          if (file.endsWith('.pptx') || file.endsWith('.pdf') || file.endsWith('.md')) {
-            if (!openPreviews.some((p) => p.type === 'document')) {
-              setOpenPreviews((prev) => [
-                ...prev,
-                { id: `doc-${Date.now()}`, name: file, type: 'document' }
-              ]);
-            }
-            setInspectorTab('document');
-          } else if (file.endsWith('.png') || file.endsWith('.jpg') || file.endsWith('.svg')) {
-            if (!openPreviews.some((p) => p.type === 'image')) {
-              setOpenPreviews((prev) => [
-                ...prev,
-                { id: `img-${Date.now()}`, name: file, type: 'image' }
-              ]);
-            }
-            setInspectorTab('image');
-          }
-        }}
+        activeSession={store.activeSession}
+        skills={store.skills}
+        onSelectModel={(model) => store.updateModel(model)}
+        onSendMessage={(prompt) => store.sendMessage(prompt)}
+        onRespondPermission={(msgId, decision, scope) =>
+          store.respondPermission(msgId, decision, scope)
+        }
+        onOpenFilePreview={handleOpenFilePreview}
         onOpenTerminal={() => setInspectorTab('terminal')}
+        onOpenSkillsSettings={() => handleOpenSettings('skills')}
       />
 
       {/* 3. Right Inspector & Previews Panel */}
@@ -102,20 +127,44 @@ export const App: React.FC = () => {
         onTabChange={(tab) => setInspectorTab(tab)}
         onClosePreview={handleClosePreview}
         openPreviews={openPreviews}
+        activeSession={store.activeSession}
+        tasks={store.tasks}
+        onStopTask={(tId) => store.stopTask(tId)}
+        onAskEdit={(instruction) => store.sendMessage(instruction)}
       />
 
-      {/* 4. Onboarding Modal Carousel (Steps 1, 2, 3) */}
+      {/* 4. Onboarding Modal Carousel */}
       <OnboardingModal
         isOpen={isOnboardingOpen}
         onClose={() => setIsOnboardingOpen(false)}
         onFinish={handleFinishOnboarding}
+        onOpenFolder={handleOpenProjectFolder}
+        onSelectWorkspace={(name) => {
+          if (name) {
+            const match = store.projects.find((p) => p.name === name);
+            if (match) store.setActiveWorkspaceId(match.id);
+          }
+        }}
+        onConnectProvider={store.connectProvider}
+        recentWorkspaces={store.projects.map((p) => ({ name: p.name, path: p.path }))}
       />
 
-      {/* 5. Full Settings Hub (Sessions, Skills, MCP, Chats, Permissions) */}
+      {/* 5. Full Settings Hub */}
       <SettingsHub
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         initialTab={settingsInitialTab}
+        sessions={store.sessions}
+        onSelectSession={(id) => store.setActiveSessionId(id)}
+        onDeleteSession={(id) => store.deleteSession(id)}
+        skills={store.skills}
+        onToggleSkill={(id) => store.toggleSkill(id)}
+        onAddSkill={(name, desc, prompt) => store.addSkill(name, desc, prompt)}
+        mcpServers={store.mcpServers}
+        onToggleMcpServer={(id) => store.toggleMcpServer(id)}
+        onAddMcpServer={(name, url, trans) => store.addMcpServer(name, url, trans)}
+        connectedProviders={store.connectedProviders}
+        onConnectProvider={store.connectProvider}
       />
     </div>
   );
