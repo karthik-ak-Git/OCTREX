@@ -335,7 +335,7 @@ test('CloudConsentGuard gates crax-gpt requests when cloud-code consent is missi
         {
           providerId: 'crax-gpt',
           modelId: 'glm-5.3',
-          messages: [{ role: 'user', content: 'Analyze codebase' }],
+          messages: [{ role: 'user', content: '```typescript\nconst apiSecret = 123;\n```' }],
         },
         undefined,
         workspacePath
@@ -354,7 +354,7 @@ test('CloudConsentGuard gates crax-gpt requests when cloud-code consent is missi
     {
       providerId: 'crax-gpt',
       modelId: 'glm-5.3',
-      messages: [{ role: 'user', content: 'Analyze codebase' }],
+      messages: [{ role: 'user', content: '```typescript\nconst apiSecret = 123;\n```' }],
     },
     undefined,
     workspacePath

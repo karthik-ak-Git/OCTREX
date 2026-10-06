@@ -86,11 +86,8 @@ export class CraxGptAdapter implements ProviderAdapter {
       if (res.status === 401 || res.status === 403) return 'AUTH_ERROR';
       if (res.status === 429) return 'RATE_LIMITED';
       return 'DEGRADED';
-    } catch (err: any) {
-      if (err.name === 'AbortError' || String(err).includes('fetch failed')) {
-        return 'OFFLINE';
-      }
-      return 'DEGRADED';
+    } catch {
+      return 'OFFLINE';
     }
   }
 
