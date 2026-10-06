@@ -40,8 +40,8 @@ afterEach(cleanup)
 async function launch() { render(<App />); await screen.findByText('Fixture project', { selector: '.project-item span' }) }
 function emit(event: ChatStreamEvent) { act(() => listener(event)) }
 async function send(content = 'Fix the fixture issue') {
-  fireEvent.change(screen.getByLabelText('Ask ALTREX'), { target: { value: content } })
-  fireEvent.keyDown(screen.getByLabelText('Ask ALTREX'), { key: 'Enter' })
+  fireEvent.change(screen.getByLabelText('Ask OCTREX'), { target: { value: content } })
+  fireEvent.keyDown(screen.getByLabelText('Ask OCTREX'), { key: 'Enter' })
   await waitFor(() => expect(api.startChat).toHaveBeenCalled())
   return vi.mocked(api.startChat).mock.lastCall![0].requestId
 }
@@ -51,8 +51,8 @@ describe('new desktop interface integration', () => {
     await launch(); fireEvent.click(screen.getByLabelText('Mode')); fireEvent.click(screen.getByRole('option', { name: 'Multi-AI' }))
     const id = await send('Build task modules'); expect(vi.mocked(api.startChat).mock.lastCall![0].mode).toBe('MULTI')
     const run: ProjectRun = { version: 1, id, projectPath: project.path, request: 'Build task modules', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), status: 'RUNNING', spec: null, tasks: [], activity: ['Director creating contracts'], finalVerification: null, revisions: [], filesChanged: [], error: null }
-    emit({ requestId: id, type: 'run-state', run }); expect(screen.getByLabelText('ALTREX Director run')).toBeTruthy()
-    fireEvent.change(screen.getByLabelText('Ask ALTREX'), { target: { value: 'Make navbar red' } }); fireEvent.keyDown(screen.getByLabelText('Ask ALTREX'), { key: 'Enter' })
+    emit({ requestId: id, type: 'run-state', run }); expect(screen.getByLabelText('OCTREX Director run')).toBeTruthy()
+    fireEvent.change(screen.getByLabelText('Ask OCTREX'), { target: { value: 'Make navbar red' } }); fireEvent.keyDown(screen.getByLabelText('Ask OCTREX'), { key: 'Enter' })
     await waitFor(() => expect(api.reviseRun).toHaveBeenCalledWith(id, 'Make navbar red'))
     fireEvent.click(screen.getByLabelText('Stop response')); expect(api.cancelChat).toHaveBeenCalledWith(id)
     emit({ requestId: id, type: 'cancelled' }); expect(screen.queryByLabelText('Stop response')).toBeNull()
@@ -74,8 +74,8 @@ describe('new desktop interface integration', () => {
     fireEvent.click(screen.getByLabelText('Add context'))
     fireEvent.click(screen.getByRole('menuitem', { name: /Attach files/ }))
     await screen.findByLabelText('Remove reference.png')
-    fireEvent.change(screen.getByLabelText('Ask ALTREX'), { target: { value: 'Inspect this screenshot' } })
-    fireEvent.keyDown(screen.getByLabelText('Ask ALTREX'), { key: 'Enter' })
+    fireEvent.change(screen.getByLabelText('Ask OCTREX'), { target: { value: 'Inspect this screenshot' } })
+    fireEvent.keyDown(screen.getByLabelText('Ask OCTREX'), { key: 'Enter' })
     expect(await screen.findByText(/Install Qwen2.5-VL 3B/)).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Install Local Vision' })).toBeTruthy()
     expect(api.startChat).not.toHaveBeenCalled()
@@ -83,8 +83,8 @@ describe('new desktop interface integration', () => {
   it('keeps real send, tool events, code rendering, stop and conversation restoration connected', async () => {
     await launch()
     fireEvent.click(screen.getByRole('button', { name: /Explore Understand/ }))
-    expect((screen.getByLabelText('Ask ALTREX') as HTMLTextAreaElement).value).toContain('Explore this project')
-    fireEvent.keyDown(screen.getByLabelText('Ask ALTREX'), { key: 'Enter', shiftKey: true })
+    expect((screen.getByLabelText('Ask OCTREX') as HTMLTextAreaElement).value).toContain('Explore this project')
+    fireEvent.keyDown(screen.getByLabelText('Ask OCTREX'), { key: 'Enter', shiftKey: true })
     expect(api.startChat).not.toHaveBeenCalled()
     const id = await send()
     expect(vi.mocked(api.startChat).mock.lastCall![0]).toMatchObject({ projectPath: project.path, mode: 'AGENT', modelSelection: 'AUTO' })

@@ -379,7 +379,9 @@ details > summary:hover {
   text-align: center;
   gap: 14px;
 }
-.v4-home .altrex-code-symbol {
+.v4-home .altrex-code-symbol,
+.v4-home .octrex-code-symbol,
+.v4-home .octrex-code-symbol-wrap {
   margin-bottom: 12px;
 }
 .v4-home h1 {
@@ -1322,7 +1324,9 @@ details > summary:hover {
   .v4-home .eyebrow {
     font-size: 8px;
   }
-  .v4-home .altrex-code-symbol {
+  .v4-home .altrex-code-symbol,
+  .v4-home .octrex-code-symbol,
+  .v4-home .octrex-code-symbol-wrap {
     width: 40px;
     height: 40px;
     margin: 0;
@@ -1413,7 +1417,9 @@ details > summary:hover {
     padding-bottom: 16px;
     gap: 10px;
   }
-  .v4-home .altrex-code-symbol {
+  .v4-home .altrex-code-symbol,
+  .v4-home .octrex-code-symbol,
+  .v4-home .octrex-code-symbol-wrap {
     width: 35px;
     height: 35px;
     margin-bottom: 0;

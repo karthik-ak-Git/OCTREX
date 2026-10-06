@@ -45,7 +45,7 @@ export function SetupPrompt({
         <h2>Add a main AI provider</h2>
       </header>
       <p>
-        ALTREX needs at least one AI provider before it can work on your
+        OCTREX needs at least one AI provider before it can work on your
         project. Add one main API key (Google Gemini or NVIDIA recommended), or
         use local AI with Ollama.
       </p>

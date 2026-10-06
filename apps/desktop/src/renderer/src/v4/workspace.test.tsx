@@ -53,7 +53,7 @@ async function launch(bridge: AltrexCoreBridge = core) {
   await screen.findByRole("heading", { name: "What should we build?" });
 }
 async function send(prompt = "Build a login form") {
-  fireEvent.change(screen.getByLabelText("Ask ALTREX"), {
+  fireEvent.change(screen.getByLabelText("Ask OCTREX"), {
     target: { value: prompt },
   });
   fireEvent.click(screen.getByLabelText("Run task"));
@@ -206,10 +206,10 @@ describe("contract workspace", () => {
     fireEvent.change(screen.getByLabelText("AI mode"), {
       target: { value: "LOCAL_ONLY" },
     });
-    fireEvent.change(screen.getByLabelText("Ask ALTREX"), {
+    fireEvent.change(screen.getByLabelText("Ask OCTREX"), {
       target: { value: "A local task" },
     });
-    fireEvent.keyDown(screen.getByLabelText("Ask ALTREX"), {
+    fireEvent.keyDown(screen.getByLabelText("Ask OCTREX"), {
       key: "Enter",
       ctrlKey: true,
       isComposing: true,
@@ -217,7 +217,7 @@ describe("contract workspace", () => {
     expect(invoke.mock.calls.some((call) => call[0] === "task.start")).toBe(
       false,
     );
-    fireEvent.keyDown(screen.getByLabelText("Ask ALTREX"), {
+    fireEvent.keyDown(screen.getByLabelText("Ask OCTREX"), {
       key: "Enter",
       ctrlKey: true,
     });
@@ -233,7 +233,7 @@ describe("contract workspace", () => {
   });
   it("opens a keyboard-navigable command palette and restores focus", async () => {
     await launch();
-    screen.getByLabelText("Ask ALTREX").focus();
+    screen.getByLabelText("Ask OCTREX").focus();
     fireEvent.keyDown(window, { key: "k", ctrlKey: true });
     const input = screen.getByLabelText("Search commands");
     fireEvent.change(input, { target: { value: "Provider settings" } });
@@ -390,7 +390,7 @@ describe("ChatGPT Codex engine", () => {
     await launch(bridge);
     fireEvent.change(screen.getByLabelText("AI mode"), { target: { value: "CODEX" } });
     expect(await screen.findByText(/ChatGPT Codex \(your subscription\)/)).toBeTruthy();
-    fireEvent.change(screen.getByLabelText("Ask ALTREX"), { target: { value: "Make the UI like ChatGPT" } });
+    fireEvent.change(screen.getByLabelText("Ask OCTREX"), { target: { value: "Make the UI like ChatGPT" } });
     fireEvent.click(screen.getByLabelText("Run task"));
     const dialog = await screen.findByRole("dialog", { name: "Allow cloud AI for this workspace" });
     expect(within(dialog).getByText("OpenAI Codex")).toBeTruthy();
@@ -411,7 +411,7 @@ describe("cloud-code consent (backend-owned)", () => {
   it("records consent in the backend before starting the task; dismissing starts nothing", async () => {
     const invoke = vi.spyOn(core, "invokeResult");
     await launch();
-    fireEvent.change(screen.getByLabelText("Ask ALTREX"), { target: { value: "Build a login form" } });
+    fireEvent.change(screen.getByLabelText("Ask OCTREX"), { target: { value: "Build a login form" } });
     fireEvent.click(screen.getByLabelText("Run task"));
     const dialog = await screen.findByRole("dialog", { name: "Allow cloud AI for this workspace" });
     fireEvent.keyDown(dialog, { key: "Escape" });
@@ -459,7 +459,7 @@ describe("truthful projection and bounded views", () => {
       expect(screen.queryByText("Verified result")).toBeNull();
       if (state === "INTERRUPTED")
         expect(
-          screen.getByText("ALTREX closed before this task finished."),
+          screen.getByText("OCTREX closed before this task finished."),
         ).toBeTruthy();
     },
   );

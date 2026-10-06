@@ -548,7 +548,7 @@ export function Settings({
           )}
           {section === "General" && (
             <>
-              <h3>ALTREX CODE V4</h3>
+              <h3>OCTREX CODE V4</h3>
               <p>
                 A focused coding workspace with evidence-based verification.
               </p>

@@ -407,7 +407,7 @@ function createWindow(splash: BrowserWindow, providerService: ProviderService, s
           const renderer = await window.webContents.executeJavaScript(`(async () => {
             await document.fonts.ready;
             const shell = document.querySelector('.v4-shell');
-            const composer = document.querySelector('textarea[aria-label="Ask ALTREX"]');
+            const composer = document.querySelector('textarea[aria-label="Ask OCTREX"], textarea[aria-label="Ask ALTREX"]');
             if (!shell || !composer) throw new Error('V4 workspace did not mount');
             const rect = composer.getBoundingClientRect();
             if (rect.left < 0 || rect.right > innerWidth + 1 || rect.bottom > innerHeight + 1) throw new Error('Composer outside viewport');

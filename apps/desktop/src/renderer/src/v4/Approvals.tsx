@@ -50,7 +50,7 @@ export function Approvals({
         <h2>Approval required</h2>
       </header>
       <p>
-        ALTREX wants to use <strong>{request.tool}</strong>.
+        OCTREX wants to use <strong>{request.tool}</strong>.
       </p>
       <pre>{request.summary}</pre>
       <div className="v4-warning">

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Cpu, KeyRound, Palette, ShieldCheck, X } from 'lucide-react'
-import { AltrexLogo } from '../AltrexBrand'
+import { OctrexLogo } from '../OctrexBrand'
 import type { AltrexController } from '../useAltrex'
 import { Dialog, IconButton, Toggle } from './primitives'
 import { MultiAiRun } from './MultiAiRun'
@@ -8,7 +8,7 @@ import { MultiAiRun } from './MultiAiRun'
 export function SettingsDialog({ app }: { app: AltrexController }) {
   const [tab, setTab] = useState('AI & models')
   const categories = [{ name: 'AI & models', icon: Cpu }, { name: 'Appearance', icon: Palette }, { name: 'Permissions', icon: ShieldCheck }]
-  return <Dialog title="Settings" onClose={() => app.setSettingsOpen(false)} className="settings-dialog"><div className="dialog-head"><div><span className="eyebrow">ALTREX CODE</span><h2>Settings</h2></div><IconButton label="Close settings" onClick={() => app.setSettingsOpen(false)}><X size={17} /></IconButton></div><div className="settings-layout"><nav aria-label="Settings categories">{categories.map(({ name, icon: Icon }) => <button key={name} aria-current={tab === name ? 'page' : undefined} className={tab === name ? 'selected' : ''} onClick={() => setTab(name)}><Icon size={16} />{name}</button>)}</nav><div className="settings-content">
+  return <Dialog title="Settings" onClose={() => app.setSettingsOpen(false)} className="settings-dialog"><div className="dialog-head"><div><span className="eyebrow">OCTREX CODE</span><h2>Settings</h2></div><IconButton label="Close settings" onClick={() => app.setSettingsOpen(false)}><X size={17} /></IconButton></div><div className="settings-layout"><nav aria-label="Settings categories">{categories.map(({ name, icon: Icon }) => <button key={name} aria-current={tab === name ? 'page' : undefined} className={tab === name ? 'selected' : ''} onClick={() => setTab(name)}><Icon size={16} />{name}</button>)}</nav><div className="settings-content">
     <h3>{tab}</h3>
     {tab === 'AI & models' && app.projectRuns.length > 0 && <details><summary>Project runs · {app.projectRuns.length}</summary>{app.projectRuns.map(run => <MultiAiRun key={run.id} run={run} onRestart={() => app.restartRun(run)} busy={!!app.activeRequestId} />)}</details>}
     {tab === 'AI & models' && <>
@@ -18,8 +18,8 @@ export function SettingsDialog({ app }: { app: AltrexController }) {
       {app.providerStatus.connected && <div className="setting-row"><div><strong>Remove connection</strong><p>Remove all saved provider credentials.</p></div><button className="text-button danger" disabled={!!app.activeRequestId} onClick={() => void app.disconnectProvider()}>Disconnect all</button></div>}
       <div className="setting-row"><div><strong>Codex runtime</strong><p>{app.runtime?.codex.available ? app.runtime.codex.version : 'Not detected on this computer'}</p></div><span className="metadata">{app.runtime?.codex.available ? 'Detected' : 'Unavailable'}</span></div><p className="settings-note"><KeyRound size={15} />Provider API keys are encrypted by your operating system. They are never stored in project files.</p>
     </>}
-    {tab === 'Appearance' && <><div className="setting-row"><div><strong>Theme</strong><p>Neutral charcoal with the original ALTREX marks.</p></div><span className="theme-swatch" title="Dark theme" /></div><div className="setting-row"><div><strong>Compact sidebar</strong><p>Keep navigation as a narrow icon rail.</p></div><Toggle label="Compact sidebar" checked={app.sidebarCollapsed} onChange={() => app.setSidebarCollapsed(!app.sidebarCollapsed)} /></div><div className="setting-row"><div><strong>Motion</strong><p>Follows your system’s reduced motion preference.</p></div><span className="metadata">System</span></div></>}
+    {tab === 'Appearance' && <><div className="setting-row"><div><strong>Theme</strong><p>Neutral charcoal with the original OCTREX marks.</p></div><span className="theme-swatch" title="Dark theme" /></div><div className="setting-row"><div><strong>Compact sidebar</strong><p>Keep navigation as a narrow icon rail.</p></div><Toggle label="Compact sidebar" checked={app.sidebarCollapsed} onChange={() => app.setSidebarCollapsed(!app.sidebarCollapsed)} /></div><div className="setting-row"><div><strong>Motion</strong><p>Follows your system’s reduced motion preference.</p></div><span className="metadata">System</span></div></>}
     {tab === 'Permissions' && <><div className="setting-row"><div><strong>Agent workspace</strong><p>{app.project?.path ?? 'No project selected'}</p></div></div><div className="setting-row"><div><strong>Ask</strong><p>Read-only answers using your supplied project context and attachments.</p></div></div><div className="setting-row"><div><strong>Agent</strong><p>Can read and edit project files, install dependencies, and run supported development commands. Codex uses workspace-write sandboxing. Connected provider commands inherit your OS permissions.</p></div></div><div className="setting-row"><div><strong>Provider access</strong><p>Prompts, selected project context and attachments are sent to the provider you connect when you submit a task.</p></div></div></>}
-    </div></div><footer className="settings-footer"><AltrexLogo size={20} /><span>ALTREX CODE</span><small>{app.runtime ? `Electron ${app.runtime.electron}` : 'Renderer preview'}</small></footer></Dialog>
+    </div></div><footer className="settings-footer"><OctrexLogo size={20} /><span>OCTREX CODE</span><small>{app.runtime ? `Electron ${app.runtime.electron}` : 'Renderer preview'}</small></footer></Dialog>
 }
 

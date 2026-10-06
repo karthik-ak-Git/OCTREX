@@ -84,7 +84,7 @@ export function useAltrex() {
       setProviderDiagnostics(diagnostics)
       setReady(true)
     }).catch(() => {
-      setNotice('The secure desktop bridge did not respond. Restart ALTREX and try again.')
+      setNotice('The secure desktop bridge did not respond. Restart OCTREX and try again.')
     })
 
     return window.altrex.onChatEvent((event) => {
@@ -168,7 +168,7 @@ export function useAltrex() {
 
   const openProject = useCallback(async (): Promise<void> => {
     if (window.altrex === undefined) {
-      setNotice('The native project picker is available in the ALTREX desktop runtime. This is the renderer preview.')
+      setNotice('The native project picker is available in the OCTREX desktop runtime. This is the renderer preview.')
       return
     }
     if (requestGuard.current) { setNotice('Stop the current task before changing projects.'); return }
@@ -186,7 +186,7 @@ export function useAltrex() {
         setNotice(`Opened ${selected.name}. Ready for your next task.`)
       }
     } catch {
-      setNotice('ALTREX could not open that project. The selection was not saved.')
+      setNotice('OCTREX could not open that project. The selection was not saved.')
     } finally {
       setOpeningProject(false)
     }
@@ -238,7 +238,7 @@ export function useAltrex() {
 
   const startProviderChat = useCallback((history: LocalConversationMessage[], selection = modelSelection): void => {
     if (window.altrex === undefined) {
-      setNotice('Provider requests run only in the ALTREX desktop app.')
+      setNotice('Provider requests run only in the OCTREX desktop app.')
       return
     }
     requestGuard.current = true
@@ -277,7 +277,7 @@ export function useAltrex() {
   const submitPrompt = useCallback((): void => {
     const content = prompt.trim() || (attachments.length > 0 ? 'Inspect and use the attached files.' : '')
     if (content.length === 0 && attachments.length === 0) {
-      setNotice('Ask ALTREX something or attach a file first.')
+      setNotice('Ask OCTREX something or attach a file first.')
       focusComposer()
       return
     }
@@ -345,7 +345,7 @@ export function useAltrex() {
 
   const pickAttachments = useCallback(async (): Promise<void> => {
     if (window.altrex === undefined) {
-      setNotice('File attachments are available in the ALTREX desktop app.')
+      setNotice('File attachments are available in the OCTREX desktop app.')
       return
     }
     try {
@@ -368,7 +368,7 @@ export function useAltrex() {
 
   const testProvider = useCallback(async (): Promise<void> => {
     if (window.altrex === undefined) {
-      setConnectionResult('Open the ALTREX desktop app to test a provider connection.')
+      setConnectionResult('Open the OCTREX desktop app to test a provider connection.')
       return
     }
     setTestingProvider(true)
@@ -388,7 +388,7 @@ export function useAltrex() {
 
   const connectProvider = useCallback(async (): Promise<void> => {
     if (window.altrex === undefined) {
-      setConnectionResult('Open the ALTREX desktop app to connect a provider.')
+      setConnectionResult('Open the OCTREX desktop app to connect a provider.')
       return
     }
     setConnectingProvider(true)
@@ -399,7 +399,7 @@ export function useAltrex() {
       setProviderModels(await window.altrex.getProviderModels(providerDraft.providerId))
       setModelSelection('AUTO')
       setProviderDraft((current) => ({ ...current, apiKey: '' }))
-      setConnectionResult(connected.warning ?? `${providerPresets.find(provider => provider.id === providerDraft.providerId)?.displayName ?? 'AI provider'} connected and ready for ALTREX.`)
+      setConnectionResult(connected.warning ?? `${providerPresets.find(provider => provider.id === providerDraft.providerId)?.displayName ?? 'AI provider'} connected and ready for OCTREX.`)
       if (pendingRequest) {
         setPendingRequest(false)
         setConnectOpen(false)
@@ -413,7 +413,7 @@ export function useAltrex() {
   }, [messages, pendingRequest, providerDraft, startProviderChat])
 
   const installLocalModel = useCallback(async (modelId = recommendedLocalCodingModel.id): Promise<void> => {
-    if (!window.altrex) { setConnectionResult('Open ALTREX CODE on the desktop to install a local model.'); return }
+    if (!window.altrex) { setConnectionResult('Open OCTREX CODE on the desktop to install a local model.'); return }
     const model = modelId === recommendedLocalVisionModel.id ? recommendedLocalVisionModel : recommendedLocalCodingModel
     setInstallingLocalModel(true)
     setConnectionResult(`Installing ${model.name}. The ${model.downloadSize} download can take several minutes.`)
@@ -427,7 +427,7 @@ export function useAltrex() {
       setMode('LOCAL')
       setModelSelection('AUTO')
       setConnectionResult(`${model.name} is installed, verified, and ready in Local AI mode.`)
-      setNotice(model.id === recommendedLocalVisionModel.id ? 'Local Vision is ready. ALTREX can now inspect attached images offline.' : 'Local AI is ready. Requests in Local AI mode stay on this computer.')
+      setNotice(model.id === recommendedLocalVisionModel.id ? 'Local Vision is ready. OCTREX can now inspect attached images offline.' : 'Local AI is ready. Requests in Local AI mode stay on this computer.')
     } catch (error) {
       setConnectionResult(error instanceof Error ? error.message : 'Could not install the local coding model.')
     } finally {
@@ -448,7 +448,7 @@ export function useAltrex() {
   }, [])
 
   const openProviderLink = useCallback(async (providerId: ProviderId, kind: ProviderLinkKind): Promise<void> => {
-    if (!window.altrex) { setConnectionResult('Open ALTREX CODE on the desktop to launch the official provider page.'); return }
+    if (!window.altrex) { setConnectionResult('Open OCTREX CODE on the desktop to launch the official provider page.'); return }
     try { await window.altrex.openExternalProviderLink(providerId, kind) }
     catch { setConnectionResult('Could not open official provider page.') }
   }, [])

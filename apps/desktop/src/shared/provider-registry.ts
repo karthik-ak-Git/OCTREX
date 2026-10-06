@@ -95,7 +95,7 @@ export const PROVIDER_REGISTRY: Readonly<Record<ProviderId, ProviderDefinition>>
   },
   sambanova: {
     id: 'sambanova', name: 'SambaNova', logo: 'S', section: 'additional', recommended: false, supportsLocal: false,
-    description: 'Cloud inference provider and additional ALTREX fallback.',
+    description: 'Cloud inference provider and additional OCTREX fallback.',
     apiKeyUrl: 'https://cloud.sambanova.ai/apis', docsUrl: 'https://docs.sambanova.ai/docs/en/get-started/api-keys-urls',
     requiresApiKey: true, requiredFields: [apiKey()], testStrategy: 'openai-compatible',
     baseUrl: 'https://api.sambanova.ai/v1', defaultModel: 'Meta-Llama-3.3-70B-Instruct',

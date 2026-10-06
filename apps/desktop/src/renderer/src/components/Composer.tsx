@@ -18,11 +18,11 @@ export function Composer({ app }: { app: AltrexController }) {
     return () => document.removeEventListener('pointerdown', outside)
   }, [attachOpen])
   const running = app.activeRequestId !== null
-  return <div className="composer-dock"><section className="composer-wrap" aria-label="ALTREX task composer">
+  return <div className="composer-dock"><section className="composer-wrap" aria-label="OCTREX task composer">
     <button className="composer-project" title={app.project?.path ?? 'Select a local project folder'} onClick={() => void app.openProject()} disabled={running || app.openingProject}><Folder size={14} /><span>{app.project?.name ?? 'Choose a project'}</span><span className="project-location">{app.project ? 'Local workspace' : 'Open a folder to use Agent'}</span></button>
     <div className="composer-body">
       {!!app.attachments.length && <div className="attachment-tray" aria-label="Attached files">{app.attachments.map(file => <div className="attachment-preview" key={file.id}>{file.previewDataUrl ? <img src={file.previewDataUrl} alt={file.name} /> : <Paperclip size={15} />}<span title={file.name}>{file.name}</span><IconButton label={`Remove ${file.name}`} onClick={() => app.setAttachments(current => current.filter(item => item.id !== file.id))}><X size={12} /></IconButton></div>)}</div>}
-      <textarea ref={app.composerRef} aria-label="Ask ALTREX" placeholder="What do you want ALTREX to do?" value={app.prompt} rows={2} onChange={event => app.setPrompt(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); app.submitPrompt() } }} />
+      <textarea ref={app.composerRef} aria-label="Ask OCTREX" placeholder="What do you want OCTREX to do?" value={app.prompt} rows={2} onChange={event => app.setPrompt(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); app.submitPrompt() } }} />
       <div className="composer-toolbar"><div className="composer-tools">
         <div className="attach-menu" ref={attachRef} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setAttachOpen(false) }} onKeyDown={event => {
           if (event.key === 'Escape') { event.stopPropagation(); setAttachOpen(false); attachRef.current?.querySelector<HTMLButtonElement>('.icon-button')?.focus() }

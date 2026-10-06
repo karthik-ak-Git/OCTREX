@@ -49,7 +49,7 @@ export function useWorkspace(core: AltrexCoreBridge | undefined) {
         setError({
           code: "UNAVAILABLE",
           message:
-            "The desktop core is unavailable. Reopen ALTREX CODE to reconnect.",
+            "The desktop core is unavailable. Reopen OCTREX CODE to reconnect.",
           retryable: true,
         });
         return;
@@ -66,7 +66,7 @@ export function useWorkspace(core: AltrexCoreBridge | undefined) {
           setError({
             code: "UNAVAILABLE",
             message:
-              "The connection to ALTREX was interrupted. Reopen the app to reconnect.",
+              "The connection to OCTREX was interrupted. Reopen the app to reconnect.",
             retryable: true,
           });
         return;

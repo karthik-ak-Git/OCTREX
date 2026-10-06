@@ -30,6 +30,7 @@ const desktopApi: DesktopApi = Object.freeze({
 })
 
 contextBridge.exposeInMainWorld('altrex', desktopApi)
+contextBridge.exposeInMainWorld('octrex', desktopApi)
 
 // Contract-v1 core bridge. Commands are validated in the main process; events arrive pre-validated.
 const coreBridge: AltrexCoreBridge = Object.freeze({
@@ -49,3 +50,5 @@ const coreBridge: AltrexCoreBridge = Object.freeze({
 })
 
 contextBridge.exposeInMainWorld(CORE_BRIDGE_GLOBAL, coreBridge)
+contextBridge.exposeInMainWorld('octrexCore', coreBridge)
+

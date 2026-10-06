@@ -175,7 +175,7 @@ export function TaskCard({
       )}
       {view.state === "INTERRUPTED" && (
         <div className="v4-warning">
-          <strong>ALTREX closed before this task finished.</strong>
+          <strong>OCTREX closed before this task finished.</strong>
           <p>
             Commands will not resume automatically. Review changes or describe
             what to do next.
@@ -187,7 +187,7 @@ export function TaskCard({
       )}
       {view.state === "COMPLETED_UNVERIFIED" && (
         <p className="v4-warning">
-          Task completed, but ALTREX could not fully verify the result.
+          Task completed, but OCTREX could not fully verify the result.
         </p>
       )}
       {view.reason && (

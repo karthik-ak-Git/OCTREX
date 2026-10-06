@@ -19,7 +19,7 @@ import type {
   RoutingMode,
   TaskMode,
 } from "@altrex/contracts";
-import { AltrexLogo, AltrexCodeSymbol } from "../AltrexBrand";
+import { OctrexLogo, OctrexCodeSymbol } from "../OctrexBrand";
 import { Dialog } from "../components/primitives";
 import { useWorkspace } from "./useWorkspace";
 import { label, taskView, terminalStates } from "./state";
@@ -71,8 +71,8 @@ export function App({
   const [setupDismissed, setSetupDismissed] = useState(false),
     [setupOpen, setSetupOpen] = useState(false),
     [settingsProvider, setSettingsProvider] = useState<string | undefined>();
-  // Engine: ALTREX's routed providers, or the OpenAI Codex CLI with the user's ChatGPT sign-in (Build only).
-  const [engine, setEngine] = useState<"ALTREX" | "CODEX">("ALTREX");
+  // Engine: OCTREX's routed providers, or the OpenAI Codex CLI with the user's ChatGPT sign-in (Build only).
+  const [engine, setEngine] = useState<"OCTREX" | "CODEX">("OCTREX");
   // The backend lists the Codex engine among consent endpoints only when the Codex CLI is installed.
   const codexAvailable = app.consents.some((endpoint) => endpoint.providerId === "codex");
   const useCodex = engine === "CODEX" && mode === "AGENT";
@@ -300,8 +300,8 @@ export function App({
     <div className={`v4-shell ${collapsed ? "v4-collapsed" : ""}`}>
       <aside className="v4-sidebar">
         <div className="v4-brand">
-          <AltrexLogo size={25} />
-          <strong>ALTREX</strong>
+          <OctrexLogo size={25} />
+          <strong>OCTREX</strong>
           <button
             className="quiet"
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -502,17 +502,17 @@ export function App({
               </div>
             ) : !core ? (
               <div className="v4-home">
-                <AltrexCodeSymbol />
+                <OctrexCodeSymbol />
                 <h1>Connect to your workspace</h1>
-                <p>Open ALTREX CODE on your desktop to use the secure core.</p>
+                <p>Open OCTREX CODE on your desktop to use the secure core.</p>
               </div>
             ) : !conversation.length ? (
               <div className="v4-home">
-                <AltrexCodeSymbol size={54} />
+                <OctrexCodeSymbol size={54} />
                 <span className="eyebrow">YOUR IDEAS. WORKING SOFTWARE.</span>
                 <h1>What should we build?</h1>
                 <p>
-                  Describe the result. ALTREX explores, implements,
+                  Describe the result. OCTREX explores, implements,
                   <br className="wide-only" /> and checks the work with you.
                 </p>
                 {!app.project && (
@@ -627,10 +627,10 @@ export function App({
             >
               <textarea
                 ref={composer}
-                aria-label="Ask ALTREX"
+                aria-label="Ask OCTREX"
                 placeholder={
                   app.project
-                    ? "Ask ALTREX to build, fix, or explore…"
+                    ? "Ask OCTREX to build, fix, or explore…"
                     : "Describe what you want to work on…"
                 }
                 value={prompt}
@@ -657,7 +657,7 @@ export function App({
                     onChange={(e) => {
                       const next = e.target.value as TaskMode;
                       setMode(next);
-                      if (next !== "AGENT") setEngine("ALTREX");
+                      if (next !== "AGENT") setEngine("OCTREX");
                     }}
                   >
                     <option value="AGENT">Build</option>
@@ -675,7 +675,7 @@ export function App({
                         setEngine("CODEX");
                         return;
                       }
-                      setEngine("ALTREX");
+                      setEngine("OCTREX");
                       setRouting(e.target.value as RoutingMode);
                     }}
                   >
@@ -797,7 +797,7 @@ export function App({
             <strong>{label(app.error.code)}</strong>
             <p>
               {app.error.code === "INTERNAL"
-                ? "ALTREX could not complete this action. Try again or inspect the desktop diagnostics."
+                ? "OCTREX could not complete this action. Try again or inspect the desktop diagnostics."
                 : app.error.message}
             </p>
             {app.error.detail && app.error.code !== "INTERNAL" && (

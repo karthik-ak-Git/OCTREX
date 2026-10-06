@@ -156,7 +156,7 @@ export function ProjectContext({
       <details className="v4-work">
         <summary>Project memory</summary>
         <p>
-          ALTREX.md contains your own rules. Memory below records user notes and
+          OCTREX.md contains your own rules. Memory below records user notes and
           backend evidence.
         </p>
         <button
@@ -216,7 +216,7 @@ export function ProjectContext({
           />
           <input
             aria-label="Memory value"
-            placeholder="What should ALTREX remember?"
+            placeholder="What should OCTREX remember?"
             value={value}
             onChange={(e) => setValue(e.target.value)}
           />

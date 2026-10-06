@@ -106,7 +106,7 @@ export function Changes({
   if (!files.length)
     return (
       <p className="v4-empty">
-        Changed files will appear here when ALTREX reports a file change.
+        Changed files will appear here when OCTREX reports a file change.
       </p>
     );
   return (
@@ -257,7 +257,7 @@ export function Checkpoints({
         <div>
           <h3>Recovery checkpoints</h3>
           <p>
-            ALTREX creates a checkpoint before editing. Review exactly what a
+            OCTREX creates a checkpoint before editing. Review exactly what a
             restore would change.
           </p>
         </div>

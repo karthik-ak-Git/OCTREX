@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ChevronDown, Folder, FolderOpen, MessageSquare, PanelLeftClose, PanelLeftOpen, Plus, Search, Settings, SquarePen } from 'lucide-react'
-import { AltrexLogo } from '../AltrexBrand'
+import { OctrexLogo } from '../OctrexBrand'
 import type { AltrexController } from '../useAltrex'
 import { getConversationTitle } from '../local-conversation'
 import { IconButton } from './primitives'
@@ -8,8 +8,8 @@ import { IconButton } from './primitives'
 export function Sidebar({ app }: { app: AltrexController }) {
   const [projectsOpen, setProjectsOpen] = useState(true), [historyOpen, setHistoryOpen] = useState(true)
   const currentHistory = app.history.filter(entry => entry.projectPath === (app.project?.path ?? null))
-  return <aside className="sidebar" aria-label="ALTREX navigation">
-    <div className="sidebar-brand"><AltrexLogo size={25} /><span>ALTREX <small>CODE</small></span></div>
+  return <aside className="sidebar" aria-label="OCTREX navigation">
+    <div className="sidebar-brand"><OctrexLogo size={25} /><span>OCTREX <small>CODE</small></span></div>
     <nav className="primary-nav" aria-label="Workspace">
       <button title="New chat · Ctrl+N" onClick={app.newTask} disabled={!!app.activeRequestId}><SquarePen size={17} /><span>New chat</span><kbd>Ctrl N</kbd></button>
       <button title="Search conversations and commands · Ctrl+P" onClick={() => app.setCommandOpen(true)}><Search size={17} /><span>Search</span><kbd>Ctrl P</kbd></button>

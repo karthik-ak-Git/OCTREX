@@ -1,8 +1,8 @@
 import type { ProjectRun } from '../../../shared/multi-ai'
 export function MultiAiRun({ run, onRestart, busy }: { run: ProjectRun; onRestart: () => void; busy: boolean }) {
   const complete = run.tasks.filter(task => task.status === 'COMPLETED').length
-  return <section className="multi-run" aria-label="ALTREX Director run">
-    <header><strong>ALTREX Director</strong><span>{run.status.toLowerCase()}</span></header>
+  return <section className="multi-run" aria-label="OCTREX Director run">
+    <header><strong>OCTREX Director</strong><span>{run.status.toLowerCase()}</span></header>
     <p className="metadata">{run.tasks.length ? `${complete} / ${run.tasks.length} tasks verified` : 'Analyzing project and creating task contracts'}</p>
     {!!run.tasks.length && <progress value={complete} max={run.tasks.length} aria-label="Verified tasks" />}
     {run.spec && <details><summary>Master specification</summary><h4>{run.spec.project}</h4><p>{run.spec.goal}</p>{(['stack', 'architecture', 'designRules', 'apiContracts', 'dataModels', 'requirements', 'decisions'] as const).map(key => run.spec![key].length > 0 && <div key={key}><strong>{key.replace(/([A-Z])/g, ' $1')}</strong><ul>{run.spec![key].map((value, index) => <li key={index}>{value}</li>)}</ul></div>)}</details>}
