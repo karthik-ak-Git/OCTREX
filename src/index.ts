@@ -17,6 +17,8 @@ export * from './core/gateway/adapters/groqAdapter.js';
 export * from './core/gateway/adapters/openAICompatibleAdapter.js';
 export * from './core/router/circuitBreaker.js';
 export * from './core/router/modelRouter.js';
+export * from './core/context/repoIndexer.js';
+export * from './core/context/contextEngine.js';
 export * from './core/security/checkpointProtection.js';
 export * from './core/cancellation/cancellationToken.js';
 export * from './core/events/uiEventEmitter.js';
