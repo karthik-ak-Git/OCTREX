@@ -4,7 +4,7 @@ import { CraxGptAdapter, CRAX_GPT_DEFAULT_MODELS } from '../core/gateway/adapter
 import { UniversalModelGateway } from '../core/gateway/universalGateway.js';
 import { ModelRouter } from '../core/router/modelRouter.js';
 import { MockProviderAdapter } from '../core/gateway/mockAdapter.js';
-import { CloudConsentGuard } from '../security/cloudConsentGuard.js';
+import { CloudConsentGuard } from '../core/security/cloudConsentGuard.js';
 import { ProviderLogoService } from '../core/gateway/providerLogos.js';
 import { UIEventEmitter } from '../core/events/uiEventEmitter.js';
 
@@ -382,9 +382,7 @@ test('ModelRouter selects crax-gpt in POWERFUL mode and falls back on 429 failur
   });
 
   const fallbackMock = new MockProviderAdapter({
-    id: 'mock-provider',
-    name: 'OCTREX Mock Secondary',
-    responseDelayMs: 1,
+    delayMs: 1,
   });
 
   gateway.registerAdapter(failingCraxAdapter);
