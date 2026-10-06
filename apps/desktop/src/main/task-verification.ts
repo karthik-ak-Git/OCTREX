@@ -107,15 +107,15 @@ function summarizeEvidence(evidence: Evidence[]): string {
 function repairInstructions(request: RepairRequest): string {
   if (request.reason === 'review_changes') {
     const findings = request.review?.findings.map(finding => `- [${finding.severity}/${finding.category}] ${finding.file ? `${finding.file}${finding.line ? `:${finding.line}` : ''}: ` : ''}${finding.description}`).join('\n') ?? ''
-    return `An independent reviewer requested changes to your implementation. Address every blocker and major finding with real code changes (or, if a finding is wrong, leave the code and explain precisely why in your final message):\n${findings}\nALTREX will re-run the project checks and the review afterwards; do not claim anything passed.`
+    return `An independent reviewer requested changes to your implementation. Address every blocker and major finding with real code changes (or, if a finding is wrong, leave the code and explain precisely why in your final message):\n${findings}\nOCTREX will re-run the project checks and the review afterwards; do not claim anything passed.`
   }
   const failures = request.failures.map(failure => `### ${failure.evidence.argv.join(' ')} → ${failure.evidence.status}${failure.evidence.exitCode !== null ? ` (exit ${failure.evidence.exitCode})` : ''}\n${compact(failure.output)}`).join('\n\n')
   return [
-    `DEBUGGER: these project checks fail on the current tree (real output from ALTREX):`,
+    `DEBUGGER: these project checks fail on the current tree (real output from OCTREX):`,
     failures,
     'Find the root cause and fix it in the source. Do not weaken, skip or delete tests or checks, and do not change check scripts to make them pass.',
     request.escalate ? 'The previous repair attempt did not change anything and the same failure came back. Take a different approach.' : '',
-    'ALTREX re-runs the checks after you finish; report what you changed, not whether it passes.',
+    'OCTREX re-runs the checks after you finish; report what you changed, not whether it passes.',
   ].filter(Boolean).join('\n\n')
 }
 

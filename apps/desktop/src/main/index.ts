@@ -318,26 +318,47 @@ function createSplashWindow(): BrowserWindow {
     },
   })
 
-  const logoDataUrl = nativeImage.createFromPath(appIconPngPath).toDataURL()
   const splashMarkup = `<!doctype html>
     <html lang="en">
       <head>
         <meta charset="UTF-8" />
-        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'" />
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'" />
         <style>
           * { box-sizing: border-box; }
           html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
           body { display: grid; place-items: center; background: #161616; color: #f2f2f2; font-family: Inter, Segoe UI, sans-serif; }
           main { display: flex; flex-direction: column; align-items: center; }
-          img { width: 82px; height: 82px; object-fit: cover; mix-blend-mode: screen; }
-          h1 { margin: 18px 0 0; font-size: 15px; font-weight: 560; letter-spacing: .28em; text-indent: .28em; }
-          .progress { width: 70px; height: 1px; margin-top: 30px; overflow: hidden; background: #24272b; }
-          .progress::after { content: ''; display: block; width: 28px; height: 1px; background: #c7c9cc; animation: move 1.25s ease-in-out infinite alternate; }
-          @keyframes move { from { transform: translateX(-28px); opacity: .35; } to { transform: translateX(70px); opacity: .9; } }
-          @media (prefers-reduced-motion: reduce) { .progress::after { animation: none; transform: translateX(21px); } }
+          svg { width: 72px; height: 72px; }
+          h1 { margin: 18px 0 0; font-size: 15px; font-weight: 560; letter-spacing: .28em; text-indent: .28em; color: #f2f2f2; }
+          .progress { width: 80px; height: 2px; margin-top: 28px; overflow: hidden; background: #24272b; border-radius: 1px; }
+          .progress::after { content: ''; display: block; width: 32px; height: 2px; background: linear-gradient(90deg, #38bdf8, #10b981); border-radius: 1px; animation: move 1.25s ease-in-out infinite alternate; }
+          @keyframes move { from { transform: translateX(-32px); opacity: .35; } to { transform: translateX(80px); opacity: .9; } }
+          @media (prefers-reduced-motion: reduce) { .progress::after { animation: none; transform: translateX(24px); } }
         </style>
       </head>
-      <body><main><img src="${logoDataUrl}" alt="" /><h1>ALTREX CODE</h1><div class="progress"></div></main></body>
+      <body>
+        <main>
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="octrexHeroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#38bdf8" />
+                <stop offset="45%" stop-color="#6366f1" />
+                <stop offset="100%" stop-color="#10b981" />
+              </linearGradient>
+              <filter id="octrexGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="2.5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+            <path d="M20 7L44 7L57 20L57 44L44 57L20 57L7 44L7 20L20 7Z" fill="#181a1c" stroke="url(#octrexHeroGrad)" stroke-width="2.5" stroke-linejoin="round" filter="url(#octrexGlow)" />
+            <path d="M26 23L18 32L26 41" stroke="#38bdf8" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M38 23L46 32L38 41" stroke="#10b981" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M35 21L29 43" stroke="#818cf8" stroke-width="2.6" stroke-linecap="round" />
+          </svg>
+          <h1>OCTREX CODE</h1>
+          <div class="progress"></div>
+        </main>
+      </body>
     </html>`
 
   void splash.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(splashMarkup)}`)
@@ -358,9 +379,9 @@ function launchWindowFlow(providerService: ProviderService, stateDirectory: stri
 
 function createWindow(splash: BrowserWindow, providerService: ProviderService, stateDirectory: string): BrowserWindow {
   const windowIcon = nativeImage.createFromPath(process.platform === 'win32' ? appIconIcoPath : appIconPngPath)
-  if (windowIcon.isEmpty()) throw new Error('ALTREX application icon could not be loaded')
+  if (windowIcon.isEmpty()) throw new Error('OCTREX application icon could not be loaded')
   const window = new BrowserWindow({
-    title: 'ALTREX CODE',
+    title: 'OCTREX CODE',
     width: 1540,
     height: 960,
     minWidth: 820,

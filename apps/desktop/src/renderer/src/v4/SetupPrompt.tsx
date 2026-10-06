@@ -6,12 +6,15 @@ import { ProviderLogo } from "./logos";
 
 /** Providers suggested for a first setup. Links are opened by the desktop host from its own registry. */
 export const setupProviders = [
-  { id: "crax-gpt", name: "crax-gpt", note: "Free OpenAI-compatible AI gateway. One key, many live models.", link: "apiKey", linkLabel: "Open crax-gpt" },
+  { id: "crax-gpt", name: "crax-gpt (OpenCode Gateway)", note: "Free OpenAI-compatible AI gateway. One key, live models (Claude, GPT-4o, DeepSeek R1, Qwen 2.5).", link: "apiKey", linkLabel: "Open crax-gpt" },
   { id: "google", name: "Google Gemini", note: "Recommended main provider. Strong general coding.", link: "apiKey", linkLabel: "Get API key" },
-  { id: "nvidia", name: "NVIDIA NIM", note: "Recommended main provider. Large coding models.", link: "apiKey", linkLabel: "Get API key" },
-  { id: "openrouter", name: "OpenRouter", note: "Many models with one key; free models for Free only mode.", link: "apiKey", linkLabel: "Get API key" },
-  { id: "groq", name: "Groq", note: "Very fast responses for Fast mode.", link: "apiKey", linkLabel: "Get API key" },
+  { id: "nvidia", name: "NVIDIA NIM", note: "Recommended main provider. Large high-throughput coding models.", link: "apiKey", linkLabel: "Get API key" },
+  { id: "openrouter", name: "OpenRouter", note: "Many models with one key; curated free models for Free only mode.", link: "apiKey", linkLabel: "Get API key" },
+  { id: "groq", name: "Groq", note: "Ultra fast responses for Fast mode.", link: "apiKey", linkLabel: "Get API key" },
   { id: "ollama", name: "Local AI (Ollama)", note: "Runs on this computer. No API key; install Ollama and a model.", link: "install", linkLabel: "Download Ollama" },
+  { id: "cerebras", name: "Cerebras", note: "Ultra fast cloud inference for Llama 3.3 and open weights.", link: "apiKey", linkLabel: "Get API key" },
+  { id: "sambanova", name: "SambaNova", note: "Fast cloud inference with free tier access.", link: "apiKey", linkLabel: "Get API key" },
+  { id: "cloudflare", name: "Cloudflare Workers AI", note: "Global serverless inference with Workers AI.", link: "apiKey", linkLabel: "Get API token" },
 ] as const;
 
 export function SetupPrompt({

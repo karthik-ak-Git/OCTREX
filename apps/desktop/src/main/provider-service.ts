@@ -520,7 +520,7 @@ export class ProviderService {
           const chat = capabilities.supportsChat === true, streaming = capabilities.supportsStreaming === true, tools = capabilities.supportsTools === true
           results.push({ provider: profile.providerId, model, ok: chat && streaming && tools, message: chat && streaming && tools ? 'CONNECTED: basic chat, streaming, and tool calling passed.' : `Connected with limited capabilities: chat=${chat ? 'PASS' : 'FAIL'}, streaming=${streaming ? 'PASS' : 'FAIL'}, tools=${tools ? 'PASS' : 'FAIL'}.`, latencyMs: Date.now() - started, modelsDiscovered: listed.length, chat, streaming, tools, ...(!tools ? { errorCategory: 'TOOLS_UNSUPPORTED' as const } : {}) })
         } catch (error) {
-          const failure = error instanceof ProviderFailure ? error : new ProviderFailure('ALTREX could not connect to the provider.', 'network', true, 0, 0, undefined, 'CONNECTION_ERROR')
+          const failure = error instanceof ProviderFailure ? error : new ProviderFailure('OCTREX could not connect to the provider.', 'network', true, 0, 0, undefined, 'CONNECTION_ERROR')
           if (failure.category === 'BAD_REQUEST') this.models.observeCapabilities(candidate, { supportsChat: false, supportsStreaming: false, supportsTools: false })
           else if (failure.category === 'TOOLS_UNSUPPORTED') this.models.observeCapabilities(candidate, { supportsTools: false })
           this.models.observeFailure(candidate, failure.category)
@@ -659,7 +659,7 @@ export class ProviderService {
       if (result.errorCategory === 'BAD_REQUEST') this.models.observeCapabilities(connection, { supportsChat: false })
       this.models.observeFailure(connection, result.errorCategory)
     }
-    return finish({ ...result, message: result.ok ? `${providerName(connection.providerId)} is ready for ALTREX.` : result.message, resolvedModel: connection.model, modelsDiscovered: discovered.length, capabilities: { chat: result.ok, streaming: this.models.record(connection).supportsStreaming, tools: this.models.record(connection).supportsTools } })
+    return finish({ ...result, message: result.ok ? `${providerName(connection.providerId)} is ready for OCTREX.` : result.message, resolvedModel: connection.model, modelsDiscovered: discovered.length, capabilities: { chat: result.ok, streaming: this.models.record(connection).supportsStreaming, tools: this.models.record(connection).supportsTools } })
   }
 
   async connect(input: ProviderConnectionInput): Promise<ProviderStatus> {
@@ -686,7 +686,7 @@ export class ProviderService {
       ...status,
       warning: result.ok
         ? null
-        : `Connection saved, but the selected model could not be verified: ${result.message} ALTREX AUTO will try available models when you start a task.`,
+        : `Connection saved, but the selected model could not be verified: ${result.message} OCTREX AUTO will try available models when you start a task.`,
     }
   }
 
@@ -979,9 +979,9 @@ export class ProviderService {
     if (request.projectPath !== null) this.requestProjects.set(request.requestId, request.projectPath)
 
     try {
-      // Read-only projects never reach a write-capable engine (ALTREX agents, Director, or Codex).
+      // Read-only projects never reach a write-capable engine (OCTREX agents, Director, or Codex).
       if (request.projectPath !== null && request.mode !== 'ASK' && this.permissions.profileFor(request.projectPath) === 'read_only') {
-        throw new Error('This project is read-only in ALTREX. Use Ask mode, or change the project permission profile to Standard to let agents edit it.')
+        throw new Error('This project is read-only in OCTREX. Use Ask mode, or change the project permission profile to Standard to let agents edit it.')
       }
       const activeStored = this.readStoredProvider()
       const usableForMode = this.usableProfiles().filter(profile => request.mode !== 'LOCAL' || profile.providerId === 'ollama')
@@ -1009,7 +1009,7 @@ export class ProviderService {
         const directorRouter = this.routerFor(request, connections, routingMode, multiPrompt)
         const director = new Director(this.runs, directorRouter, controller.signal, run => emit({ requestId: request.requestId, type: 'run-state', run }), { id: request.requestId, projectPath: request.projectPath, request: `${userRequest}${attachmentContext ? `\n${attachmentContext}` : ''}` })
         this.directors.set(request.requestId, director)
-        emit({ requestId: request.requestId, type: 'started', provider: 'ALTREX Director', model: selection === 'AUTO' ? 'AUTO · per task' : selection })
+        emit({ requestId: request.requestId, type: 'started', provider: 'OCTREX Director', model: selection === 'AUTO' ? 'AUTO · per task' : selection })
         const run = await director.execute(request.resumeRunId)
         this.directors.delete(request.requestId)
         if (run.status === 'COMPLETED') {
@@ -1110,7 +1110,7 @@ export class ProviderService {
 
   private buildMessages(messages: ChatMessage[], repositoryContext: string, attachments: ResolvedAttachment[]): ProviderMessage[] {
     const system = [
-      'You are ALTREX, a precise software engineering assistant.',
+      'You are OCTREX, a precise software engineering assistant.',
       'Answer from the supplied repository context. Do not claim to have edited files, executed tools, or run tests.',
       'If context is insufficient, say exactly what additional file or action is needed.',
       repositoryContext.length > 0 ? `Repository context:\n${repositoryContext}` : 'No project is open. Answer without repository context.',
