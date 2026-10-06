@@ -81,7 +81,7 @@ export class AgentOrchestrator {
       });
 
       const planResp = await this.router.executeChatWithFallback(
-        { taskId, role: 'PLANNER', requiresReasoning: true },
+        { taskId, workspacePath, role: 'PLANNER', requiresReasoning: true },
         planPrompt,
         cancellationToken
       );
@@ -135,7 +135,7 @@ export class AgentOrchestrator {
         });
 
         await this.router.executeChatWithFallback(
-          { taskId, role: 'DEBUGGER', requiresReasoning: true },
+          { taskId, workspacePath, role: 'DEBUGGER', requiresReasoning: true },
           debugPrompt,
           cancellationToken
         );
@@ -158,7 +158,7 @@ export class AgentOrchestrator {
       });
 
       const reviewResp = await this.router.executeChatWithFallback(
-        { taskId, role: 'REVIEWER', requiresReasoning: true },
+        { taskId, workspacePath, role: 'REVIEWER', requiresReasoning: true },
         reviewPrompt,
         cancellationToken
       );

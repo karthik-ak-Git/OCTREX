@@ -10,6 +10,7 @@ import { UniversalModelGateway } from '../gateway/universalGateway.js';
 import { CircuitBreaker } from './circuitBreaker.js';
 import { UIEventEmitter } from '../events/uiEventEmitter.js';
 import { ICancellationToken } from '../types/agent.js';
+import { CloudConsentGuard } from '../security/cloudConsentGuard.js';
 
 export type RoutingStrategyMode = 
   | 'AUTO' 
@@ -21,6 +22,7 @@ export type RoutingStrategyMode =
 
 export interface RouteRequest {
   taskId: string;
+  workspacePath?: string;
   role?: AgentRole;
   requiresTools?: boolean;
   requiresVision?: boolean;
@@ -147,7 +149,6 @@ export class ModelRouter {
           if (candidate.capabilities.supportsReasoning) score += 25;
         }
         if (!candidate.capabilities.isLocal) {
-          // Fix Ollama AUTO-mode startup: prefer healthy cloud models first so Ollama isn't started needlessly
           score += 15;
         }
       }
@@ -193,11 +194,17 @@ export class ModelRouter {
           modelId: route.modelId,
           messages,
         },
-        cancellationToken
+        cancellationToken,
+        req.workspacePath
       );
       cb.recordSuccess();
       return resp;
     } catch (primaryErr: any) {
+      // If error is permission denied (e.g. Cloud consent missing), rethrow immediately without useless retry
+      if (primaryErr.code === 'PERMISSION_DENIED') {
+        throw primaryErr;
+      }
+
       cb.recordFailure();
 
       this.eventEmitter?.emit(req.taskId, 'model_fallback_occurred', {
@@ -220,7 +227,8 @@ export class ModelRouter {
             modelId: fallbackRoute.modelId,
             messages,
           },
-          cancellationToken
+          cancellationToken,
+          req.workspacePath
         );
 
         this.getCircuitBreaker(fallbackRoute.providerId).recordSuccess();

@@ -18,6 +18,7 @@ import { AgentOrchestrator } from './core/agents/agentOrchestrator.js';
 import { UIEventEmitter } from './core/events/uiEventEmitter.js';
 import { RepoIndexer } from './core/context/repoIndexer.js';
 import { VerificationEngine } from './core/verification/verificationEngine.js';
+import { CloudConsentGuard } from './core/security/cloudConsentGuard.js';
 
 async function main() {
   console.log('================================================================');
@@ -26,6 +27,10 @@ async function main() {
 
   const workspacePath = process.cwd();
   console.log(`[OCTREX] Initializing workspace: ${workspacePath}`);
+
+  // Backend Cloud-Code Consent
+  CloudConsentGuard.grantConsent(workspacePath);
+  console.log('[OCTREX] Backend Cloud-Code Consent: [GRANTED]');
 
   // 1. Initialize Event Bus
   const eventEmitter = new UIEventEmitter();
