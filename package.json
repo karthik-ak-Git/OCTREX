@@ -10,6 +10,8 @@
   },
   "scripts": {
     "start": "tsx src/cli.ts",
+    "ui": "tsx src/ui/server.ts",
+    "dev": "tsx src/ui/server.ts",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test src/tests/*.test.ts"
