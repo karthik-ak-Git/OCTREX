@@ -8,7 +8,7 @@
 
 ### Repository Audit Summary
 - **Current Workspace State:** Fresh base setup with repository initialization and license.
-- **Legacy Systems Analyzed:** Prior ALTREX/OCTREX experiments (Parts 1–3) relied on fragmented integrations across OpenRouter, NVIDIA NIM, Groq, Ollama, and ad-hoc ngrok tunnels.
+- **Legacy Systems Analyzed:** Prior OCTREX experiments (Parts 1–3) relied on fragmented integrations across OpenRouter, NVIDIA NIM, Groq, Ollama, and ad-hoc ngrok tunnels.
 - **Architectural Debt Identified in Previous Iterations:**
   - Tight coupling between UI and specific LLM APIs.
   - Lack of isolated Provider Adapters and normalized error handling.
