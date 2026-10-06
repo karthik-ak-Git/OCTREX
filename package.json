@@ -5,7 +5,11 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "octrex": "dist/cli.js"
+  },
   "scripts": {
+    "start": "tsx src/cli.ts",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test src/tests/*.test.ts"
