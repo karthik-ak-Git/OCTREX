@@ -41,6 +41,7 @@ export type NormalizedErrorCode =
   | 'RATE_LIMITED'
   | 'PROVIDER_UNAVAILABLE'
   | 'STREAM_DISCONNECTED'
+  | 'MALFORMED_STREAM'
   | 'UNKNOWN_ERROR';
 
 export interface NormalizedError {
@@ -109,13 +110,23 @@ export interface NormalizedChatResponse {
 export type StreamChunkType = 
   | 'text_delta' 
   | 'tool_call_delta' 
+  | 'tool_call_complete'
   | 'finish' 
   | 'error';
+
+export interface StreamToolCallDelta {
+  index?: number;
+  id?: string;
+  name?: string;
+  argumentsDelta?: string;
+}
 
 export interface StreamEvent {
   type: StreamChunkType;
   delta?: string;
-  toolCall?: Partial<ToolCall>;
+  toolCallDelta?: StreamToolCallDelta;
+  toolCall?: ToolCall;
+  toolCalls?: ToolCall[];
   finishReason?: string;
   error?: NormalizedError;
 }
