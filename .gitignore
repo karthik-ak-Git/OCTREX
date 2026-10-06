@@ -1,4 +1,7 @@
 node_modules/
 dist/
+out/
+release/
 *.log
 test_reference/
+
