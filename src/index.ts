@@ -29,5 +29,8 @@ export * from './core/task/taskStore.js';
 export * from './core/agents/agentOrchestrator.js';
 export * from './core/verification/verificationEngine.js';
 export * from './core/verification/repairLoop.js';
+export * from './core/memory/projectMemory.js';
+export * from './core/recovery/sessionRecovery.js';
+export * from './core/orchestration/tournamentEngine.js';
 export * from './core/cancellation/cancellationToken.js';
 export * from './core/events/uiEventEmitter.js';

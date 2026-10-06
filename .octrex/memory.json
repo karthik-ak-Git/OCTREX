@@ -1,0 +1,18 @@
+{
+  "framework": "TypeScript Node ESM",
+  "buildCommands": [
+    "npm run build"
+  ],
+  "testCommands": [
+    "npm test"
+  ],
+  "conventions": [
+    "Strict TypeScript",
+    "Zero-leak secret policy",
+    "Evidence-based verification",
+    "Always write unit tests for new gateway adapters"
+  ],
+  "knownIssues": [
+    "Ollama port 11434 startup delay"
+  ]
+}
