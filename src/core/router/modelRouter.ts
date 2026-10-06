@@ -142,7 +142,7 @@ export class ModelRouter {
       } else if (mode === 'POWERFUL') {
         if (candidate.capabilities.supportsReasoning) score += 30;
         if (candidate.capabilities.contextWindow >= 128000) score += 15;
-        if (candidate.modelId.includes('pro') || candidate.modelId.includes('405b') || candidate.modelId.includes('sonnet') || candidate.modelId.includes('r1')) score += 25;
+        if (candidate.modelId.includes('pro') || candidate.modelId.includes('405b') || candidate.modelId.includes('sonnet') || candidate.modelId.includes('r1') || candidate.modelId.includes('glm')) score += 25;
       } else if (mode === 'AUTO') {
         // AUTO Mode: prefer high capability cloud if available, keep Ollama as local fallback
         if (req.role === 'PLANNER' || req.role === 'REVIEWER') {
