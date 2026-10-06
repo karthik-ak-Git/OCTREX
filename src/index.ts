@@ -25,5 +25,7 @@ export * from './core/tools/filesystemTools.js';
 export * from './core/tools/terminalTools.js';
 export * from './core/tools/gitTools.js';
 export * from './core/tools/devTools.js';
+export * from './core/task/taskStore.js';
+export * from './core/agents/agentOrchestrator.js';
 export * from './core/cancellation/cancellationToken.js';
 export * from './core/events/uiEventEmitter.js';
