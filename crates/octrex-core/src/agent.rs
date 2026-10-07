@@ -57,13 +57,14 @@ impl AgentEngine {
             .ok_or_else(|| anyhow::anyhow!("Provider '{}' is not registered", provider_id))?;
 
         let output = match provider_cfg.provider_type {
-            ProviderType::OpenAI | ProviderType::CraxGpt | ProviderType::OpenRouter | ProviderType::Groq => {
+            ProviderType::OpenCode
+            | ProviderType::NvidiaNim
+            | ProviderType::Groq
+            | ProviderType::Custom => {
                 self.execute_openai_compatible(provider_cfg, &req.prompt).await?
             }
-            ProviderType::Anthropic => self.execute_anthropic(provider_cfg, &req.prompt).await?,
             ProviderType::Ollama => self.execute_ollama(provider_cfg, &req.prompt).await?,
             ProviderType::Google => self.execute_google(provider_cfg, &req.prompt).await?,
-            ProviderType::Custom => self.execute_openai_compatible(provider_cfg, &req.prompt).await?,
         };
 
         let task_id = format!("task-{}", uuid::Uuid::new_v4().simple());
@@ -133,57 +134,6 @@ impl AgentEngine {
             .first()
             .and_then(|c| c.message.content.clone())
             .unwrap_or_else(|| "Empty response received from provider".to_string());
-
-        Ok(text)
-    }
-
-    async fn execute_anthropic(
-        &self,
-        config: &ProviderConfig,
-        prompt: &str,
-    ) -> anyhow::Result<String> {
-        let api_key = config
-            .api_key
-            .as_ref()
-            .filter(|k| !k.trim().is_empty())
-            .ok_or_else(|| anyhow::anyhow!("Missing Anthropic API Key"))?;
-
-        let endpoint = "https://api.anthropic.com/v1/messages";
-        let payload = serde_json::json!({
-            "model": config.default_model,
-            "max_tokens": 2048,
-            "messages": [{"role": "user", "content": prompt}]
-        });
-
-        let resp = self
-            .http_client
-            .post(endpoint)
-            .header("x-api-key", api_key)
-            .header("anthropic-version", "2023-06-01")
-            .json(&payload)
-            .send()
-            .await?;
-
-        if !resp.status().is_success() {
-            let err_text = resp.text().await.unwrap_or_default();
-            anyhow::bail!("Anthropic API Error: {}", err_text);
-        }
-
-        #[derive(Deserialize)]
-        struct ContentBlock {
-            text: Option<String>,
-        }
-        #[derive(Deserialize)]
-        struct AnthropicResponse {
-            content: Vec<ContentBlock>,
-        }
-
-        let parsed = resp.json::<AnthropicResponse>().await?;
-        let text = parsed
-            .content
-            .first()
-            .and_then(|c| c.text.clone())
-            .unwrap_or_else(|| "Empty response received from Anthropic".to_string());
 
         Ok(text)
     }

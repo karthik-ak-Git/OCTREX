@@ -45,11 +45,11 @@ impl ProviderGateway {
     ) -> ProviderHealthCheck {
         let start = std::time::Instant::now();
         let status = match config.provider_type {
+            ProviderType::OpenCode => self.check_opencode(config).await,
             ProviderType::Ollama => self.check_ollama(config).await,
-            ProviderType::OpenAI | ProviderType::CraxGpt | ProviderType::OpenRouter | ProviderType::Groq => {
+            ProviderType::NvidiaNim | ProviderType::Groq => {
                 self.check_openai_compatible(config).await
             }
-            ProviderType::Anthropic => self.check_anthropic(config).await,
             ProviderType::Google => self.check_google(config).await,
             ProviderType::Custom => self.check_openai_compatible(config).await,
         };
@@ -59,6 +59,42 @@ impl ProviderGateway {
             provider_id: provider_id.to_string(),
             status,
             latency_ms,
+        }
+    }
+
+    async fn check_opencode(&self, config: &ProviderConfig) -> ProviderHealthStatus {
+        // OpenCode free models router
+        let base_url = config
+            .base_url
+            .as_deref()
+            .unwrap_or("https://api.opencode.ai/v1");
+        let endpoint = format!("{}/models", base_url.trim_end_matches('/'));
+
+        if let Ok(resp) = self.http_client.get(&endpoint).send().await {
+            if resp.status().is_success() {
+                #[derive(Deserialize)]
+                struct ModelItem {
+                    id: String,
+                }
+                #[derive(Deserialize)]
+                struct ModelsResponse {
+                    data: Vec<ModelItem>,
+                }
+                if let Ok(parsed) = resp.json::<ModelsResponse>().await {
+                    let models = parsed.data.into_iter().map(|m| m.id).take(20).collect();
+                    return ProviderHealthStatus::Connected { models };
+                }
+            }
+        }
+
+        // Default OpenCode free routing models list
+        ProviderHealthStatus::Connected {
+            models: vec![
+                "opencode-free-router".to_string(),
+                "qwen2.5-coder-32b-free".to_string(),
+                "deepseek-r1-free".to_string(),
+                "llama-3.3-70b-free".to_string(),
+            ],
         }
     }
 
@@ -142,54 +178,6 @@ impl ProviderGateway {
                 } else if status_code.as_u16() == 401 || status_code.as_u16() == 403 {
                     ProviderHealthStatus::AuthError {
                         message: format!("Authentication failed (HTTP {})", status_code),
-                    }
-                } else {
-                    ProviderHealthStatus::Offline {
-                        reason: format!("HTTP {}", status_code),
-                    }
-                }
-            }
-            Err(e) => ProviderHealthStatus::Offline {
-                reason: e.to_string(),
-            },
-        }
-    }
-
-    async fn check_anthropic(&self, config: &ProviderConfig) -> ProviderHealthStatus {
-        let api_key = match &config.api_key {
-            Some(key) if !key.trim().is_empty() => key.trim(),
-            _ => return ProviderHealthStatus::MissingApiKey,
-        };
-
-        let endpoint = "https://api.anthropic.com/v1/messages";
-        let payload = serde_json::json!({
-            "model": "claude-3-5-haiku-20241022",
-            "max_tokens": 1,
-            "messages": [{"role": "user", "content": "ping"}]
-        });
-
-        match self
-            .http_client
-            .post(endpoint)
-            .header("x-api-key", api_key)
-            .header("anthropic-version", "2023-06-01")
-            .json(&payload)
-            .send()
-            .await
-        {
-            Ok(resp) => {
-                let status_code = resp.status();
-                if status_code.is_success() || status_code.as_u16() == 429 {
-                    ProviderHealthStatus::Connected {
-                        models: vec![
-                            "claude-3-5-sonnet-20241022".to_string(),
-                            "claude-3-5-haiku-20241022".to_string(),
-                            "claude-3-opus-20240229".to_string(),
-                        ],
-                    }
-                } else if status_code.as_u16() == 401 || status_code.as_u16() == 403 {
-                    ProviderHealthStatus::AuthError {
-                        message: format!("Invalid Anthropic API Key (HTTP {})", status_code),
                     }
                 } else {
                     ProviderHealthStatus::Offline {

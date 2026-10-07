@@ -5,13 +5,11 @@ use std::path::PathBuf;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum ProviderType {
-    Anthropic,
-    OpenAI,
+    OpenCode,
+    NvidiaNim,
     Google,
     Groq,
     Ollama,
-    OpenRouter,
-    CraxGpt,
     Custom,
 }
 
@@ -35,22 +33,22 @@ impl Default for AppConfig {
         let mut providers = HashMap::new();
         
         providers.insert(
-            "anthropic".to_string(),
+            "opencode".to_string(),
             ProviderConfig {
-                provider_type: ProviderType::Anthropic,
-                api_key: std::env::var("ANTHROPIC_API_KEY").ok(),
-                base_url: Some("https://api.anthropic.com".to_string()),
-                default_model: "claude-3-5-sonnet-20241022".to_string(),
+                provider_type: ProviderType::OpenCode,
+                api_key: std::env::var("OPENCODE_API_KEY").ok().or(Some("free-opencode-router".to_string())),
+                base_url: Some("https://api.opencode.ai/v1".to_string()),
+                default_model: "opencode-free-router".to_string(),
             },
         );
 
         providers.insert(
-            "openai".to_string(),
+            "nvidia-nim".to_string(),
             ProviderConfig {
-                provider_type: ProviderType::OpenAI,
-                api_key: std::env::var("OPENAI_API_KEY").ok(),
-                base_url: Some("https://api.openai.com/v1".to_string()),
-                default_model: "gpt-4o".to_string(),
+                provider_type: ProviderType::NvidiaNim,
+                api_key: std::env::var("NVIDIA_API_KEY").ok(),
+                base_url: Some("https://integrate.api.nvidia.com/v1".to_string()),
+                default_model: "meta/llama-3.3-70b-instruct".to_string(),
             },
         );
 
@@ -65,7 +63,17 @@ impl Default for AppConfig {
         );
 
         providers.insert(
-            "ollama".to_string(),
+            "groq".to_string(),
+            ProviderConfig {
+                provider_type: ProviderType::Groq,
+                api_key: std::env::var("GROQ_API_KEY").ok(),
+                base_url: Some("https://api.groq.com/openai/v1".to_string()),
+                default_model: "llama-3.3-70b-versatile".to_string(),
+            },
+        );
+
+        providers.insert(
+            "local".to_string(),
             ProviderConfig {
                 provider_type: ProviderType::Ollama,
                 api_key: None,
@@ -74,19 +82,9 @@ impl Default for AppConfig {
             },
         );
 
-        providers.insert(
-            "crax-gpt".to_string(),
-            ProviderConfig {
-                provider_type: ProviderType::CraxGpt,
-                api_key: std::env::var("CRAX_GPT_API_KEY").ok(),
-                base_url: Some("https://gpt.crax.lol/v1".to_string()),
-                default_model: "glm-5.3".to_string(),
-            },
-        );
-
         Self {
             providers,
-            active_provider: "anthropic".to_string(),
+            active_provider: "opencode".to_string(),
             active_workspace: None,
         }
     }
@@ -126,7 +124,26 @@ impl AppConfig {
             self.save()?;
             Ok(())
         } else {
-            anyhow::bail!("Provider not found: {}", provider)
+            // Allow auto-insert if unknown
+            let ptype = match provider {
+                "opencode" => ProviderType::OpenCode,
+                "nvidia-nim" => ProviderType::NvidiaNim,
+                "google" => ProviderType::Google,
+                "groq" => ProviderType::Groq,
+                "local" => ProviderType::Ollama,
+                _ => ProviderType::Custom,
+            };
+            self.providers.insert(
+                provider.to_string(),
+                ProviderConfig {
+                    provider_type: ptype,
+                    api_key: Some(key),
+                    base_url: None,
+                    default_model: "default".to_string(),
+                },
+            );
+            self.save()?;
+            Ok(())
         }
     }
 }

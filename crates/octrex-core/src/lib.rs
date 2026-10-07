@@ -25,14 +25,14 @@ mod tests {
     async fn test_provider_health_check_returns_real_status_for_missing_key() {
         let gateway = ProviderGateway::new();
         let config = ProviderConfig {
-            provider_type: ProviderType::Anthropic,
+            provider_type: ProviderType::NvidiaNim,
             api_key: None,
-            base_url: Some("https://api.anthropic.com".to_string()),
-            default_model: "claude-3-5-sonnet".to_string(),
+            base_url: Some("https://integrate.api.nvidia.com/v1".to_string()),
+            default_model: "meta/llama-3.3-70b-instruct".to_string(),
         };
 
-        let check = gateway.check_health("anthropic", &config).await;
-        assert_eq!(check.provider_id, "anthropic");
+        let check = gateway.check_health("nvidia-nim", &config).await;
+        assert_eq!(check.provider_id, "nvidia-nim");
         assert_eq!(check.status, ProviderHealthStatus::MissingApiKey);
     }
 
@@ -40,14 +40,14 @@ mod tests {
     async fn test_provider_health_check_returns_real_auth_error_for_invalid_key() {
         let gateway = ProviderGateway::new();
         let config = ProviderConfig {
-            provider_type: ProviderType::OpenAI,
-            api_key: Some("sk-invalid-fake-key-for-test".to_string()),
-            base_url: Some("https://api.openai.com/v1".to_string()),
-            default_model: "gpt-4o".to_string(),
+            provider_type: ProviderType::Groq,
+            api_key: Some("gsk_invalid_fake_key_for_test".to_string()),
+            base_url: Some("https://api.groq.com/openai/v1".to_string()),
+            default_model: "llama-3.3-70b-versatile".to_string(),
         };
 
-        let check = gateway.check_health("openai", &config).await;
-        assert_eq!(check.provider_id, "openai");
+        let check = gateway.check_health("groq", &config).await;
+        assert_eq!(check.provider_id, "groq");
         match check.status {
             ProviderHealthStatus::AuthError { message } => {
                 assert!(message.contains("401") || message.contains("Authentication failed"));

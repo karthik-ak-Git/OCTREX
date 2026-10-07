@@ -50,7 +50,7 @@
 
     /* Ultra-sleek Glassmorphic Container */
     .glass-card {
-      background: rgba(246, 247, 249, 0.78);
+      background: rgba(246, 247, 249, 0.82);
       backdrop-filter: blur(48px) saturate(200%);
       -webkit-backdrop-filter: blur(48px) saturate(200%);
       border: 1px solid rgba(255, 255, 255, 0.88);
@@ -77,15 +77,15 @@
     }
 
     .glass-item.active {
-      background: rgba(255, 255, 255, 0.94);
+      background: rgba(255, 255, 255, 0.96);
       border-color: rgba(17, 17, 20, 0.25);
       box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 1);
     }
 
     /* Glass Input */
     .glass-input {
-      background: rgba(255, 255, 255, 0.7);
-      border: 1px solid rgba(0, 0, 0, 0.07);
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(0, 0, 0, 0.08);
       box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.02);
       transition: all 0.2s ease;
     }
@@ -95,6 +95,29 @@
       border-color: rgba(0, 0, 0, 0.25);
       outline: none;
       box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.03);
+    }
+
+    /* Custom Sleek Dropdown Select */
+    select.glass-select {
+      background-color: rgba(255, 255, 255, 0.85);
+      color: #0f172a;
+      border-radius: 16px;
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      font-size: 0.8125rem;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%20475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-position: right 1rem center;
+      background-size: 1.15em;
+      background-repeat: no-repeat;
+      cursor: pointer;
+    }
+
+    select.glass-select option {
+      background-color: #ffffff;
+      color: #0f172a;
+      padding: 10px 14px;
+      font-weight: 600;
     }
 
     /* Primary Button */
@@ -130,12 +153,6 @@
       transform: translateY(-1px);
     }
 
-    .select-chevron {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2064748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-      background-position: right 1rem center;
-      background-size: 1.1em;
-    }
-
     .logo-img-glow {
       box-shadow: 0 10px 30px rgba(6, 182, 212, 0.25);
     }
@@ -159,82 +176,87 @@
         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-800/60 font-mono">RUST CORE</span>
       </div>
       <p class="text-xs font-medium text-slate-500 max-w-sm mt-1 leading-relaxed">
-        Pick an AI provider and verify API connectivity for the Octrex engine.
+        Select a provider and verify model connection for the Octrex engine.
       </p>
     </div>
 
-    <!-- PROVIDER LIST -->
+    <!-- 5 PROVIDERS LIST -->
     <div class="space-y-2.5 mb-6">
-      <!-- Anthropic -->
-      <div id="provider-anthropic" onclick="selectProvider('anthropic')" class="glass-item active p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
+      <!-- 1. OpenCode (Free Routing) -->
+      <div id="provider-opencode" onclick="selectProvider('opencode')" class="glass-item active p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
         <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">A</div>
+          <div class="w-10 h-10 rounded-xl bg-white border border-emerald-200/80 shadow-xs flex items-center justify-center font-bold text-sm text-emerald-600">
+            &lt;/&gt;
+          </div>
           <div>
-            <div class="text-sm font-bold text-slate-900">Anthropic</div>
-            <div class="text-xs text-slate-500 font-medium">Claude models</div>
+            <div class="flex items-center space-x-1.5">
+              <span class="text-sm font-bold text-slate-900">OpenCode</span>
+              <span class="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono">FREE ROUTER</span>
+            </div>
+            <div class="text-xs text-slate-500 font-medium">Free model routing & OpenCode AI</div>
           </div>
         </div>
-        <div id="badge-anthropic" class="px-3 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</div>
+        <div id="badge-opencode" class="px-3 py-1 rounded-xl text-xs font-bold bg-slate-900 text-white">Connected</div>
       </div>
 
-      <!-- OpenAI -->
-      <div id="provider-openai" onclick="selectProvider('openai')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
+      <!-- 2. NVIDIA NIM -->
+      <div id="provider-nvidia-nim" onclick="selectProvider('nvidia-nim')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
         <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">O</div>
+          <div class="w-10 h-10 rounded-xl bg-white border border-emerald-200/80 shadow-xs flex items-center justify-center font-bold text-xs text-emerald-700">NVIDIA</div>
           <div>
-            <div class="text-sm font-bold text-slate-900">OpenAI</div>
-            <div class="text-xs text-slate-500 font-medium">GPT models</div>
+            <div class="text-sm font-bold text-slate-900">NVIDIA NIM</div>
+            <div class="text-xs text-slate-500 font-medium">Llama 3.3, Nemotron & DeepSeek NIM</div>
           </div>
         </div>
-        <div id="badge-openai" class="px-3 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</div>
+        <div id="badge-nvidia-nim" class="px-3 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</div>
       </div>
 
-      <!-- Google -->
+      <!-- 3. Google Gemini -->
       <div id="provider-google" onclick="selectProvider('google')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
         <div class="flex items-center space-x-3">
           <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">G</div>
           <div>
             <div class="text-sm font-bold text-slate-900">Google</div>
-            <div class="text-xs text-slate-500 font-medium">Gemini models</div>
+            <div class="text-xs text-slate-500 font-medium">Gemini 1.5 Pro & 2.0 Flash</div>
           </div>
         </div>
         <div id="badge-google" class="px-3 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</div>
       </div>
 
-      <!-- Local -->
+      <!-- 4. Groq -->
+      <div id="provider-groq" onclick="selectProvider('groq')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-white border border-amber-200/80 shadow-xs flex items-center justify-center font-bold text-sm text-amber-700">Q</div>
+          <div>
+            <div class="text-sm font-bold text-slate-900">Groq</div>
+            <div class="text-xs text-slate-500 font-medium">Ultra-fast Llama 3.3 & DeepSeek</div>
+          </div>
+        </div>
+        <div id="badge-groq" class="px-3 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</div>
+      </div>
+
+      <!-- 5. Local Models -->
       <div id="provider-local" onclick="selectProvider('local')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
         <div class="flex items-center space-x-3">
           <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">L</div>
           <div>
-            <div class="text-sm font-bold text-slate-900">Local</div>
+            <div class="text-sm font-bold text-slate-900">Local Models</div>
             <div class="text-xs text-slate-500 font-medium">Ollama / LM Studio</div>
           </div>
         </div>
         <div id="badge-local" class="px-3 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</div>
       </div>
-
-      <!-- Crax-GPT -->
-      <div id="provider-crax-gpt" onclick="selectProvider('crax-gpt')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-xl bg-white border border-purple-200/80 shadow-xs flex items-center justify-center font-bold text-sm text-purple-700">C</div>
-          <div>
-            <div class="text-sm font-bold text-slate-900">Crax-GPT</div>
-            <div class="text-xs text-slate-500 font-medium">GLM / Custom OpenAPI</div>
-          </div>
-        </div>
-        <div id="badge-crax-gpt" class="px-3 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</div>
-      </div>
     </div>
 
     <!-- API KEY & DYNAMIC MODEL DISCOVERY -->
     <div class="space-y-4 mb-7">
-      <div>
+      <div id="key-input-container">
         <div class="flex justify-between items-center mb-1.5">
-          <label id="api-key-label" class="block text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Anthropic API key</label>
-          <span id="test-status-text" class="text-[11px] font-bold text-slate-500 font-mono">Ready to test</span>
+          <label id="api-key-label" class="block text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">OpenCode API key (Optional)</label>
+          <span id="test-status-text" class="text-[11px] font-bold text-slate-500 font-mono">Free Router Active</span>
         </div>
         <div class="flex items-center space-x-2">
-          <input type="password" id="api-key-input" placeholder="Paste your API key..." class="glass-input flex-1 px-4 py-3 rounded-2xl text-xs font-mono text-slate-800">
+          <input type="password" id="api-key-input" placeholder="Free models auto-routed or paste API key..." class="glass-input flex-1 px-4 py-3 rounded-2xl text-xs font-mono text-slate-800">
           <button onclick="testAndSaveConnection()" id="btn-connect" class="btn-primary px-5 py-3 rounded-2xl font-bold text-xs whitespace-nowrap">
             Verify & Save
           </button>
@@ -244,12 +266,13 @@
       <div>
         <div class="flex justify-between items-center mb-1.5">
           <label class="block text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Discovered models</label>
-          <span id="model-count-tag" class="text-[11px] font-mono text-slate-400">Live endpoint list</span>
+          <span id="model-count-tag" class="text-[11px] font-mono text-slate-400">4 live free models</span>
         </div>
-        <select id="default-model-select" class="glass-input select-chevron w-full px-4 py-3 rounded-2xl text-xs font-semibold text-slate-800 appearance-none cursor-pointer">
-          <option value="claude-3-5-sonnet-20241022">claude-3-5-sonnet-20241022</option>
-          <option value="claude-3-5-haiku-20241022">claude-3-5-haiku-20241022</option>
-          <option value="claude-3-opus-20240229">claude-3-opus-20240229</option>
+        <select id="default-model-select" class="glass-select w-full appearance-none">
+          <option value="opencode-free-router">opencode-free-router (Auto Free Routing)</option>
+          <option value="qwen2.5-coder-32b-free">qwen2.5-coder-32b-free</option>
+          <option value="deepseek-r1-free">deepseek-r1-free</option>
+          <option value="llama-3.3-70b-free">llama-3.3-70b-free</option>
         </select>
       </div>
     </div>
@@ -265,22 +288,22 @@
   </main>
 
   <script>
-    let selectedProvider = 'anthropic';
+    let selectedProvider = 'opencode';
 
     const PROVIDER_NAMES = {
-      'anthropic': 'Anthropic',
-      'openai': 'OpenAI',
-      'google': 'Google',
-      'local': 'Ollama Local',
-      'crax-gpt': 'Crax-GPT',
+      'opencode': 'OpenCode Free Router',
+      'nvidia-nim': 'NVIDIA NIM',
+      'google': 'Google Gemini',
+      'groq': 'Groq',
+      'local': 'Local Models (Ollama)',
     };
 
     const DEFAULT_MODELS = {
-      'anthropic': ['claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022', 'claude-3-opus-20240229'],
-      'openai': ['gpt-4o', 'gpt-4o-mini', 'o1-preview', 'o3-mini'],
+      'opencode': ['opencode-free-router', 'qwen2.5-coder-32b-free', 'deepseek-r1-free', 'llama-3.3-70b-free'],
+      'nvidia-nim': ['meta/llama-3.3-70b-instruct', 'nvidia/llama-3.1-nemotron-70b-instruct', 'deepseek-ai/deepseek-r1'],
       'google': ['gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-2.0-flash'],
+      'groq': ['llama-3.3-70b-versatile', 'deepseek-r1-distill-llama-70b', 'mixtral-8x7b-32768'],
       'local': ['llama3', 'qwen2.5-coder', 'deepseek-r1'],
-      'crax-gpt': ['glm-5.3', 'gpt-4o', 'claude-3-5-sonnet', 'deepseek-r1'],
     };
 
     async function fetchLiveProviders() {
@@ -320,10 +343,6 @@
       const statusText = document.getElementById('test-status-text');
       const btn = document.getElementById('btn-connect');
 
-      if (selectedProvider !== 'local' && !input.trim()) {
-        return alert(`Please enter an API key for ${PROVIDER_NAMES[selectedProvider]}`);
-      }
-
       btn.disabled = true;
       btn.textContent = 'Verifying...';
       statusText.textContent = 'Testing connection...';
@@ -344,7 +363,7 @@
             statusText.className = 'text-[11px] font-bold text-emerald-600 font-mono';
             const liveModels = health.status.Connected.models;
             populateModelsDropdown(liveModels);
-            alert(`✓ Success! Connected to ${PROVIDER_NAMES[selectedProvider]} (${liveModels.length} models discovered).`);
+            alert(`✓ Success! Connected to ${PROVIDER_NAMES[selectedProvider]} (${liveModels.length} live models discovered).`);
           } else if (health.status.AuthError) {
             statusText.textContent = `✗ Auth Error`;
             statusText.className = 'text-[11px] font-bold text-rose-600 font-mono';
@@ -383,7 +402,7 @@
       selectedProvider = id;
       document.getElementById('api-key-label').textContent = `${PROVIDER_NAMES[id]} API key`;
       
-      ['anthropic', 'openai', 'google', 'local', 'crax-gpt'].forEach(p => {
+      ['opencode', 'nvidia-nim', 'google', 'groq', 'local'].forEach(p => {
         const el = document.getElementById(`provider-${p}`);
         if (p === id) {
           el.classList.add('active');
@@ -392,7 +411,7 @@
         }
       });
 
-      // Default model fallback if no live list loaded yet
+      // Populate default models for selected provider
       const fallbackList = DEFAULT_MODELS[id] || ['default-model'];
       populateModelsDropdown(fallbackList);
     }
