@@ -12,10 +12,11 @@
     * {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       user-select: none;
+      -webkit-font-smoothing: antialiased;
     }
 
     body {
-      background: radial-gradient(circle at 20% 20%, #ffffff 0%, #ebedf3 45%, #e2e5ec 100%);
+      background: radial-gradient(circle at 50% 30%, #ffffff 0%, #ebedf3 45%, #e1e4eb 100%);
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -23,61 +24,61 @@
       overflow: hidden;
     }
 
-    /* Ambient Background Glows */
+    /* Ambient Background Soft Glows */
     .glow-orb-1 {
       position: absolute;
-      width: 600px;
-      height: 600px;
-      top: -150px;
-      left: -100px;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(235, 238, 245, 0.2) 70%, transparent 100%);
-      filter: blur(60px);
+      width: 700px;
+      height: 700px;
+      top: -200px;
+      left: -150px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(235, 238, 246, 0.3) 65%, transparent 100%);
+      filter: blur(70px);
       pointer-events: none;
     }
 
     .glow-orb-2 {
       position: absolute;
-      width: 700px;
-      height: 700px;
-      bottom: -200px;
-      right: -150px;
-      background: radial-gradient(circle, rgba(220, 226, 238, 0.8) 0%, rgba(210, 216, 230, 0.1) 70%, transparent 100%);
-      filter: blur(80px);
+      width: 800px;
+      height: 800px;
+      bottom: -250px;
+      right: -200px;
+      background: radial-gradient(circle, rgba(220, 226, 238, 0.85) 0%, rgba(210, 216, 230, 0.15) 70%, transparent 100%);
+      filter: blur(90px);
       pointer-events: none;
     }
 
-    /* Glassmorphic Container */
+    /* Ultra-sleek Glassmorphic Container */
     .glass-card {
-      background: rgba(246, 247, 249, 0.72);
-      backdrop-filter: blur(40px) saturate(190%);
-      -webkit-backdrop-filter: blur(40px) saturate(190%);
-      border: 1px solid rgba(255, 255, 255, 0.85);
+      background: rgba(246, 247, 249, 0.74);
+      backdrop-filter: blur(48px) saturate(200%);
+      -webkit-backdrop-filter: blur(48px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.88);
       box-shadow: 
-        0 30px 60px -12px rgba(15, 23, 42, 0.08),
-        0 18px 36px -18px rgba(15, 23, 42, 0.04),
+        0 35px 70px -15px rgba(15, 23, 42, 0.08),
+        0 20px 40px -20px rgba(15, 23, 42, 0.04),
         inset 0 1.5px 1px rgba(255, 255, 255, 0.95);
       border-radius: 36px;
     }
 
     /* Sub-card Item Glass */
     .glass-item {
-      background: rgba(255, 255, 255, 0.52);
-      border: 1px solid rgba(255, 255, 255, 0.75);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.015), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      background: rgba(255, 255, 255, 0.54);
+      border: 1px solid rgba(255, 255, 255, 0.78);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.015), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .glass-item:hover {
-      background: rgba(255, 255, 255, 0.82);
-      border-color: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 1);
+      background: rgba(255, 255, 255, 0.84);
+      border-color: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 8px 26px -4px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 1);
       transform: translateY(-1px);
     }
 
     .glass-item.active {
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.92);
       border-color: rgba(0, 0, 0, 0.12);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 1);
     }
 
     /* Glass Input */
@@ -89,7 +90,7 @@
     }
 
     .glass-input:focus {
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.98);
       border-color: rgba(0, 0, 0, 0.25);
       outline: none;
       box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.03);
@@ -99,14 +100,14 @@
     .btn-primary {
       background: #111114;
       color: #ffffff;
-      transition: all 0.2s ease;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       box-shadow: 0 4px 14px rgba(17, 17, 20, 0.2);
     }
 
     .btn-primary:hover {
-      background: #25252a;
+      background: #232328;
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(17, 17, 20, 0.28);
+      box-shadow: 0 6px 22px rgba(17, 17, 20, 0.28);
     }
 
     .btn-primary:active {
@@ -116,32 +117,39 @@
 
     /* Secondary Button */
     .btn-secondary {
-      background: rgba(255, 255, 255, 0.65);
-      border: 1px solid rgba(0, 0, 0, 0.06);
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(0, 0, 0, 0.07);
       color: #1e293b;
       transition: all 0.2s ease;
     }
 
     .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.98);
+      border-color: rgba(0, 0, 0, 0.15);
       transform: translateY(-1px);
     }
 
     /* Smooth Step Transitions */
     .step-view {
-      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .step-hidden {
       display: none;
       opacity: 0;
-      transform: scale(0.98);
+      transform: scale(0.985);
     }
 
     .step-active {
       display: block;
       opacity: 1;
       transform: scale(1);
+    }
+
+    .select-chevron {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2064748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-position: right 1rem center;
+      background-size: 1.1em;
     }
   </style>
 </head>
@@ -157,7 +165,7 @@
     <div id="step-1" class="step-view step-active">
       <!-- Logo Box -->
       <div class="flex justify-center mb-6">
-        <div class="w-16 h-16 rounded-2xl bg-white border border-black/5 shadow-sm flex items-center justify-center font-bold text-2xl text-black">
+        <div class="w-16 h-16 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex items-center justify-center font-bold text-2xl text-slate-900">
           O
         </div>
       </div>
@@ -172,9 +180,9 @@
 
       <!-- Feature List -->
       <div class="space-y-3 mb-8">
-        <!-- Feature 1 -->
+        <!-- Feature 1: Build software -->
         <div class="glass-item p-4 rounded-2xl flex items-center space-x-4">
-          <div class="w-11 h-11 rounded-xl bg-white border border-slate-200/60 shadow-xs flex items-center justify-center text-slate-800 font-semibold text-sm">
+          <div class="w-11 h-11 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center text-slate-800 font-semibold text-sm">
             &lt;/&gt;
           </div>
           <div>
@@ -183,10 +191,10 @@
           </div>
         </div>
 
-        <!-- Feature 2 -->
+        <!-- Feature 2: Create documents -->
         <div class="glass-item p-4 rounded-2xl flex items-center space-x-4">
-          <div class="w-11 h-11 rounded-xl bg-white border border-slate-200/60 shadow-xs flex items-center justify-center text-slate-600 text-sm">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          <div class="w-11 h-11 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center text-slate-700 text-base">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12"></path></svg>
           </div>
           <div>
             <h3 class="text-sm font-bold text-slate-900">Create documents</h3>
@@ -194,9 +202,9 @@
           </div>
         </div>
 
-        <!-- Feature 3 -->
+        <!-- Feature 3: Stay in control -->
         <div class="glass-item p-4 rounded-2xl flex items-center space-x-4">
-          <div class="w-11 h-11 rounded-xl bg-white border border-slate-200/60 shadow-xs flex items-center justify-center text-slate-600 text-sm">
+          <div class="w-11 h-11 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center text-slate-700 text-base">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
           </div>
           <div>
@@ -231,66 +239,69 @@
         <!-- Anthropic -->
         <div id="provider-anthropic" onclick="selectProvider('anthropic')" class="glass-item active p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/60 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">A</div>
+            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">A</div>
             <div>
               <div class="text-sm font-bold text-slate-900">Anthropic</div>
               <div class="text-xs text-slate-500 font-medium">Claude models</div>
             </div>
           </div>
-          <span id="badge-anthropic" class="px-3 py-1 rounded-xl text-xs font-bold bg-slate-900 text-white">Connected</span>
+          <span id="badge-anthropic" class="px-3.5 py-1 rounded-xl text-xs font-bold bg-slate-900 text-white">Connected</span>
         </div>
 
         <!-- OpenAI -->
         <div id="provider-openai" onclick="selectProvider('openai')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/60 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">O</div>
+            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">O</div>
             <div>
               <div class="text-sm font-bold text-slate-900">OpenAI</div>
               <div class="text-xs text-slate-500 font-medium">GPT models</div>
             </div>
           </div>
-          <button class="px-3 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</button>
+          <button id="badge-openai" class="px-3.5 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</button>
         </div>
 
         <!-- Google -->
         <div id="provider-google" onclick="selectProvider('google')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/60 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">G</div>
+            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">G</div>
             <div>
               <div class="text-sm font-bold text-slate-900">Google</div>
               <div class="text-xs text-slate-500 font-medium">Gemini models</div>
             </div>
           </div>
-          <button class="px-3 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</button>
+          <button id="badge-google" class="px-3.5 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</button>
         </div>
 
         <!-- Local -->
         <div id="provider-local" onclick="selectProvider('local')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/60 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">L</div>
+            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">L</div>
             <div>
               <div class="text-sm font-bold text-slate-900">Local</div>
               <div class="text-xs text-slate-500 font-medium">Ollama / LM Studio</div>
             </div>
           </div>
-          <button class="px-3 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</button>
+          <button id="badge-local" class="px-3.5 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</button>
         </div>
       </div>
 
       <!-- Inputs -->
       <div class="space-y-4 mb-7">
         <div>
-          <label class="block text-[11px] font-extrabold uppercase text-slate-400 tracking-wider mb-1.5">API key</label>
-          <input type="password" value="sk-ant-api03-samplekey" placeholder="Paste your API key..." class="glass-input w-full px-4 py-3 rounded-2xl text-xs font-mono text-slate-800">
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="block text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">API key</label>
+            <button onclick="saveCurrentApiKey()" class="text-[11px] font-bold text-slate-900 hover:underline">Verify Key</button>
+          </div>
+          <input type="password" id="api-key-input" value="sk-ant-api03-samplekey" placeholder="Paste your API key..." class="glass-input w-full px-4 py-3 rounded-2xl text-xs font-mono text-slate-800">
         </div>
         <div>
           <label class="block text-[11px] font-extrabold uppercase text-slate-400 tracking-wider mb-1.5">Default model</label>
-          <select class="glass-input w-full px-4 py-3 rounded-2xl text-xs font-semibold text-slate-800 appearance-none bg-no-repeat cursor-pointer">
-            <option>Claude 3.5 Sonnet</option>
-            <option>Claude 3.5 Haiku</option>
-            <option>GPT-4o</option>
-            <option>Gemini 1.5 Pro</option>
-            <option>Local (Ollama llama3)</option>
+          <select id="default-model-select" class="glass-input select-chevron w-full px-4 py-3 rounded-2xl text-xs font-semibold text-slate-800 appearance-none cursor-pointer">
+            <option value="claude-3-5-sonnet">Claude Sonnet</option>
+            <option value="claude-3-5-haiku">Claude Haiku</option>
+            <option value="gpt-4o">GPT-4o</option>
+            <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+            <option value="llama3">Local (Ollama llama3)</option>
           </select>
         </div>
       </div>
@@ -316,20 +327,20 @@
       <!-- Options Grid -->
       <div class="grid grid-cols-2 gap-3.5 mb-6">
         <!-- Open Folder -->
-        <div onclick="selectWorkspaceMode('folder')" id="mode-folder" class="glass-item active p-5 rounded-2xl cursor-pointer flex flex-col justify-between h-40">
-          <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/60 flex items-center justify-center text-slate-900 shadow-xs">
+        <div onclick="selectWorkspaceMode('folder')" id="mode-folder" class="glass-item active p-5 rounded-2xl cursor-pointer flex flex-col justify-between h-44">
+          <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 flex items-center justify-center text-slate-900 shadow-xs">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
           </div>
           <div>
             <h3 class="text-sm font-bold text-slate-900">Open a folder</h3>
             <p class="text-[11px] text-slate-500 font-medium leading-snug mt-1">Give Octrex access to a project on your machine</p>
-            <div class="text-[11px] font-bold text-slate-900 mt-2">Browse...</div>
+            <div class="text-[11px] font-bold text-slate-900 mt-2 hover:underline">Browse...</div>
           </div>
         </div>
 
         <!-- Global Workspace -->
-        <div onclick="selectWorkspaceMode('global')" id="mode-global" class="glass-item p-5 rounded-2xl cursor-pointer flex flex-col justify-between h-40">
-          <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/60 flex items-center justify-center text-slate-900 shadow-xs">
+        <div onclick="selectWorkspaceMode('global')" id="mode-global" class="glass-item p-5 rounded-2xl cursor-pointer flex flex-col justify-between h-44">
+          <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 flex items-center justify-center text-slate-900 shadow-xs">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
           </div>
           <div>
@@ -343,12 +354,12 @@
       <!-- Recent Workspaces -->
       <div class="mb-7">
         <div class="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider mb-2">Recent</div>
-        <div class="space-y-2">
-          <div class="glass-item p-3 rounded-xl flex items-center justify-between text-xs cursor-pointer">
+        <div class="space-y-2" id="recent-workspaces-list">
+          <div onclick="selectRecentPath('~/dev/octrex-web')" class="glass-item p-3 rounded-xl flex items-center justify-between text-xs cursor-pointer">
             <span class="font-bold text-slate-900">octrex-web</span>
             <span class="font-mono text-slate-400 text-[11px]">~/dev/octrex-web</span>
           </div>
-          <div class="glass-item p-3 rounded-xl flex items-center justify-between text-xs cursor-pointer">
+          <div onclick="selectRecentPath('~/dev/api-gateway')" class="glass-item p-3 rounded-xl flex items-center justify-between text-xs cursor-pointer">
             <span class="font-bold text-slate-900">api-gateway</span>
             <span class="font-mono text-slate-400 text-[11px]">~/dev/api-gateway</span>
           </div>
@@ -374,6 +385,7 @@
 
   <script>
     let currentStep = 1;
+    let selectedProvider = 'anthropic';
 
     async function fetchLiveProviders() {
       try {
@@ -384,16 +396,16 @@
             const badge = document.getElementById(`badge-${p.provider_id}`);
             if (badge) {
               if (p.status.Connected) {
-                badge.className = 'px-3 py-1 rounded-xl text-xs font-bold bg-slate-900 text-white';
+                badge.className = 'px-3.5 py-1 rounded-xl text-xs font-bold bg-slate-900 text-white';
                 badge.textContent = 'Connected';
               } else if (p.status.AuthError) {
-                badge.className = 'px-3 py-1 rounded-xl text-xs font-bold bg-amber-500 text-white';
+                badge.className = 'px-3.5 py-1 rounded-xl text-xs font-bold bg-amber-500 text-white';
                 badge.textContent = 'Auth Error';
               } else if (p.status.MissingApiKey) {
-                badge.className = 'px-3 py-1 rounded-xl text-xs font-bold btn-secondary';
+                badge.className = 'px-3.5 py-1 rounded-xl text-xs font-bold btn-secondary';
                 badge.textContent = 'Connect';
               } else {
-                badge.className = 'px-3 py-1 rounded-xl text-xs font-bold bg-slate-300 text-slate-700';
+                badge.className = 'px-3.5 py-1 rounded-xl text-xs font-bold bg-slate-200 text-slate-600';
                 badge.textContent = 'Offline';
               }
             }
@@ -404,64 +416,29 @@
       }
     }
 
-    async function connectProviderKey(providerId, apiKey) {
-      if (!apiKey) return alert('Please enter an API key');
+    async function saveCurrentApiKey() {
+      const input = document.getElementById('api-key-input').value;
+      if (!input) return alert('Please enter an API key');
       try {
-        const res = await fetch(`/api/providers/${providerId}/connect`, {
+        const res = await fetch(`/api/providers/${selectedProvider}/connect`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ api_key: apiKey }),
+          body: JSON.stringify({ api_key: input }),
         });
         const data = await res.json();
         if (data.success) {
-          alert(`Live key verified for ${providerId}! Health: ${JSON.stringify(data.health.status)}`);
+          alert(`Live API Key verified for ${selectedProvider}! Health: ${JSON.stringify(data.health.status)}`);
           fetchLiveProviders();
         } else {
           alert('Error connecting provider: ' + JSON.stringify(data));
         }
       } catch (err) {
-        alert('Failed to connect: ' + err.message);
+        alert('Failed to connect to Rust backend: ' + err.message);
       }
-    }
-
-    async function inspectLocalWorkspace(path) {
-      try {
-        const res = await fetch('/api/workspace/inspect', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ path: path || '.' }),
-        });
-        return await res.json();
-      } catch (err) {
-        return null;
-      }
-    }
-
-    function goToStep(step) {
-      document.getElementById(`step-${currentStep}`).classList.remove('step-active');
-      document.getElementById(`step-${currentStep}`).classList.add('step-hidden');
-
-      currentStep = step;
-
-      document.getElementById(`step-${currentStep}`).classList.remove('step-hidden');
-      document.getElementById(`step-${currentStep}`).classList.add('step-active');
-
-      if (step === 2) {
-        fetchLiveProviders();
-      }
-
-      // Update dots
-      [1, 2, 3].forEach(i => {
-        const dot = document.getElementById(`dot-${i}`);
-        if (i === step) {
-          dot.className = 'w-6 h-1.5 bg-slate-900 rounded-full transition-all';
-        } else {
-          dot.className = 'w-1.5 h-1.5 bg-slate-300 rounded-full transition-all';
-        }
-      });
     }
 
     function selectProvider(id) {
+      selectedProvider = id;
       ['anthropic', 'openai', 'google', 'local'].forEach(p => {
         const el = document.getElementById(`provider-${p}`);
         if (p === id) {
@@ -484,11 +461,39 @@
       }
     }
 
-    function launchOctrex() {
-      alert('Entering Octrex Rust App Workspace...');
+    function selectRecentPath(path) {
+      alert(`Selected recent workspace: ${path}`);
     }
 
-    // Initialize live check
+    function goToStep(step) {
+      document.getElementById(`step-${currentStep}`).classList.remove('step-active');
+      document.getElementById(`step-${currentStep}`).classList.add('step-hidden');
+
+      currentStep = step;
+
+      document.getElementById(`step-${currentStep}`).classList.remove('step-hidden');
+      document.getElementById(`step-${currentStep}`).classList.add('step-active');
+
+      if (step === 2) {
+        fetchLiveProviders();
+      }
+
+      // Update pagination dots
+      [1, 2, 3].forEach(i => {
+        const dot = document.getElementById(`dot-${i}`);
+        if (i === step) {
+          dot.className = 'w-6 h-1.5 bg-slate-900 rounded-full transition-all';
+        } else {
+          dot.className = 'w-1.5 h-1.5 bg-slate-300 rounded-full transition-all';
+        }
+      });
+    }
+
+    function launchOctrex() {
+      alert('Entering Octrex Native Rust Workspace...');
+    }
+
+    // Initial load check
     fetchLiveProviders();
   </script>
 </body>
