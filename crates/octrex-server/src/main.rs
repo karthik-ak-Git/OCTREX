@@ -1,7 +1,7 @@
 use axum::{
     extract::{Path, State},
     http::StatusCode,
-    response::{Html, IntoResponse, Json},
+    response::{IntoResponse, Json},
     routing::{get, post},
     Router,
 };
@@ -13,7 +13,7 @@ use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tower_http::cors::CorsLayer;
-use tower_http::services::ServeDir;
+use tower_http::services::{ServeDir, ServeFile};
 
 struct AppState {
     config: Mutex<AppConfig>,
@@ -38,11 +38,14 @@ async fn main() {
     let app = Router::new()
         .route("/api/health", get(health_handler))
         .route("/api/providers", get(get_providers_handler))
-        .route("/api/providers/{id}/connect", post(connect_provider_handler))
+        .route("/api/providers/:id/connect", post(connect_provider_handler))
         .route("/api/workspace/inspect", post(inspect_workspace_handler))
         .route("/api/agent/execute", post(execute_agent_handler))
-        .nest_service("/ui", ServeDir::new("ui"))
-        .route("/", get(serve_ui_handler))
+        .nest_service("/assets", ServeDir::new("ui/assets"))
+        .fallback_service(
+            ServeDir::new("apps/web/out")
+                .fallback(ServeFile::new("apps/web/out/index.html")),
+        )
         .layer(CorsLayer::permissive())
         .with_state(state);
 
@@ -55,19 +58,12 @@ async fn main() {
     println!("       OCTREX CODE V4 — NATIVE RUST BACKEND ENGINE            ");
     println!("================================================================");
     println!("  ➜ Local Server:  http://{}", addr);
-    println!("  ➜ UI Endpoint:   http://{}/", addr);
+    println!("  ➜ Next.js UI:    http://{}/", addr);
     println!("  ➜ Provider Check: Real API requests (Zero dummy/mock data)");
     println!("================================================================\n");
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();
-}
-
-async fn serve_ui_handler() -> impl IntoResponse {
-    match std::fs::read_to_string("ui/index.html") {
-        Ok(content) => Html(content).into_response(),
-        Err(_) => (StatusCode::NOT_FOUND, "UI file index.html not found").into_response(),
-    }
 }
 
 async fn health_handler() -> Json<serde_json::Value> {
