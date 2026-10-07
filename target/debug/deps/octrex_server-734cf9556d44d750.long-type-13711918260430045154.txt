@@ -1,0 +1,2 @@
+fn(State<Arc<AppState>>, axum::extract::Path<std::string::String>, axum::Json<ConnectPayload>) -> impl Future<Output = impl IntoResponse> {connect_provider_handler}
+fn(State<Arc<AppState>>, axum::extract::Path<std::string::String>, axum::Json<ConnectPayload>) -> impl Future<Output = impl IntoResponse> {connect_provider_handler}: Handler<_, _>

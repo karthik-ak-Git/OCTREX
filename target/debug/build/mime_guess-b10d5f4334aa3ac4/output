@@ -1,0 +1,1 @@
+cargo:rustc-env=MIME_TYPES_GENERATED_PATH=D:\OCTREX\target\debug\build\mime_guess-b10d5f4334aa3ac4\out\mime_types_generated.rs

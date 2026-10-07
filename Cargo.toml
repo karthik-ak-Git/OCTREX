@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "crates/octrex-core",
+    "crates/octrex-server"
+]
+resolver = "2"

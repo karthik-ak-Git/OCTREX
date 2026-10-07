@@ -375,6 +375,68 @@
   <script>
     let currentStep = 1;
 
+    async function fetchLiveProviders() {
+      try {
+        const res = await fetch('/api/providers');
+        if (res.ok) {
+          const data = await res.json();
+          data.providers.forEach(p => {
+            const badge = document.getElementById(`badge-${p.provider_id}`);
+            if (badge) {
+              if (p.status.Connected) {
+                badge.className = 'px-3 py-1 rounded-xl text-xs font-bold bg-slate-900 text-white';
+                badge.textContent = 'Connected';
+              } else if (p.status.AuthError) {
+                badge.className = 'px-3 py-1 rounded-xl text-xs font-bold bg-amber-500 text-white';
+                badge.textContent = 'Auth Error';
+              } else if (p.status.MissingApiKey) {
+                badge.className = 'px-3 py-1 rounded-xl text-xs font-bold btn-secondary';
+                badge.textContent = 'Connect';
+              } else {
+                badge.className = 'px-3 py-1 rounded-xl text-xs font-bold bg-slate-300 text-slate-700';
+                badge.textContent = 'Offline';
+              }
+            }
+          });
+        }
+      } catch (err) {
+        console.log('Rust backend API offline or standalone UI view:', err);
+      }
+    }
+
+    async function connectProviderKey(providerId, apiKey) {
+      if (!apiKey) return alert('Please enter an API key');
+      try {
+        const res = await fetch(`/api/providers/${providerId}/connect`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ api_key: apiKey }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(`Live key verified for ${providerId}! Health: ${JSON.stringify(data.health.status)}`);
+          fetchLiveProviders();
+        } else {
+          alert('Error connecting provider: ' + JSON.stringify(data));
+        }
+      } catch (err) {
+        alert('Failed to connect: ' + err.message);
+      }
+    }
+
+    async function inspectLocalWorkspace(path) {
+      try {
+        const res = await fetch('/api/workspace/inspect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ path: path || '.' }),
+        });
+        return await res.json();
+      } catch (err) {
+        return null;
+      }
+    }
+
     function goToStep(step) {
       document.getElementById(`step-${currentStep}`).classList.remove('step-active');
       document.getElementById(`step-${currentStep}`).classList.add('step-hidden');
@@ -383,6 +445,10 @@
 
       document.getElementById(`step-${currentStep}`).classList.remove('step-hidden');
       document.getElementById(`step-${currentStep}`).classList.add('step-active');
+
+      if (step === 2) {
+        fetchLiveProviders();
+      }
 
       // Update dots
       [1, 2, 3].forEach(i => {
@@ -419,8 +485,11 @@
     }
 
     function launchOctrex() {
-      alert('Starting Octrex App workspace...');
+      alert('Entering Octrex Rust App Workspace...');
     }
+
+    // Initialize live check
+    fetchLiveProviders();
   </script>
 </body>
 </html>
