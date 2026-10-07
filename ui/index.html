@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Octrex — Starting Screen</title>
+  <title>Octrex — Model Connection Setup</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,7 +49,7 @@
 
     /* Ultra-sleek Glassmorphic Container */
     .glass-card {
-      background: rgba(246, 247, 249, 0.74);
+      background: rgba(246, 247, 249, 0.76);
       backdrop-filter: blur(48px) saturate(200%);
       -webkit-backdrop-filter: blur(48px) saturate(200%);
       border: 1px solid rgba(255, 255, 255, 0.88);
@@ -76,15 +76,15 @@
     }
 
     .glass-item.active {
-      background: rgba(255, 255, 255, 0.92);
-      border-color: rgba(0, 0, 0, 0.12);
+      background: rgba(255, 255, 255, 0.94);
+      border-color: rgba(17, 17, 20, 0.25);
       box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 1);
     }
 
     /* Glass Input */
     .glass-input {
-      background: rgba(255, 255, 255, 0.65);
-      border: 1px solid rgba(0, 0, 0, 0.06);
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(0, 0, 0, 0.07);
       box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.02);
       transition: all 0.2s ease;
     }
@@ -117,8 +117,8 @@
 
     /* Secondary Button */
     .btn-secondary {
-      background: rgba(255, 255, 255, 0.7);
-      border: 1px solid rgba(0, 0, 0, 0.07);
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(0, 0, 0, 0.08);
       color: #1e293b;
       transition: all 0.2s ease;
     }
@@ -127,23 +127,6 @@
       background: rgba(255, 255, 255, 0.98);
       border-color: rgba(0, 0, 0, 0.15);
       transform: translateY(-1px);
-    }
-
-    /* Smooth Step Transitions */
-    .step-view {
-      transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .step-hidden {
-      display: none;
-      opacity: 0;
-      transform: scale(0.985);
-    }
-
-    .step-active {
-      display: block;
-      opacity: 1;
-      transform: scale(1);
     }
 
     .select-chevron {
@@ -158,234 +141,142 @@
   <div class="glow-orb-1"></div>
   <div class="glow-orb-2"></div>
 
-  <!-- MAIN ONBOARDING CARD -->
+  <!-- MAIN GLASS CARD CONTAINER -->
   <main class="glass-card w-[560px] p-9 relative z-10 mx-4">
     
-    <!-- STEP 1: WELCOME SCREEN -->
-    <div id="step-1" class="step-view step-active">
-      <!-- Logo Box -->
-      <div class="flex justify-center mb-6">
-        <div class="w-16 h-16 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex items-center justify-center font-bold text-2xl text-slate-900">
-          O
+    <!-- HEADER -->
+    <div class="space-y-1 mb-6">
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-extrabold text-slate-900">Connect a model</h1>
+        <div class="flex items-center space-x-1.5 bg-slate-200/60 border border-slate-300/50 px-2.5 py-1 rounded-full text-[11px] font-mono text-slate-600">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>Rust Engine v4.0</span>
         </div>
       </div>
+      <p class="text-xs font-medium text-slate-500 leading-relaxed">
+        Pick a provider and enter your API key to test live model connectivity.
+      </p>
+    </div>
 
-      <!-- Header Titles -->
-      <div class="text-center space-y-2 mb-7">
-        <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Welcome to Octrex</h1>
-        <p class="text-sm font-medium text-slate-500 max-w-md mx-auto leading-relaxed">
-          Your AI workspace for code, documents and decks — all through chat.
-        </p>
+    <!-- PROVIDER LIST -->
+    <div class="space-y-2.5 mb-6">
+      <!-- Anthropic -->
+      <div id="provider-anthropic" onclick="selectProvider('anthropic')" class="glass-item active p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">A</div>
+          <div>
+            <div class="text-sm font-bold text-slate-900">Anthropic</div>
+            <div class="text-xs text-slate-500 font-medium">Claude models</div>
+          </div>
+        </div>
+        <div id="badge-anthropic" class="px-3 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</div>
       </div>
 
-      <!-- Feature List -->
-      <div class="space-y-3 mb-8">
-        <!-- Feature 1: Build software -->
-        <div class="glass-item p-4 rounded-2xl flex items-center space-x-4">
-          <div class="w-11 h-11 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center text-slate-800 font-semibold text-sm">
-            &lt;/&gt;
-          </div>
+      <!-- OpenAI -->
+      <div id="provider-openai" onclick="selectProvider('openai')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">O</div>
           <div>
-            <h3 class="text-sm font-bold text-slate-900">Build software</h3>
-            <p class="text-xs text-slate-500 font-medium">Write, run and debug code with agents</p>
+            <div class="text-sm font-bold text-slate-900">OpenAI</div>
+            <div class="text-xs text-slate-500 font-medium">GPT models</div>
           </div>
         </div>
-
-        <!-- Feature 2: Create documents -->
-        <div class="glass-item p-4 rounded-2xl flex items-center space-x-4">
-          <div class="w-11 h-11 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center text-slate-700 text-base">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12"></path></svg>
-          </div>
-          <div>
-            <h3 class="text-sm font-bold text-slate-900">Create documents</h3>
-            <p class="text-xs text-slate-500 font-medium">Word files, slides and reports from a prompt</p>
-          </div>
-        </div>
-
-        <!-- Feature 3: Stay in control -->
-        <div class="glass-item p-4 rounded-2xl flex items-center space-x-4">
-          <div class="w-11 h-11 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center text-slate-700 text-base">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-          </div>
-          <div>
-            <h3 class="text-sm font-bold text-slate-900">Stay in control</h3>
-            <p class="text-xs text-slate-500 font-medium">Approve every command and file action</p>
-          </div>
-        </div>
+        <div id="badge-openai" class="px-3 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</div>
       </div>
 
-      <!-- Action Buttons -->
-      <div class="space-y-4 text-center">
-        <button onclick="goToStep(2)" class="btn-primary w-full py-3.5 rounded-2xl font-bold text-sm">
-          Get started
-        </button>
-        <div>
-          <button onclick="goToStep(3)" class="text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors">
-            I already have an account
+      <!-- Google -->
+      <div id="provider-google" onclick="selectProvider('google')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">G</div>
+          <div>
+            <div class="text-sm font-bold text-slate-900">Google</div>
+            <div class="text-xs text-slate-500 font-medium">Gemini models</div>
+          </div>
+        </div>
+        <div id="badge-google" class="px-3 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</div>
+      </div>
+
+      <!-- Local -->
+      <div id="provider-local" onclick="selectProvider('local')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">L</div>
+          <div>
+            <div class="text-sm font-bold text-slate-900">Local</div>
+            <div class="text-xs text-slate-500 font-medium">Ollama / LM Studio</div>
+          </div>
+        </div>
+        <div id="badge-local" class="px-3 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</div>
+      </div>
+
+      <!-- Crax-GPT -->
+      <div id="provider-crax-gpt" onclick="selectProvider('crax-gpt')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-white border border-purple-200/80 shadow-xs flex items-center justify-center font-bold text-sm text-purple-700">C</div>
+          <div>
+            <div class="text-sm font-bold text-slate-900">Crax-GPT</div>
+            <div class="text-xs text-slate-500 font-medium">GLM / Custom OpenAPI</div>
+          </div>
+        </div>
+        <div id="badge-crax-gpt" class="px-3 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</div>
+      </div>
+    </div>
+
+    <!-- API KEY & DYNAMIC MODEL DISCOVERY -->
+    <div class="space-y-4 mb-7">
+      <div>
+        <div class="flex justify-between items-center mb-1.5">
+          <label id="api-key-label" class="block text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Anthropic API key</label>
+          <span id="test-status-text" class="text-[11px] font-bold text-slate-500 font-mono">Ready to test</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <input type="password" id="api-key-input" placeholder="Paste your API key..." class="glass-input flex-1 px-4 py-3 rounded-2xl text-xs font-mono text-slate-800">
+          <button onclick="testAndSaveConnection()" id="btn-connect" class="btn-primary px-5 py-3 rounded-2xl font-bold text-xs whitespace-nowrap">
+            Verify & Save
           </button>
         </div>
       </div>
-    </div>
 
-    <!-- STEP 2: CONNECT MODEL SCREEN -->
-    <div id="step-2" class="step-view step-hidden">
-      <div class="space-y-1 mb-6">
-        <h1 class="text-2xl font-extrabold text-slate-900">Connect a model</h1>
-        <p class="text-xs font-medium text-slate-500">Pick a provider and add your key. You can change this later in Settings.</p>
-      </div>
-
-      <!-- Provider List -->
-      <div class="space-y-2.5 mb-6">
-        <!-- Anthropic -->
-        <div id="provider-anthropic" onclick="selectProvider('anthropic')" class="glass-item active p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">A</div>
-            <div>
-              <div class="text-sm font-bold text-slate-900">Anthropic</div>
-              <div class="text-xs text-slate-500 font-medium">Claude models</div>
-            </div>
-          </div>
-          <span id="badge-anthropic" class="px-3.5 py-1 rounded-xl text-xs font-bold bg-slate-900 text-white">Connected</span>
-        </div>
-
-        <!-- OpenAI -->
-        <div id="provider-openai" onclick="selectProvider('openai')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">O</div>
-            <div>
-              <div class="text-sm font-bold text-slate-900">OpenAI</div>
-              <div class="text-xs text-slate-500 font-medium">GPT models</div>
-            </div>
-          </div>
-          <button id="badge-openai" class="px-3.5 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</button>
-        </div>
-
-        <!-- Google -->
-        <div id="provider-google" onclick="selectProvider('google')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">G</div>
-            <div>
-              <div class="text-sm font-bold text-slate-900">Google</div>
-              <div class="text-xs text-slate-500 font-medium">Gemini models</div>
-            </div>
-          </div>
-          <button id="badge-google" class="px-3.5 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</button>
-        </div>
-
-        <!-- Local -->
-        <div id="provider-local" onclick="selectProvider('local')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">L</div>
-            <div>
-              <div class="text-sm font-bold text-slate-900">Local</div>
-              <div class="text-xs text-slate-500 font-medium">Ollama / LM Studio</div>
-            </div>
-          </div>
-          <button id="badge-local" class="px-3.5 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</button>
-        </div>
-      </div>
-
-      <!-- Inputs -->
-      <div class="space-y-4 mb-7">
-        <div>
-          <div class="flex justify-between items-center mb-1.5">
-            <label class="block text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">API key</label>
-            <button onclick="saveCurrentApiKey()" class="text-[11px] font-bold text-slate-900 hover:underline">Verify Key</button>
-          </div>
-          <input type="password" id="api-key-input" value="sk-ant-api03-samplekey" placeholder="Paste your API key..." class="glass-input w-full px-4 py-3 rounded-2xl text-xs font-mono text-slate-800">
-        </div>
-        <div>
-          <label class="block text-[11px] font-extrabold uppercase text-slate-400 tracking-wider mb-1.5">Default model</label>
-          <select id="default-model-select" class="glass-input select-chevron w-full px-4 py-3 rounded-2xl text-xs font-semibold text-slate-800 appearance-none cursor-pointer">
-            <option value="claude-3-5-sonnet">Claude Sonnet</option>
-            <option value="claude-3-5-haiku">Claude Haiku</option>
-            <option value="gpt-4o">GPT-4o</option>
-            <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
-            <option value="llama3">Local (Ollama llama3)</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Bottom Nav -->
-      <div class="flex items-center justify-between">
-        <button onclick="goToStep(1)" class="btn-secondary px-6 py-3 rounded-2xl font-bold text-xs">
-          Back
-        </button>
-        <button onclick="goToStep(3)" class="btn-primary px-7 py-3 rounded-2xl font-bold text-xs">
-          Continue
-        </button>
-      </div>
-    </div>
-
-    <!-- STEP 3: WORKSPACE SELECTION SCREEN -->
-    <div id="step-3" class="step-view step-hidden">
-      <div class="space-y-1 mb-6">
-        <h1 class="text-2xl font-extrabold text-slate-900">Choose your workspace</h1>
-        <p class="text-xs font-medium text-slate-500">Connect a project folder, or start in the global workspace.</p>
-      </div>
-
-      <!-- Options Grid -->
-      <div class="grid grid-cols-2 gap-3.5 mb-6">
-        <!-- Open Folder -->
-        <div onclick="selectWorkspaceMode('folder')" id="mode-folder" class="glass-item active p-5 rounded-2xl cursor-pointer flex flex-col justify-between h-44">
-          <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 flex items-center justify-center text-slate-900 shadow-xs">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
-          </div>
-          <div>
-            <h3 class="text-sm font-bold text-slate-900">Open a folder</h3>
-            <p class="text-[11px] text-slate-500 font-medium leading-snug mt-1">Give Octrex access to a project on your machine</p>
-            <div class="text-[11px] font-bold text-slate-900 mt-2 hover:underline">Browse...</div>
-          </div>
-        </div>
-
-        <!-- Global Workspace -->
-        <div onclick="selectWorkspaceMode('global')" id="mode-global" class="glass-item p-5 rounded-2xl cursor-pointer flex flex-col justify-between h-44">
-          <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/70 flex items-center justify-center text-slate-900 shadow-xs">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
-          </div>
-          <div>
-            <h3 class="text-sm font-bold text-slate-900">Global workspace</h3>
-            <p class="text-[11px] text-slate-500 font-medium leading-snug mt-1">No folder — chat, docs and decks anywhere</p>
-            <div class="text-[11px] font-semibold text-slate-400 mt-2">Recommended to explore</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Recent Workspaces -->
-      <div class="mb-7">
-        <div class="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider mb-2">Recent</div>
-        <div class="space-y-2" id="recent-workspaces-list">
-          <div onclick="selectRecentPath('~/dev/octrex-web')" class="glass-item p-3 rounded-xl flex items-center justify-between text-xs cursor-pointer">
-            <span class="font-bold text-slate-900">octrex-web</span>
-            <span class="font-mono text-slate-400 text-[11px]">~/dev/octrex-web</span>
-          </div>
-          <div onclick="selectRecentPath('~/dev/api-gateway')" class="glass-item p-3 rounded-xl flex items-center justify-between text-xs cursor-pointer">
-            <span class="font-bold text-slate-900">api-gateway</span>
-            <span class="font-mono text-slate-400 text-[11px]">~/dev/api-gateway</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Finish Action -->
       <div>
-        <button onclick="launchOctrex()" class="btn-primary w-full py-3.5 rounded-2xl font-bold text-sm">
-          Enter Octrex
-        </button>
+        <div class="flex justify-between items-center mb-1.5">
+          <label class="block text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">Discovered models</label>
+          <span id="model-count-tag" class="text-[11px] font-mono text-slate-400">Live endpoint list</span>
+        </div>
+        <select id="default-model-select" class="glass-input select-chevron w-full px-4 py-3 rounded-2xl text-xs font-semibold text-slate-800 appearance-none cursor-pointer">
+          <option value="claude-3-5-sonnet-20241022">claude-3-5-sonnet-20241022</option>
+          <option value="claude-3-5-haiku-20241022">claude-3-5-haiku-20241022</option>
+          <option value="claude-3-opus-20240229">claude-3-opus-20240229</option>
+        </select>
       </div>
     </div>
 
-    <!-- PAGINATION DOTS (BOTTOM) -->
-    <div class="flex justify-center items-center space-x-2 mt-7">
-      <div id="dot-1" class="w-6 h-1.5 bg-slate-900 rounded-full transition-all"></div>
-      <div id="dot-2" class="w-1.5 h-1.5 bg-slate-300 rounded-full transition-all"></div>
-      <div id="dot-3" class="w-1.5 h-1.5 bg-slate-300 rounded-full transition-all"></div>
+    <!-- PRIMARY LAUNCH BUTTON -->
+    <div>
+      <button onclick="launchOctrexWorkspace()" id="btn-enter" class="btn-primary w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center space-x-2">
+        <span>Enter Octrex Workspace</span>
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+      </button>
     </div>
 
   </main>
 
   <script>
-    let currentStep = 1;
     let selectedProvider = 'anthropic';
+
+    const PROVIDER_NAMES = {
+      'anthropic': 'Anthropic',
+      'openai': 'OpenAI',
+      'google': 'Google',
+      'local': 'Ollama Local',
+      'crax-gpt': 'Crax-GPT',
+    };
+
+    const DEFAULT_MODELS = {
+      'anthropic': ['claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022', 'claude-3-opus-20240229'],
+      'openai': ['gpt-4o', 'gpt-4o-mini', 'o1-preview', 'o3-mini'],
+      'google': ['gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-2.0-flash'],
+      'local': ['llama3', 'qwen2.5-coder', 'deepseek-r1'],
+      'crax-gpt': ['glm-5.3', 'gpt-4o', 'claude-3-5-sonnet', 'deepseek-r1'],
+    };
 
     async function fetchLiveProviders() {
       try {
@@ -396,50 +287,98 @@
             const badge = document.getElementById(`badge-${p.provider_id}`);
             if (badge) {
               if (p.status.Connected) {
-                badge.className = 'px-3.5 py-1 rounded-xl text-xs font-bold bg-slate-900 text-white';
-                badge.textContent = 'Connected';
+                badge.className = 'px-3 py-1 rounded-xl text-xs font-bold bg-slate-900 text-white';
+                badge.textContent = `Connected (${p.latency_ms}ms)`;
+                if (p.provider_id === selectedProvider && p.status.Connected.models.length > 0) {
+                  populateModelsDropdown(p.status.Connected.models);
+                }
               } else if (p.status.AuthError) {
-                badge.className = 'px-3.5 py-1 rounded-xl text-xs font-bold bg-amber-500 text-white';
+                badge.className = 'px-3 py-1 rounded-xl text-xs font-bold bg-rose-500 text-white';
                 badge.textContent = 'Auth Error';
               } else if (p.status.MissingApiKey) {
-                badge.className = 'px-3.5 py-1 rounded-xl text-xs font-bold btn-secondary';
+                badge.className = 'px-3 py-1 rounded-xl text-xs font-bold btn-secondary';
                 badge.textContent = 'Connect';
               } else {
-                badge.className = 'px-3.5 py-1 rounded-xl text-xs font-bold bg-slate-200 text-slate-600';
+                badge.className = 'px-3 py-1 rounded-xl text-xs font-bold bg-slate-200 text-slate-600';
                 badge.textContent = 'Offline';
               }
             }
           });
         }
       } catch (err) {
-        console.log('Rust backend API offline or standalone UI view:', err);
+        console.log('Rust backend server offline or running in static view mode:', err);
       }
     }
 
-    async function saveCurrentApiKey() {
+    async function testAndSaveConnection() {
       const input = document.getElementById('api-key-input').value;
-      if (!input) return alert('Please enter an API key');
+      const statusText = document.getElementById('test-status-text');
+      const btn = document.getElementById('btn-connect');
+
+      if (selectedProvider !== 'local' && !input.trim()) {
+        return alert(`Please enter an API key for ${PROVIDER_NAMES[selectedProvider]}`);
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Verifying...';
+      statusText.textContent = 'Testing connection...';
+      statusText.className = 'text-[11px] font-bold text-amber-600 font-mono';
+
       try {
         const res = await fetch(`/api/providers/${selectedProvider}/connect`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ api_key: input }),
+          body: JSON.stringify({ api_key: input.trim() }),
         });
         const data = await res.json();
-        if (data.success) {
-          alert(`Live API Key verified for ${selectedProvider}! Health: ${JSON.stringify(data.health.status)}`);
-          fetchLiveProviders();
-        } else {
-          alert('Error connecting provider: ' + JSON.stringify(data));
+
+        if (data.success && data.health) {
+          const health = data.health;
+          if (health.status.Connected) {
+            statusText.textContent = `✓ Connected (${health.latency_ms}ms)`;
+            statusText.className = 'text-[11px] font-bold text-emerald-600 font-mono';
+            const liveModels = health.status.Connected.models;
+            populateModelsDropdown(liveModels);
+            alert(`✓ Success! Connected to ${PROVIDER_NAMES[selectedProvider]} (${liveModels.length} models discovered).`);
+          } else if (health.status.AuthError) {
+            statusText.textContent = `✗ Auth Error`;
+            statusText.className = 'text-[11px] font-bold text-rose-600 font-mono';
+            alert(`Authentication Error for ${PROVIDER_NAMES[selectedProvider]}: ${health.status.AuthError.message}`);
+          } else if (health.status.Offline) {
+            statusText.textContent = `✗ Endpoint Offline`;
+            statusText.className = 'text-[11px] font-bold text-slate-500 font-mono';
+            alert(`Offline: ${health.status.Offline.reason}`);
+          }
         }
+        fetchLiveProviders();
       } catch (err) {
+        statusText.textContent = `✗ Connection Failed`;
+        statusText.className = 'text-[11px] font-bold text-rose-600 font-mono';
         alert('Failed to connect to Rust backend: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Verify & Save';
       }
+    }
+
+    function populateModelsDropdown(models) {
+      const select = document.getElementById('default-model-select');
+      const tag = document.getElementById('model-count-tag');
+      select.innerHTML = '';
+      models.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = m;
+        select.appendChild(opt);
+      });
+      tag.textContent = `${models.length} live models discovered`;
     }
 
     function selectProvider(id) {
       selectedProvider = id;
-      ['anthropic', 'openai', 'google', 'local'].forEach(p => {
+      document.getElementById('api-key-label').textContent = `${PROVIDER_NAMES[id]} API key`;
+      
+      ['anthropic', 'openai', 'google', 'local', 'crax-gpt'].forEach(p => {
         const el = document.getElementById(`provider-${p}`);
         if (p === id) {
           el.classList.add('active');
@@ -447,53 +386,18 @@
           el.classList.remove('active');
         }
       });
+
+      // Default model fallback if no live list loaded yet
+      const fallbackList = DEFAULT_MODELS[id] || ['default-model'];
+      populateModelsDropdown(fallbackList);
     }
 
-    function selectWorkspaceMode(mode) {
-      const folderEl = document.getElementById('mode-folder');
-      const globalEl = document.getElementById('mode-global');
-      if (mode === 'folder') {
-        folderEl.classList.add('active');
-        globalEl.classList.remove('active');
-      } else {
-        globalEl.classList.add('active');
-        folderEl.classList.remove('active');
-      }
+    function launchOctrexWorkspace() {
+      const selectedModel = document.getElementById('default-model-select').value;
+      alert(`Entering Octrex Workspace with Active Provider: [${PROVIDER_NAMES[selectedProvider]}] and Model: [${selectedModel}]`);
     }
 
-    function selectRecentPath(path) {
-      alert(`Selected recent workspace: ${path}`);
-    }
-
-    function goToStep(step) {
-      document.getElementById(`step-${currentStep}`).classList.remove('step-active');
-      document.getElementById(`step-${currentStep}`).classList.add('step-hidden');
-
-      currentStep = step;
-
-      document.getElementById(`step-${currentStep}`).classList.remove('step-hidden');
-      document.getElementById(`step-${currentStep}`).classList.add('step-active');
-
-      if (step === 2) {
-        fetchLiveProviders();
-      }
-
-      // Update pagination dots
-      [1, 2, 3].forEach(i => {
-        const dot = document.getElementById(`dot-${i}`);
-        if (i === step) {
-          dot.className = 'w-6 h-1.5 bg-slate-900 rounded-full transition-all';
-        } else {
-          dot.className = 'w-1.5 h-1.5 bg-slate-300 rounded-full transition-all';
-        }
-      });
-    }
-
-    function launchOctrex() {
-      alert('Entering Octrex Native Rust Workspace...');
-    }
-
-    // Initial load check
+    // Initial check on load
     fetchLiveProviders();
   </script>
 </body>
