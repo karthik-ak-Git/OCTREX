@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Octrex — Starting Screen</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background: radial-gradient(circle at 20% 20%, #ffffff 0%, #ebedf3 45%, #e2e5ec 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Ambient Background Glows */
+    .glow-orb-1 {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      top: -150px;
+      left: -100px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(235, 238, 245, 0.2) 70%, transparent 100%);
+      filter: blur(60px);
+      pointer-events: none;
+    }
+
+    .glow-orb-2 {
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      bottom: -200px;
+      right: -150px;
+      background: radial-gradient(circle, rgba(220, 226, 238, 0.8) 0%, rgba(210, 216, 230, 0.1) 70%, transparent 100%);
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    /* Glassmorphic Container */
+    .glass-card {
+      background: rgba(246, 247, 249, 0.72);
+      backdrop-filter: blur(40px) saturate(190%);
+      -webkit-backdrop-filter: blur(40px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      box-shadow: 
+        0 30px 60px -12px rgba(15, 23, 42, 0.08),
+        0 18px 36px -18px rgba(15, 23, 42, 0.04),
+        inset 0 1.5px 1px rgba(255, 255, 255, 0.95);
+      border-radius: 36px;
+    }
+
+    /* Sub-card Item Glass */
+    .glass-item {
+      background: rgba(255, 255, 255, 0.52);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.015), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-item:hover {
+      background: rgba(255, 255, 255, 0.82);
+      border-color: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 1);
+      transform: translateY(-1px);
+    }
+
+    .glass-item.active {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(0, 0, 0, 0.12);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Glass Input */
+    .glass-input {
+      background: rgba(255, 255, 255, 0.65);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.02);
+      transition: all 0.2s ease;
+    }
+
+    .glass-input:focus {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(0, 0, 0, 0.25);
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.03);
+    }
+
+    /* Primary Button */
+    .btn-primary {
+      background: #111114;
+      color: #ffffff;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(17, 17, 20, 0.2);
+    }
+
+    .btn-primary:hover {
+      background: #25252a;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(17, 17, 20, 0.28);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(17, 17, 20, 0.2);
+    }
+
+    /* Secondary Button */
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.65);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      color: #1e293b;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.95);
+      transform: translateY(-1px);
+    }
+
+    /* Smooth Step Transitions */
+    .step-view {
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .step-hidden {
+      display: none;
+      opacity: 0;
+      transform: scale(0.98);
+    }
+
+    .step-active {
+      display: block;
+      opacity: 1;
+      transform: scale(1);
+    }
+  </style>
+</head>
+<body class="relative">
+
+  <div class="glow-orb-1"></div>
+  <div class="glow-orb-2"></div>
+
+  <!-- MAIN ONBOARDING CARD -->
+  <main class="glass-card w-[560px] p-9 relative z-10 mx-4">
+    
+    <!-- STEP 1: WELCOME SCREEN -->
+    <div id="step-1" class="step-view step-active">
+      <!-- Logo Box -->
+      <div class="flex justify-center mb-6">
+        <div class="w-16 h-16 rounded-2xl bg-white border border-black/5 shadow-sm flex items-center justify-center font-bold text-2xl text-black">
+          O
+        </div>
+      </div>
+
+      <!-- Header Titles -->
+      <div class="text-center space-y-2 mb-7">
+        <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Welcome to Octrex</h1>
+        <p class="text-sm font-medium text-slate-500 max-w-md mx-auto leading-relaxed">
+          Your AI workspace for code, documents and decks — all through chat.
+        </p>
+      </div>
+
+      <!-- Feature List -->
+      <div class="space-y-3 mb-8">
+        <!-- Feature 1 -->
+        <div class="glass-item p-4 rounded-2xl flex items-center space-x-4">
+          <div class="w-11 h-11 rounded-xl bg-white border border-slate-200/60 shadow-xs flex items-center justify-center text-slate-800 font-semibold text-sm">
+            &lt;/&gt;
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Build software</h3>
+            <p class="text-xs text-slate-500 font-medium">Write, run and debug code with agents</p>
+          </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="glass-item p-4 rounded-2xl flex items-center space-x-4">
+          <div class="w-11 h-11 rounded-xl bg-white border border-slate-200/60 shadow-xs flex items-center justify-center text-slate-600 text-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Create documents</h3>
+            <p class="text-xs text-slate-500 font-medium">Word files, slides and reports from a prompt</p>
+          </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="glass-item p-4 rounded-2xl flex items-center space-x-4">
+          <div class="w-11 h-11 rounded-xl bg-white border border-slate-200/60 shadow-xs flex items-center justify-center text-slate-600 text-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Stay in control</h3>
+            <p class="text-xs text-slate-500 font-medium">Approve every command and file action</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="space-y-4 text-center">
+        <button onclick="goToStep(2)" class="btn-primary w-full py-3.5 rounded-2xl font-bold text-sm">
+          Get started
+        </button>
+        <div>
+          <button onclick="goToStep(3)" class="text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors">
+            I already have an account
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: CONNECT MODEL SCREEN -->
+    <div id="step-2" class="step-view step-hidden">
+      <div class="space-y-1 mb-6">
+        <h1 class="text-2xl font-extrabold text-slate-900">Connect a model</h1>
+        <p class="text-xs font-medium text-slate-500">Pick a provider and add your key. You can change this later in Settings.</p>
+      </div>
+
+      <!-- Provider List -->
+      <div class="space-y-2.5 mb-6">
+        <!-- Anthropic -->
+        <div id="provider-anthropic" onclick="selectProvider('anthropic')" class="glass-item active p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/60 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">A</div>
+            <div>
+              <div class="text-sm font-bold text-slate-900">Anthropic</div>
+              <div class="text-xs text-slate-500 font-medium">Claude models</div>
+            </div>
+          </div>
+          <span id="badge-anthropic" class="px-3 py-1 rounded-xl text-xs font-bold bg-slate-900 text-white">Connected</span>
+        </div>
+
+        <!-- OpenAI -->
+        <div id="provider-openai" onclick="selectProvider('openai')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/60 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">O</div>
+            <div>
+              <div class="text-sm font-bold text-slate-900">OpenAI</div>
+              <div class="text-xs text-slate-500 font-medium">GPT models</div>
+            </div>
+          </div>
+          <button class="px-3 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</button>
+        </div>
+
+        <!-- Google -->
+        <div id="provider-google" onclick="selectProvider('google')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/60 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">G</div>
+            <div>
+              <div class="text-sm font-bold text-slate-900">Google</div>
+              <div class="text-xs text-slate-500 font-medium">Gemini models</div>
+            </div>
+          </div>
+          <button class="px-3 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</button>
+        </div>
+
+        <!-- Local -->
+        <div id="provider-local" onclick="selectProvider('local')" class="glass-item p-3.5 rounded-2xl flex items-center justify-between cursor-pointer">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/60 shadow-xs flex items-center justify-center font-bold text-sm text-slate-900">L</div>
+            <div>
+              <div class="text-sm font-bold text-slate-900">Local</div>
+              <div class="text-xs text-slate-500 font-medium">Ollama / LM Studio</div>
+            </div>
+          </div>
+          <button class="px-3 py-1 rounded-xl text-xs font-bold btn-secondary">Connect</button>
+        </div>
+      </div>
+
+      <!-- Inputs -->
+      <div class="space-y-4 mb-7">
+        <div>
+          <label class="block text-[11px] font-extrabold uppercase text-slate-400 tracking-wider mb-1.5">API key</label>
+          <input type="password" value="sk-ant-api03-samplekey" placeholder="Paste your API key..." class="glass-input w-full px-4 py-3 rounded-2xl text-xs font-mono text-slate-800">
+        </div>
+        <div>
+          <label class="block text-[11px] font-extrabold uppercase text-slate-400 tracking-wider mb-1.5">Default model</label>
+          <select class="glass-input w-full px-4 py-3 rounded-2xl text-xs font-semibold text-slate-800 appearance-none bg-no-repeat cursor-pointer">
+            <option>Claude 3.5 Sonnet</option>
+            <option>Claude 3.5 Haiku</option>
+            <option>GPT-4o</option>
+            <option>Gemini 1.5 Pro</option>
+            <option>Local (Ollama llama3)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Bottom Nav -->
+      <div class="flex items-center justify-between">
+        <button onclick="goToStep(1)" class="btn-secondary px-6 py-3 rounded-2xl font-bold text-xs">
+          Back
+        </button>
+        <button onclick="goToStep(3)" class="btn-primary px-7 py-3 rounded-2xl font-bold text-xs">
+          Continue
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 3: WORKSPACE SELECTION SCREEN -->
+    <div id="step-3" class="step-view step-hidden">
+      <div class="space-y-1 mb-6">
+        <h1 class="text-2xl font-extrabold text-slate-900">Choose your workspace</h1>
+        <p class="text-xs font-medium text-slate-500">Connect a project folder, or start in the global workspace.</p>
+      </div>
+
+      <!-- Options Grid -->
+      <div class="grid grid-cols-2 gap-3.5 mb-6">
+        <!-- Open Folder -->
+        <div onclick="selectWorkspaceMode('folder')" id="mode-folder" class="glass-item active p-5 rounded-2xl cursor-pointer flex flex-col justify-between h-40">
+          <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/60 flex items-center justify-center text-slate-900 shadow-xs">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Open a folder</h3>
+            <p class="text-[11px] text-slate-500 font-medium leading-snug mt-1">Give Octrex access to a project on your machine</p>
+            <div class="text-[11px] font-bold text-slate-900 mt-2">Browse...</div>
+          </div>
+        </div>
+
+        <!-- Global Workspace -->
+        <div onclick="selectWorkspaceMode('global')" id="mode-global" class="glass-item p-5 rounded-2xl cursor-pointer flex flex-col justify-between h-40">
+          <div class="w-10 h-10 rounded-xl bg-white border border-slate-200/60 flex items-center justify-center text-slate-900 shadow-xs">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Global workspace</h3>
+            <p class="text-[11px] text-slate-500 font-medium leading-snug mt-1">No folder — chat, docs and decks anywhere</p>
+            <div class="text-[11px] font-semibold text-slate-400 mt-2">Recommended to explore</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Workspaces -->
+      <div class="mb-7">
+        <div class="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider mb-2">Recent</div>
+        <div class="space-y-2">
+          <div class="glass-item p-3 rounded-xl flex items-center justify-between text-xs cursor-pointer">
+            <span class="font-bold text-slate-900">octrex-web</span>
+            <span class="font-mono text-slate-400 text-[11px]">~/dev/octrex-web</span>
+          </div>
+          <div class="glass-item p-3 rounded-xl flex items-center justify-between text-xs cursor-pointer">
+            <span class="font-bold text-slate-900">api-gateway</span>
+            <span class="font-mono text-slate-400 text-[11px]">~/dev/api-gateway</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Finish Action -->
+      <div>
+        <button onclick="launchOctrex()" class="btn-primary w-full py-3.5 rounded-2xl font-bold text-sm">
+          Enter Octrex
+        </button>
+      </div>
+    </div>
+
+    <!-- PAGINATION DOTS (BOTTOM) -->
+    <div class="flex justify-center items-center space-x-2 mt-7">
+      <div id="dot-1" class="w-6 h-1.5 bg-slate-900 rounded-full transition-all"></div>
+      <div id="dot-2" class="w-1.5 h-1.5 bg-slate-300 rounded-full transition-all"></div>
+      <div id="dot-3" class="w-1.5 h-1.5 bg-slate-300 rounded-full transition-all"></div>
+    </div>
+
+  </main>
+
+  <script>
+    let currentStep = 1;
+
+    function goToStep(step) {
+      document.getElementById(`step-${currentStep}`).classList.remove('step-active');
+      document.getElementById(`step-${currentStep}`).classList.add('step-hidden');
+
+      currentStep = step;
+
+      document.getElementById(`step-${currentStep}`).classList.remove('step-hidden');
+      document.getElementById(`step-${currentStep}`).classList.add('step-active');
+
+      // Update dots
+      [1, 2, 3].forEach(i => {
+        const dot = document.getElementById(`dot-${i}`);
+        if (i === step) {
+          dot.className = 'w-6 h-1.5 bg-slate-900 rounded-full transition-all';
+        } else {
+          dot.className = 'w-1.5 h-1.5 bg-slate-300 rounded-full transition-all';
+        }
+      });
+    }
+
+    function selectProvider(id) {
+      ['anthropic', 'openai', 'google', 'local'].forEach(p => {
+        const el = document.getElementById(`provider-${p}`);
+        if (p === id) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      });
+    }
+
+    function selectWorkspaceMode(mode) {
+      const folderEl = document.getElementById('mode-folder');
+      const globalEl = document.getElementById('mode-global');
+      if (mode === 'folder') {
+        folderEl.classList.add('active');
+        globalEl.classList.remove('active');
+      } else {
+        globalEl.classList.add('active');
+        folderEl.classList.remove('active');
+      }
+    }
+
+    function launchOctrex() {
+      alert('Starting Octrex App workspace...');
+    }
+  </script>
+</body>
+</html>
