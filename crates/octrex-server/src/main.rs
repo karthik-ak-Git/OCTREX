@@ -102,16 +102,16 @@ async fn connect_provider_handler(
     let provider_cfg = {
         let mut guard = match state.config.lock() {
             Ok(g) => g,
-            Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
+            Err(e) => return Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response(),
         };
 
         if let Err(e) = guard.set_api_key(&provider_id, payload.api_key.clone()) {
-            return (StatusCode::BAD_REQUEST, e.to_string()).into_response();
+            return Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response();
         }
 
         match guard.providers.get(&provider_id).cloned() {
             Some(cfg) => cfg,
-            None => return (StatusCode::NOT_FOUND, "Provider not found".to_string()).into_response(),
+            None => return Json(serde_json::json!({ "success": false, "error": format!("Provider '{}' not found", provider_id) })).into_response(),
         }
     };
 
