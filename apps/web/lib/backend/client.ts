@@ -21,6 +21,51 @@ import {
   NetworkSecurityStatus,
   RuntimeStatus,
   WorkspaceInfo,
+  ContextStatusResponse,
+  TokenBudget,
+  ContextBuildResult,
+  CompactionStatus,
+  ContextCheckpoint,
+  TaskContextState,
+  ToolDescriptor,
+  ToolRequest,
+  ToolDecision,
+  ToolResponse,
+  ToolExecutionActivity,
+  McpServerInfo,
+  RoutingStatusResponse,
+  RoutingMode,
+  RoutingDecision,
+  SkillDefinition,
+  SkillSummary,
+  WorkflowDefinition,
+  WorkflowRun,
+  MemoryItem,
+  MemoryCandidate,
+  MemoryResultRow,
+  OrchestrationStatusResponse,
+  TaskSummary,
+  TaskPlan,
+  TaskStep,
+  ExecutionDecision,
+  VerificationRunResponse,
+  TaskCompletionResponse,
+  RepairAttemptResponse,
+  VerificationResult,
+  DocumentSummary,
+  DocumentImportResult,
+  DocumentDetail,
+  DocumentChunkView,
+  DocumentSearchResult,
+  ArtifactSummary,
+  ArtifactLineageEntry,
+  LocalRuntimeDescriptor,
+  LocalModelRecord,
+  LocalCompatibilityReport,
+  LocalRuntimeHealthReport,
+  LocalInferenceMetrics,
+  DownloadSummary,
+  LocalRoutingCandidateExplanation,
 } from './types';
 
 export class OctrexBackendClient {
@@ -292,6 +337,854 @@ export class OctrexBackendClient {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mode }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  // Context Engine (Phase 10)
+  async getContextStatus(): Promise<ContextStatusResponse> {
+    const res = await fetch(`${this.baseUrl}/api/context/status`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getContextBudget(sessionId: string): Promise<{ success: boolean; budget?: TokenBudget; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/context/budget/${encodeURIComponent(sessionId)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getContextForSession(sessionId: string): Promise<{ success: boolean; result?: ContextBuildResult; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/context/${encodeURIComponent(sessionId)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async previewContext(payload: {
+    session_id: string;
+    task_id?: string;
+    model_id: string;
+    user_request?: string;
+  }): Promise<{ success: boolean; preview?: ContextBuildResult; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/context/preview`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async compactContext(payload: {
+    session_id: string;
+    task_id?: string;
+    model_id: string;
+  }): Promise<{ success: boolean; compaction?: CompactionStatus; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/context/compact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getContextCheckpoints(sessionId: string): Promise<{ success: boolean; checkpoints?: ContextCheckpoint[]; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/context/checkpoints/${encodeURIComponent(sessionId)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getTaskContext(taskId: string): Promise<{ success: boolean; task_context?: TaskContextState; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/tasks/${encodeURIComponent(taskId)}/context`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  // Phase 9 Tool Runtime & MCP Security API Client Methods
+  async getTools(): Promise<{ success: boolean; tools: ToolDescriptor[]; count: number }> {
+    const res = await fetch(`${this.baseUrl}/api/tools`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getTool(id: string): Promise<{ success: boolean; tool?: ToolDescriptor; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/tools/${encodeURIComponent(id)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async enableTool(id: string): Promise<{ success: boolean; message?: string; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/tools/${encodeURIComponent(id)}/enable`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async disableTool(id: string): Promise<{ success: boolean; message?: string; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/tools/${encodeURIComponent(id)}/disable`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async evaluateTool(request: ToolRequest): Promise<{ success: boolean; decision: ToolDecision }> {
+    const res = await fetch(`${this.baseUrl}/api/tools/evaluate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async executeTool(request: ToolRequest): Promise<{ success: boolean; response: ToolResponse }> {
+    const res = await fetch(`${this.baseUrl}/api/tools/execute`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getToolActivity(): Promise<{ success: boolean; activity: ToolExecutionActivity[]; count: number }> {
+    const res = await fetch(`${this.baseUrl}/api/tools/activity`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getMcpConnections(): Promise<{ success: boolean; servers: McpServerInfo[]; count: number }> {
+    const res = await fetch(`${this.baseUrl}/api/mcp`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getMcpConnection(id: string): Promise<{ success: boolean; server?: McpServerInfo; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/mcp/${encodeURIComponent(id)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async connectMcp(server: Partial<McpServerInfo>): Promise<{ success: boolean; server: McpServerInfo }> {
+    const res = await fetch(`${this.baseUrl}/api/mcp/connect`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(server),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async enableMcp(id: string): Promise<{ success: boolean }> {
+    const res = await fetch(`${this.baseUrl}/api/mcp/${encodeURIComponent(id)}/enable`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async disableMcp(id: string): Promise<{ success: boolean }> {
+    const res = await fetch(`${this.baseUrl}/api/mcp/${encodeURIComponent(id)}/disable`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async evaluateMcpTool(id: string, request: ToolRequest): Promise<{ success: boolean; decision?: ToolDecision; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/mcp/${encodeURIComponent(id)}/evaluate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  // Filesystem Security (Phase 8)
+  async getFilesystemSecurity(): Promise<{ success: boolean; active_workspaces: number; service_status: string }> {
+    const res = await fetch(`${this.baseUrl}/api/filesystem/security`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async evaluateFilesystemOperation(payload: {
+    workspace_id: string;
+    operation: string;
+    path: string;
+  }): Promise<{ success: boolean; decision: any }> {
+    const res = await fetch(`${this.baseUrl}/api/filesystem/evaluate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getWorkspaceSecurity(workspaceId: string): Promise<{ success: boolean; status?: any; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/workspaces/${encodeURIComponent(workspaceId)}/security`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async updateWorkspacePermissions(workspaceId: string, policy: Record<string, unknown>): Promise<{ success: boolean; policy?: any; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/workspaces/${encodeURIComponent(workspaceId)}/permissions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(policy),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getProtectedPaths(workspaceId: string): Promise<{ success: boolean; protected_paths?: any[]; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/workspaces/${encodeURIComponent(workspaceId)}/protected-paths`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async confirmFilesystemOperation(workspaceId: string, decisionId: string, confirmed: boolean): Promise<{ success: boolean; confirmed: boolean; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/workspaces/${encodeURIComponent(workspaceId)}/confirm`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ decision_id: decisionId, confirmed }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async exportFile(workspaceId: string, relativePath: string, destinationPath: string): Promise<{ success: boolean; decision?: any; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/filesystem/export`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ workspace_id: workspaceId, relative_path: relativePath, destination_path: destinationPath }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  // Model Router APIs (Phase 12)
+  async getRouterStatus(): Promise<RoutingStatusResponse> {
+    const res = await fetch(`${this.baseUrl}/api/router/status`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async evaluateRouting(payload: {
+    purpose?: string;
+    routing_mode?: RoutingMode;
+    user_selected_model?: string;
+    workspace_id?: string;
+    required_context_tokens?: number;
+    required_output_tokens?: number;
+  }): Promise<{ success: boolean; decision: RoutingDecision; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/router/evaluate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async previewRouting(payload: {
+    purpose?: string;
+    routing_mode?: RoutingMode;
+    user_selected_model?: string;
+    workspace_id?: string;
+    required_context_tokens?: number;
+    required_output_tokens?: number;
+  }): Promise<{ success: boolean; decision: RoutingDecision; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/router/preview`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getCompatibleModels(): Promise<{ success: boolean; total: number; models: ModelDescriptor[]; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/models/compatible`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getRecommendedModels(purpose?: string): Promise<{ success: boolean; total: number; models: ModelDescriptor[]; error?: string }> {
+    const url = purpose ? `${this.baseUrl}/api/models/recommended?purpose=${encodeURIComponent(purpose)}` : `${this.baseUrl}/api/models/recommended`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  // Phase 14 Skills APIs
+  async listSkills(): Promise<{ success: boolean; total: number; skills: SkillSummary[] }> {
+    const res = await fetch(`${this.baseUrl}/api/skills`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getSkill(id: string): Promise<{ success: boolean; skill?: SkillDefinition; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/skills/${encodeURIComponent(id)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async createSkill(def: Partial<SkillDefinition>): Promise<{ success: boolean; skill?: SkillDefinition; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/skills`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(def),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async enableSkill(id: string): Promise<{ success: boolean; skill?: SkillDefinition; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/skills/${encodeURIComponent(id)}/enable`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async disableSkill(id: string): Promise<{ success: boolean; skill?: SkillDefinition; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/skills/${encodeURIComponent(id)}/disable`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async validateSkill(id: string): Promise<{ success: boolean; valid: boolean; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/skills/${encodeURIComponent(id)}/validate`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async approveSkill(id: string, approver?: string): Promise<{ success: boolean; skill?: SkillDefinition; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/skills/${encodeURIComponent(id)}/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ approver }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async matchSkills(payload: { user_request: string; task_type?: string; workspace_id?: string; limit?: number }): Promise<{ success: boolean; matches: Array<{ skill_id: string; version: string; score: number; reasons: string[] }> }> {
+    const res = await fetch(`${this.baseUrl}/api/skills/match`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  // Phase 14 Workflows APIs
+  async listWorkflows(): Promise<{ success: boolean; total: number; workflows: WorkflowDefinition[] }> {
+    const res = await fetch(`${this.baseUrl}/api/workflows`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getWorkflow(id: string): Promise<{ success: boolean; workflow?: WorkflowDefinition; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/workflows/${encodeURIComponent(id)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async createWorkflow(def: Partial<WorkflowDefinition>): Promise<{ success: boolean; workflow?: WorkflowDefinition; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/workflows`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(def),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async validateWorkflow(id: string): Promise<{ success: boolean; valid: boolean; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/workflows/${encodeURIComponent(id)}/validate`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async runWorkflow(id: string, payload?: { workflow_version?: string; task_id?: string; session_id?: string; workspace_id?: string; inputs?: Record<string, unknown> }): Promise<{ success: boolean; run?: WorkflowRun; plan?: unknown; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/workflows/${encodeURIComponent(id)}/run`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload ?? {}),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  // Phase 14 Memory APIs
+  async queryMemory(payload: Record<string, unknown>): Promise<{ success: boolean; total: number; results: MemoryResultRow[]; error?: string }> {
+    const params = new URLSearchParams();
+    for (const [k, v] of Object.entries(payload || {})) {
+      if (v === undefined || v === null) continue;
+      params.append(k, String(v));
+    }
+    const url = params.toString() ? `${this.baseUrl}/api/memory?${params.toString()}` : `${this.baseUrl}/api/memory`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async queryMemoryPost(payload: Record<string, unknown>): Promise<{ success: boolean; total: number; results: MemoryResultRow[]; error?: string }> {
+    return this.queryMemory(payload);
+  }
+
+  async createMemory(item: Partial<MemoryItem>): Promise<{ success: boolean; memory?: MemoryItem; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/memory`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(item),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async deleteMemory(id: string): Promise<{ success: boolean; deleted?: boolean; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/memory/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async listMemoryCandidates(status?: string): Promise<{ success: boolean; total: number; candidates: MemoryCandidate[] }> {
+    const url = status ? `${this.baseUrl}/api/memory/candidates?status=${encodeURIComponent(status)}` : `${this.baseUrl}/api/memory/candidates`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async approveMemoryCandidate(id: string): Promise<{ success: boolean; memory?: MemoryItem; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/memory/candidates/${encodeURIComponent(id)}/approve`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async rejectMemoryCandidate(id: string): Promise<{ success: boolean; candidate?: MemoryCandidate; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/memory/candidates/${encodeURIComponent(id)}/reject`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  // --- Phase 11 Task Orchestration APIs ---
+
+  async getOrchestrationStatus(): Promise<OrchestrationStatusResponse> {
+    const res = await fetch(`${this.baseUrl}/api/orchestration/status`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getTasks(): Promise<{ success: boolean; total: number; tasks: TaskSummary[] }> {
+    const res = await fetch(`${this.baseUrl}/api/tasks`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async createTask(objective: string, session_id?: string, workspace_id?: string): Promise<{ success: boolean; task: TaskSummary; plan?: TaskPlan; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/tasks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ objective, session_id, workspace_id }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getTaskById(id: string): Promise<{ success: boolean; task?: TaskSummary; plan?: TaskPlan; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/tasks/${encodeURIComponent(id)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async startTask(id: string, workspace_path?: string): Promise<{ success: boolean; task_id: string; status: string; message: string }> {
+    const query = workspace_path ? `?workspace_path=${encodeURIComponent(workspace_path)}` : '';
+    const res = await fetch(`${this.baseUrl}/api/tasks/${encodeURIComponent(id)}/start${query}`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async pauseTask(id: string): Promise<{ success: boolean; task_id?: string; status?: string; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/tasks/${encodeURIComponent(id)}/pause`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async resumeTask(id: string, workspace_path?: string): Promise<{ success: boolean; task_id: string; status: string; message: string }> {
+    const query = workspace_path ? `?workspace_path=${encodeURIComponent(workspace_path)}` : '';
+    const res = await fetch(`${this.baseUrl}/api/tasks/${encodeURIComponent(id)}/resume${query}`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async cancelTask(id: string): Promise<{ success: boolean; task_id?: string; status?: string; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/tasks/${encodeURIComponent(id)}/cancel`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getTaskPlan(id: string): Promise<{ success: boolean; plan?: TaskPlan; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/tasks/${encodeURIComponent(id)}/plan`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async replanTask(id: string, revised_objective: string): Promise<{ success: boolean; plan?: TaskPlan; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/tasks/${encodeURIComponent(id)}/replan`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ revised_objective }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getTaskSteps(id: string): Promise<{ success: boolean; steps: TaskStep[]; current_step?: number; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/tasks/${encodeURIComponent(id)}/steps`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async submitUserInput(id: string, input: string, workspace_path?: string): Promise<{ success: boolean; task_id?: string; decision?: ExecutionDecision; message?: string; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/tasks/${encodeURIComponent(id)}/input`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input, workspace_path }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  // Phase 13: Verification & Reliability Engine
+  async listTaskVerifications(id: string): Promise<VerificationRunResponse> {
+    const res = await fetch(`${this.baseUrl}/api/tasks/${encodeURIComponent(id)}/verification`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async verifyTask(id: string, request: Record<string, unknown>): Promise<VerificationRunResponse> {
+    const res = await fetch(`${this.baseUrl}/api/tasks/${encodeURIComponent(id)}/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ task_id: id, ...request }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getTaskVerification(id: string, verificationId: string): Promise<VerificationRunResponse> {
+    const res = await fetch(`${this.baseUrl}/api/tasks/${encodeURIComponent(id)}/verification/${encodeURIComponent(verificationId)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async retryTaskVerification(id: string, verificationId: string): Promise<RepairAttemptResponse> {
+    const res = await fetch(`${this.baseUrl}/api/tasks/${encodeURIComponent(id)}/verification/${encodeURIComponent(verificationId)}/retry`, {
+      method: 'POST',
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getTaskCompletion(id: string): Promise<TaskCompletionResponse> {
+    const res = await fetch(`${this.baseUrl}/api/tasks/${encodeURIComponent(id)}/completion`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  // Phase 16: Local Runtime & Model Management
+
+  async listLocalRuntimes(): Promise<{ success: boolean; total: number; runtimes: LocalRuntimeDescriptor[] }> {
+    const res = await fetch(`${this.baseUrl}/api/local-runtimes`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async discoverLocalRuntimes(payload?: { include_defaults?: boolean; endpoints?: Array<{ endpoint: string; runtime_type?: string; name?: string }> }): Promise<{ success: boolean; total: number; runtimes: LocalRuntimeDescriptor[] }> {
+    const res = await fetch(`${this.baseUrl}/api/local-runtimes/discover`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload ?? { include_defaults: true }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async registerLocalRuntime(payload: { runtime_type: string; endpoint: string; name?: string }): Promise<{ success: boolean; runtime?: LocalRuntimeDescriptor; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/local-runtimes/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getLocalRuntime(id: string): Promise<{ success: boolean; runtime?: LocalRuntimeDescriptor; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/local-runtimes/${encodeURIComponent(id)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async refreshLocalRuntime(id: string): Promise<{ success: boolean; runtime?: LocalRuntimeDescriptor; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/local-runtimes/${encodeURIComponent(id)}/refresh`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async testLocalRuntime(id: string): Promise<{ success: boolean; health?: LocalRuntimeHealthReport; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/local-runtimes/${encodeURIComponent(id)}/test`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async startLocalRuntime(id: string): Promise<{ success: boolean; runtime?: LocalRuntimeDescriptor; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/local-runtimes/${encodeURIComponent(id)}/start`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async stopLocalRuntime(id: string): Promise<{ success: boolean; runtime?: LocalRuntimeDescriptor; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/local-runtimes/${encodeURIComponent(id)}/stop`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async listLocalModels(): Promise<{ success: boolean; total: number; models: LocalModelRecord[] }> {
+    const res = await fetch(`${this.baseUrl}/api/local-models`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async discoverLocalModels(runtimeId: string): Promise<{ success: boolean; total: number; models: LocalModelRecord[]; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/local-models/discover`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ runtime_id: runtimeId }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async registerLocalModel(payload: Record<string, unknown>): Promise<{ success: boolean; model?: LocalModelRecord; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/local-models/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getLocalModel(id: string): Promise<{ success: boolean; model?: LocalModelRecord; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/local-models/${encodeURIComponent(id)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async enableLocalModel(id: string): Promise<{ success: boolean; model?: LocalModelRecord; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/local-models/${encodeURIComponent(id)}/enable`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async disableLocalModel(id: string): Promise<{ success: boolean; model?: LocalModelRecord; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/local-models/${encodeURIComponent(id)}/disable`, { method: 'POST' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getLocalModelCompatibility(id: string, inputTokens = 1024, outputTokens?: number): Promise<{ success: boolean; compatibility?: LocalCompatibilityReport; error?: string }> {
+    const params = new URLSearchParams({ input_tokens: String(inputTokens) });
+    if (outputTokens !== undefined) params.append('output_tokens', String(outputTokens));
+    const res = await fetch(`${this.baseUrl}/api/local-models/${encodeURIComponent(id)}/compatibility?${params.toString()}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async explainLocalRouting(inputTokens = 1024, outputTokens?: number): Promise<{ success: boolean; total: number; candidates: LocalRoutingCandidateExplanation[] }> {
+    const params = new URLSearchParams({ input_tokens: String(inputTokens) });
+    if (outputTokens !== undefined) params.append('output_tokens', String(outputTokens));
+    const res = await fetch(`${this.baseUrl}/api/local-models/routing/explain?${params.toString()}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async previewLocalInference(payload: { registry_model_id: string; input_tokens?: number; output_tokens?: number; classification?: string }): Promise<{ success: boolean; preview?: Record<string, unknown>; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/local-inference/preview`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async executeLocalInference(payload: { registry_model_id: string; messages: Array<{ role: string; content: string }>; system_instructions?: string; max_output_tokens?: number; temperature?: number; classification?: string }): Promise<{ success: boolean; response?: { content: string; model_id: string }; error?: string; no_cloud_fallback?: boolean }> {
+    const res = await fetch(`${this.baseUrl}/api/local-inference/execute`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async cancelLocalInference(callId: string): Promise<{ success: boolean; cancelled: boolean }> {
+    const res = await fetch(`${this.baseUrl}/api/local-inference/cancel`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ call_id: callId }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async listLocalInferenceMetrics(): Promise<{ success: boolean; total: number; metrics: LocalInferenceMetrics[]; active_calls: string[]; slot_occupants: string[] }> {
+    const res = await fetch(`${this.baseUrl}/api/local-inference/metrics`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getLocalInferenceMetric(callId: string): Promise<{ success: boolean; metric?: LocalInferenceMetrics; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/local-inference/metrics/${encodeURIComponent(callId)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async downloadLocalModel(payload: { source: string; url: string; file_name: string; runtime_id?: string; model_id?: string; expected_bytes?: number; checksum_sha256?: string; consent: boolean }): Promise<{ success: boolean; installation?: DownloadSummary; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/local-models/download`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getLocalStorage(): Promise<{ success: boolean; model_dir: string; exists: boolean }> {
+    const res = await fetch(`${this.baseUrl}/api/local-storage`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  // --- Phase 15: Document Intelligence & Artifact Pipeline ---
+
+  async listDocuments(workspaceId: string): Promise<{ success: boolean; total: number; documents: DocumentSummary[]; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/documents?workspace_id=${encodeURIComponent(workspaceId)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async importDocument(payload: { workspace_id: string; rel_path: string; session_id?: string; task_id?: string }): Promise<DocumentImportResult> {
+    const res = await fetch(`${this.baseUrl}/api/documents/import`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getDocument(id: string, workspaceId: string): Promise<{ success: boolean; document?: DocumentDetail; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/documents/${encodeURIComponent(id)}?workspace_id=${encodeURIComponent(workspaceId)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getDocumentSections(id: string, workspaceId: string): Promise<{ success: boolean; sections?: Array<{ section_id: string }>; pages?: number[]; chunks?: number; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/documents/${encodeURIComponent(id)}/sections?workspace_id=${encodeURIComponent(workspaceId)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getDocumentChunks(id: string, workspaceId: string): Promise<{ success: boolean; total: number; chunks: DocumentChunkView[]; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/documents/${encodeURIComponent(id)}/chunks?workspace_id=${encodeURIComponent(workspaceId)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async searchDocument(id: string, payload: { workspace_id: string; query: string; ceiling?: string; limit?: number }): Promise<{ success: boolean; total: number; results: DocumentSearchResult[]; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/documents/${encodeURIComponent(id)}/search`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async ingestDocument(id: string, payload: { workspace_id: string; session_id: string; task_id?: string; model_id?: string; context_window?: number }): Promise<{ success: boolean; items_ingested?: number; safe_summaries?: string[]; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/documents/${encodeURIComponent(id)}/ingest`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async assistDocument(payload: { workspace_id: string; document_id: string; operation?: string; session_id?: string; task_id?: string }): Promise<{ success: boolean; assist?: Record<string, unknown>; error?: string; no_cloud_fallback?: boolean }> {
+    const res = await fetch(`${this.baseUrl}/api/documents/assist`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async listArtifacts(params: { workspace_id?: string; task_id?: string }): Promise<{ success: boolean; total: number; artifacts: ArtifactSummary[]; error?: string }> {
+    const query = new URLSearchParams();
+    if (params.workspace_id) query.append('workspace_id', params.workspace_id);
+    if (params.task_id) query.append('task_id', params.task_id);
+    const res = await fetch(`${this.baseUrl}/api/artifacts?${query.toString()}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getArtifact(id: string): Promise<{ success: boolean; artifact?: ArtifactSummary; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/artifacts/${encodeURIComponent(id)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getArtifactLineage(id: string): Promise<{ success: boolean; lineage: ArtifactLineageEntry[]; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/artifacts/${encodeURIComponent(id)}/lineage`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async getArtifactVerification(id: string): Promise<{ success: boolean; verification_status?: string; checksum?: string | null; lineage?: ArtifactLineageEntry[]; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/artifacts/${encodeURIComponent(id)}/verification`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async createArtifact(payload: { workspace_id: string; task_id?: string; session_id?: string; rel_path: string; name: string; content: string; artifact_type?: string; source_document_id?: string; parent_artifact_id?: string; producing_workflow?: string; producing_skill?: string }): Promise<{ success: boolean; artifact?: ArtifactSummary; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/artifacts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async verifyArtifact(id: string, payload: { workspace_id: string; task_id: string; session_id?: string }): Promise<{ success: boolean; verification?: VerificationResult; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/artifacts/${encodeURIComponent(id)}/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async exportArtifact(id: string, payload: { workspace_id: string; dest_external_path: string }): Promise<{ success: boolean; error?: string }> {
+    const res = await fetch(`${this.baseUrl}/api/artifacts/${encodeURIComponent(id)}/export`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
