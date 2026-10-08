@@ -1,6 +1,6 @@
 use super::types::{
-    ClassificationConfidence, ClassificationResult, ClassificationSignal, InputSourceType,
-    PrivacyClassification, PrivacyInput, TrustLevel,
+    ClassificationConfidence, ClassificationResult, ClassificationSignal, PrivacyClassification,
+    PrivacyInput,
 };
 use regex::Regex;
 use std::sync::OnceLock;

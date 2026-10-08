@@ -1,6 +1,4 @@
-use super::types::{
-    ConsentDecision, ConsentRequest, PolicyRule, PrivacyClassification, PrivacyDecision,
-};
+use super::types::{ConsentDecision, ConsentRequest, PrivacyClassification, PrivacyDecision};
 use crate::db::manager::DatabaseManager;
 use crate::error::OctrexError;
 use crate::ids::WorkspaceId;

@@ -1,10 +1,8 @@
 use super::evidence::EvidenceManager;
 use super::types::{
-    ClassificationResult, ConsentDecision, ConsentRequest, OutboundPayloadPreview,
-    PrivacyClassification, PrivacyContext,
+    ClassificationResult, ConsentDecision, ConsentRequest, PrivacyClassification, PrivacyContext,
 };
 use crate::error::OctrexError;
-use crate::ids::RequestId;
 use std::collections::HashMap;
 use std::sync::RwLock;
 use std::time::{SystemTime, UNIX_EPOCH};

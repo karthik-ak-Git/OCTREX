@@ -2,8 +2,6 @@ use super::types::{
     ClassificationResult, OutboundPayloadPreview, PrivacyClassification, PrivacyContext,
     PrivacyDecision,
 };
-use crate::ids::RequestId;
-use crate::providers::ExecutionMode;
 
 pub struct EvidenceManager;
 
@@ -73,5 +71,23 @@ impl EvidenceManager {
             decision.selected_policy_source,
             decision.policy_version
         )
+    }
+
+    pub fn redact_string(input: &str) -> String {
+        let mut result = input.to_string();
+        let credential_patterns = [
+            r#"(?i)api[_-]?key\s*[:=]\s*['"]?[A-Za-z0-9_-]{16,}['"]?"#,
+            r"(?i)bearer\s+[A-Za-z0-9_\.-]{20,}",
+            r"-----BEGIN (RSA|EC|DSA|OPENSSH|PRIVATE) KEY-----",
+            r"sk-[A-Za-z0-9_-]{16,}",
+            r#"(?i)password\s*[:=]\s*['"]?[^'\s]{6,}['"]?"#,
+        ];
+
+        for pat in credential_patterns {
+            if let Ok(re) = regex::Regex::new(pat) {
+                result = re.replace_all(&result, "[REDACTED_SECRET]").to_string();
+            }
+        }
+        result
     }
 }

@@ -2,8 +2,8 @@ use super::classifier::PrivacyClassifier;
 use super::consent::ConsentManager;
 use super::policy::PolicyEngine;
 use super::types::{
-    ClassificationConfidence, DecisionState, EffectivePrivacyStatus, PolicyAction, PolicyRule,
-    PolicySource, PrivacyClassification, PrivacyContext, PrivacyDecision, PrivacyMode,
+    DecisionState, EffectivePrivacyStatus, PolicyAction, PolicySource, PrivacyClassification,
+    PrivacyContext, PrivacyDecision, PrivacyMode,
 };
 use crate::providers::ExecutionMode;
 use std::sync::Arc;
