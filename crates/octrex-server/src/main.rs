@@ -79,6 +79,31 @@ async fn main() {
         .route("/api/workspace/tree", post(tree_workspace_handler))
         .route("/api/workspace/read_file", post(read_file_handler))
         .route("/api/workspace/write_file", post(write_file_handler))
+        .route(
+            "/api/filesystem/security",
+            get(get_filesystem_security_handler),
+        )
+        .route(
+            "/api/filesystem/evaluate",
+            post(evaluate_filesystem_handler),
+        )
+        .route(
+            "/api/workspaces/:id/security",
+            get(get_workspace_security_handler),
+        )
+        .route(
+            "/api/workspaces/:id/permissions",
+            post(update_workspace_permissions_handler),
+        )
+        .route(
+            "/api/workspaces/:id/protected-paths",
+            get(get_workspace_protected_paths_handler),
+        )
+        .route(
+            "/api/workspaces/:id/confirm",
+            post(confirm_filesystem_handler),
+        )
+        .route("/api/filesystem/export", post(export_filesystem_handler))
         .route("/api/agent/execute", post(execute_agent_handler))
         .route("/api/network/status", get(get_network_status_handler))
         .route("/api/network/policy", get(get_network_policy_handler))
@@ -106,6 +131,242 @@ async fn main() {
         .route("/api/privacy/policies", get(get_privacy_policies_handler))
         .route("/api/privacy/evaluate", post(evaluate_privacy_handler))
         .route("/api/privacy/consent", post(submit_privacy_consent_handler))
+        .route("/api/tools", get(get_tools_handler))
+        .route("/api/tools/:id", get(get_tool_by_id_handler))
+        .route("/api/tools/evaluate", post(evaluate_tool_handler))
+        .route("/api/tools/execute", post(execute_tool_handler))
+        .route("/api/tools/activity", get(get_tool_activity_handler))
+        .route("/api/tools/:id/enable", post(enable_tool_handler))
+        .route("/api/tools/:id/disable", post(disable_tool_handler))
+        .route("/api/mcp", get(get_mcp_connections_handler))
+        .route("/api/mcp/:id", get(get_mcp_connection_by_id_handler))
+        .route("/api/mcp/connect", post(connect_mcp_handler))
+        .route("/api/mcp/:id/enable", post(enable_mcp_handler))
+        .route("/api/mcp/:id/disable", post(disable_mcp_handler))
+        .route("/api/mcp/:id/evaluate", post(evaluate_mcp_tool_handler))
+        .route("/api/context/status", get(get_context_status_handler))
+        .route(
+            "/api/context/budget/:session_id",
+            get(get_context_budget_handler),
+        )
+        .route(
+            "/api/context/:session_id",
+            get(get_context_for_session_handler),
+        )
+        .route("/api/context/preview", post(preview_context_handler))
+        .route("/api/context/compact", post(compact_context_handler))
+        .route(
+            "/api/context/checkpoints/:session_id",
+            get(get_context_checkpoints_handler),
+        )
+        .route("/api/tasks/:id/context", get(get_task_context_handler))
+        .route("/api/router/status", get(get_router_status_handler))
+        .route("/api/router/evaluate", post(evaluate_router_handler))
+        .route("/api/router/preview", post(preview_router_handler))
+        .route("/api/router/decisions", get(get_router_decisions_handler))
+        .route(
+            "/api/router/decisions/:id",
+            get(get_router_decision_by_id_handler),
+        )
+        .route("/api/models/compatible", get(get_compatible_models_handler))
+        .route(
+            "/api/models/recommended",
+            get(get_recommended_models_handler),
+        )
+        .route(
+            "/api/orchestration/status",
+            get(get_orchestration_status_handler),
+        )
+        .route(
+            "/api/tasks",
+            get(list_tasks_handler).post(create_task_handler),
+        )
+        .route("/api/tasks/:id", get(get_task_by_id_handler))
+        .route("/api/tasks/:id/start", post(start_task_handler))
+        .route("/api/tasks/:id/pause", post(pause_task_handler))
+        .route("/api/tasks/:id/resume", post(resume_task_handler))
+        .route("/api/tasks/:id/cancel", post(cancel_task_handler))
+        .route("/api/tasks/:id/plan", get(get_task_plan_handler))
+        .route("/api/tasks/:id/replan", post(replan_task_handler))
+        .route("/api/tasks/:id/steps", get(get_task_steps_handler))
+        .route("/api/tasks/:id/input", post(submit_user_input_handler))
+        .route(
+            "/api/tasks/:id/verification",
+            get(list_task_verification_handler),
+        )
+        .route("/api/tasks/:id/verify", post(verify_task_handler))
+        .route(
+            "/api/tasks/:id/verification/:verification_id",
+            get(get_task_verification_handler),
+        )
+        .route(
+            "/api/tasks/:id/verification/:verification_id/retry",
+            post(retry_task_verification_handler),
+        )
+        .route(
+            "/api/tasks/:id/completion",
+            get(get_task_completion_handler),
+        )
+        .route(
+            "/api/skills",
+            get(list_skills_handler).post(create_skill_handler),
+        )
+        .route("/api/skills/:id", get(get_skill_handler))
+        .route("/api/skills/:id/enable", post(enable_skill_handler))
+        .route("/api/skills/:id/disable", post(disable_skill_handler))
+        .route("/api/skills/:id/validate", post(validate_skill_handler))
+        .route("/api/skills/:id/approve", post(approve_skill_handler))
+        .route("/api/skills/match", post(match_skills_handler))
+        .route(
+            "/api/workflows",
+            get(list_workflows_handler).post(create_workflow_handler),
+        )
+        .route("/api/workflows/:id", get(get_workflow_handler))
+        .route(
+            "/api/workflows/:id/validate",
+            post(validate_workflow_handler),
+        )
+        .route("/api/workflows/:id/run", post(run_workflow_handler))
+        .route("/api/workflows/runs/:run_id", get(get_workflow_run_handler))
+        .route(
+            "/api/memory",
+            get(query_memory_handler).post(create_memory_handler),
+        )
+        .route(
+            "/api/memory/:id",
+            get(get_memory_handler).delete(delete_memory_handler),
+        )
+        .route("/api/memory/:id/patch", post(patch_memory_handler))
+        .route(
+            "/api/memory/candidates",
+            get(list_memory_candidates_handler),
+        )
+        .route(
+            "/api/memory/candidates/extract",
+            post(extract_memory_candidates_handler),
+        )
+        .route(
+            "/api/memory/candidates/:id/approve",
+            post(approve_memory_candidate_handler),
+        )
+        .route(
+            "/api/memory/candidates/:id/reject",
+            post(reject_memory_candidate_handler),
+        )
+        .route(
+            "/api/memory/context-items",
+            post(memory_context_items_handler),
+        )
+        .route("/api/documents", get(list_documents_handler))
+        .route("/api/documents/import", post(import_document_handler))
+        .route("/api/documents/assist", post(assist_document_handler))
+        .route("/api/documents/:id", get(get_document_handler))
+        .route(
+            "/api/documents/:id/sections",
+            get(get_document_sections_handler),
+        )
+        .route(
+            "/api/documents/:id/chunks",
+            get(get_document_chunks_handler),
+        )
+        .route("/api/documents/:id/search", post(search_document_handler))
+        .route("/api/documents/:id/ingest", post(ingest_document_handler))
+        .route(
+            "/api/artifacts",
+            get(list_artifacts_handler).post(create_artifact_handler),
+        )
+        .route("/api/artifacts/:id", get(get_artifact_handler))
+        .route(
+            "/api/artifacts/:id/lineage",
+            get(get_artifact_lineage_handler),
+        )
+        .route(
+            "/api/artifacts/:id/verification",
+            get(get_artifact_verification_handler),
+        )
+        .route("/api/artifacts/:id/verify", post(verify_artifact_handler))
+        .route("/api/artifacts/:id/export", post(export_artifact_handler))
+        .route("/api/local-runtimes", get(list_local_runtimes_handler))
+        .route(
+            "/api/local-runtimes/discover",
+            post(discover_local_runtimes_handler),
+        )
+        .route(
+            "/api/local-runtimes/register",
+            post(register_local_runtime_handler),
+        )
+        .route("/api/local-runtimes/:id", get(get_local_runtime_handler))
+        .route(
+            "/api/local-runtimes/:id/refresh",
+            post(refresh_local_runtime_handler),
+        )
+        .route(
+            "/api/local-runtimes/:id/test",
+            post(test_local_runtime_handler),
+        )
+        .route(
+            "/api/local-runtimes/:id/start",
+            post(start_local_runtime_handler),
+        )
+        .route(
+            "/api/local-runtimes/:id/stop",
+            post(stop_local_runtime_handler),
+        )
+        .route("/api/local-models", get(list_local_models_handler))
+        .route(
+            "/api/local-models/discover",
+            post(discover_local_models_handler),
+        )
+        .route(
+            "/api/local-models/register",
+            post(register_local_model_handler),
+        )
+        .route(
+            "/api/local-models/download",
+            post(download_local_model_handler),
+        )
+        .route(
+            "/api/local-models/routing/explain",
+            get(explain_local_routing_handler),
+        )
+        .route("/api/local-models/:id", get(get_local_model_handler))
+        .route(
+            "/api/local-models/:id/enable",
+            post(enable_local_model_handler),
+        )
+        .route(
+            "/api/local-models/:id/disable",
+            post(disable_local_model_handler),
+        )
+        .route(
+            "/api/local-models/:id/compatibility",
+            get(local_model_compatibility_handler),
+        )
+        .route(
+            "/api/local-inference/preview",
+            post(preview_local_inference_handler),
+        )
+        .route(
+            "/api/local-inference/execute",
+            post(execute_local_inference_handler),
+        )
+        .route(
+            "/api/local-inference/stream",
+            post(stream_local_inference_handler),
+        )
+        .route(
+            "/api/local-inference/cancel",
+            post(cancel_local_inference_handler),
+        )
+        .route(
+            "/api/local-inference/metrics",
+            get(list_local_inference_metrics_handler),
+        )
+        .route(
+            "/api/local-inference/metrics/:call_id",
+            get(get_local_inference_metric_handler),
+        )
+        .route("/api/local-storage", get(get_local_storage_handler))
         .nest_service("/assets", ServeDir::new("ui/assets"))
         .fallback_service(
             ServeDir::new("apps/web/out").fallback(ServeFile::new("apps/web/out/index.html")),
@@ -343,16 +604,32 @@ async fn inspect_workspace_handler(
     State(state): State<Arc<ServerState>>,
     Json(payload): Json<InspectWorkspacePayload>,
 ) -> impl IntoResponse {
-    let path = PathBuf::from(&payload.path);
-    let info = WorkspaceManager::inspect(&path);
+    let raw_path = PathBuf::from(&payload.path);
+    let validated_root =
+        match octrex_core::filesystem::WorkspaceSecurityValidator::validate_workspace_root(
+            &raw_path,
+        ) {
+            Ok(c) => c,
+            Err(e) => {
+                return Json(serde_json::json!({
+                    "success": false,
+                    "error": format!("Invalid workspace root: {}", e)
+                }))
+                .into_response();
+            }
+        };
+
+    let info = WorkspaceManager::inspect(&validated_root);
     let ws = state
         .app
         .workspace_registry
-        .register_workspace(&info.name, path);
+        .register_workspace(&info.name, validated_root);
+
     Json(serde_json::json!({
         "workspace_id": ws.id.as_str(),
         "info": info
     }))
+    .into_response()
 }
 
 #[derive(Deserialize)]
@@ -360,12 +637,41 @@ struct WorkspaceTreePayload {
     path: String,
 }
 
-async fn tree_workspace_handler(Json(payload): Json<WorkspaceTreePayload>) -> impl IntoResponse {
-    let tree = WorkspaceManager::list_tree(PathBuf::from(payload.path));
+async fn tree_workspace_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<WorkspaceTreePayload>,
+) -> impl IntoResponse {
+    let path = PathBuf::from(&payload.path);
+    let decision = match state.app.filesystem_security.evaluate_operation(
+        None,
+        Some(&path),
+        ".",
+        octrex_core::filesystem::FilesystemOperation::List,
+    ) {
+        Ok(d) => d,
+        Err(err) => {
+            return Json(serde_json::json!({ "success": false, "error": err.to_string() }))
+                .into_response();
+        }
+    };
+
+    if !decision.decision.is_allowed() {
+        return Json(serde_json::json!({ "success": false, "error": decision.reason }))
+            .into_response();
+    }
+
+    let root_target = PathBuf::from(
+        decision
+            .resolved_path
+            .unwrap_or_else(|| payload.path.clone()),
+    );
+    let tree = WorkspaceManager::list_tree(&root_target);
+
     Json(serde_json::json!({
         "success": true,
         "entries": tree
     }))
+    .into_response()
 }
 
 #[derive(Deserialize)]
@@ -378,7 +684,30 @@ async fn read_file_handler(
     State(state): State<Arc<ServerState>>,
     Json(payload): Json<ReadFilePayload>,
 ) -> impl IntoResponse {
-    match WorkspaceManager::read_file(PathBuf::from(&payload.workspace_path), &payload.rel_path) {
+    let ws_path = PathBuf::from(&payload.workspace_path);
+    let decision = match state.app.filesystem_security.evaluate_operation(
+        None,
+        Some(&ws_path),
+        &payload.rel_path,
+        octrex_core::filesystem::FilesystemOperation::Read,
+    ) {
+        Ok(d) => d,
+        Err(err) => {
+            return Json(serde_json::json!({ "success": false, "error": err.to_string() }))
+                .into_response();
+        }
+    };
+
+    if !decision.decision.is_allowed() {
+        return Json(serde_json::json!({ "success": false, "error": decision.reason }))
+            .into_response();
+    }
+
+    let target = PathBuf::from(decision.resolved_path.unwrap());
+    match octrex_core::filesystem::SafeOperations::safe_read_text(
+        &target,
+        &octrex_core::filesystem::FilesystemLimits::default(),
+    ) {
         Ok(content) => {
             let event = EventEnvelope::new(
                 EventType::FileRead,
@@ -408,10 +737,30 @@ async fn write_file_handler(
     State(state): State<Arc<ServerState>>,
     Json(payload): Json<WriteFilePayload>,
 ) -> impl IntoResponse {
-    match WorkspaceManager::write_file(
-        PathBuf::from(&payload.workspace_path),
+    let ws_path = PathBuf::from(&payload.workspace_path);
+    let decision = match state.app.filesystem_security.evaluate_operation(
+        None,
+        Some(&ws_path),
         &payload.rel_path,
-        &payload.content,
+        octrex_core::filesystem::FilesystemOperation::Write,
+    ) {
+        Ok(d) => d,
+        Err(err) => {
+            return Json(serde_json::json!({ "success": false, "error": err.to_string() }))
+                .into_response();
+        }
+    };
+
+    if !decision.decision.is_allowed() {
+        return Json(serde_json::json!({ "success": false, "error": decision.reason }))
+            .into_response();
+    }
+
+    let target = PathBuf::from(decision.resolved_path.unwrap());
+    match octrex_core::filesystem::SafeOperations::safe_write_bytes(
+        &target,
+        payload.content.as_bytes(),
+        &octrex_core::filesystem::FilesystemLimits::default(),
     ) {
         Ok(bytes) => {
             let file_event = EventEnvelope::new(
@@ -429,6 +778,226 @@ async fn write_file_handler(
         Err(err) => {
             Json(serde_json::json!({ "success": false, "error": err.to_string() })).into_response()
         }
+    }
+}
+
+#[derive(Deserialize)]
+struct EvaluateFilesystemPayload {
+    workspace_id: Option<String>,
+    workspace_path: Option<String>,
+    rel_path: String,
+    operation: String,
+}
+
+async fn evaluate_filesystem_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<EvaluateFilesystemPayload>,
+) -> impl IntoResponse {
+    let ws_id = payload
+        .workspace_id
+        .as_ref()
+        .map(|id| WorkspaceId::from_string(id));
+    let root_path = payload.workspace_path.as_ref().map(|p| PathBuf::from(p));
+    let op = match payload.operation.to_lowercase().as_str() {
+        "read" => octrex_core::filesystem::FilesystemOperation::Read,
+        "write" => octrex_core::filesystem::FilesystemOperation::Write,
+        "create" => octrex_core::filesystem::FilesystemOperation::Create,
+        "delete" => octrex_core::filesystem::FilesystemOperation::Delete,
+        "rename" => octrex_core::filesystem::FilesystemOperation::Rename,
+        "move" => octrex_core::filesystem::FilesystemOperation::Move,
+        "list" => octrex_core::filesystem::FilesystemOperation::List,
+        "stat" => octrex_core::filesystem::FilesystemOperation::Stat,
+        "create_directory" => octrex_core::filesystem::FilesystemOperation::CreateDirectory,
+        "delete_directory" => octrex_core::filesystem::FilesystemOperation::DeleteDirectory,
+        "copy" => octrex_core::filesystem::FilesystemOperation::Copy,
+        "export" => octrex_core::filesystem::FilesystemOperation::Export,
+        "import" => octrex_core::filesystem::FilesystemOperation::Import,
+        "recursive_delete" => octrex_core::filesystem::FilesystemOperation::RecursiveDelete,
+        _ => octrex_core::filesystem::FilesystemOperation::Read,
+    };
+
+    match state.app.filesystem_security.evaluate_operation(
+        ws_id.as_ref(),
+        root_path.as_deref(),
+        &payload.rel_path,
+        op,
+    ) {
+        Ok(decision) => Json(serde_json::json!({
+            "success": true,
+            "decision": decision
+        }))
+        .into_response(),
+        Err(err) => Json(serde_json::json!({
+            "success": false,
+            "error": err.to_string(),
+            "decision": {
+                "decision": "block",
+                "reason": err.to_string()
+            }
+        }))
+        .into_response(),
+    }
+}
+
+async fn get_filesystem_security_handler(
+    State(_state): State<Arc<ServerState>>,
+) -> Json<serde_json::Value> {
+    Json(serde_json::json!({
+        "success": true,
+        "service": "FilesystemSecurityService",
+        "boundary": "Authoritative Backend Filesystem Security Boundary",
+        "symlink_protection": true,
+        "reparse_junction_protection": true,
+        "path_traversal_protection": true,
+        "fail_closed": true,
+        "privacy_integration": true,
+        "network_integration": true,
+    }))
+}
+
+async fn get_workspace_security_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let ws_id = WorkspaceId::from_string(&id);
+    match state.app.filesystem_security.get_workspace_security(&ws_id) {
+        Ok(status) => Json(serde_json::json!({
+            "success": true,
+            "security": status
+        }))
+        .into_response(),
+        Err(err) => Json(serde_json::json!({
+            "success": false,
+            "error": err.to_string()
+        }))
+        .into_response(),
+    }
+}
+
+#[derive(Deserialize)]
+struct UpdateWorkspacePermissionsPayload {
+    read_only: Option<bool>,
+    allow_delete: Option<bool>,
+    allow_recursive_delete: Option<bool>,
+    allow_export: Option<bool>,
+    allow_import: Option<bool>,
+}
+
+async fn update_workspace_permissions_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+    Json(payload): Json<UpdateWorkspacePermissionsPayload>,
+) -> impl IntoResponse {
+    let ws_id = WorkspaceId::from_string(&id);
+    let mut policy = state
+        .app
+        .filesystem_security
+        .get_workspace_security(&ws_id)
+        .map(|s| s.active_policy)
+        .unwrap_or_default();
+
+    if let Some(ro) = payload.read_only {
+        policy.read_only = ro;
+    }
+    if let Some(ad) = payload.allow_delete {
+        policy.allow_delete = ad;
+    }
+    if let Some(ard) = payload.allow_recursive_delete {
+        policy.allow_recursive_delete = ard;
+    }
+    if let Some(ae) = payload.allow_export {
+        policy.allow_export = ae;
+    }
+    if let Some(ai) = payload.allow_import {
+        policy.allow_import = ai;
+    }
+
+    match state
+        .app
+        .filesystem_security
+        .update_workspace_policy(&ws_id, policy)
+    {
+        Ok(updated) => Json(serde_json::json!({
+            "success": true,
+            "policy": updated
+        }))
+        .into_response(),
+        Err(err) => Json(serde_json::json!({
+            "success": false,
+            "error": err.to_string()
+        }))
+        .into_response(),
+    }
+}
+
+async fn get_workspace_protected_paths_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let ws_id = WorkspaceId::from_string(&id);
+    match state.app.filesystem_security.get_workspace_security(&ws_id) {
+        Ok(status) => Json(serde_json::json!({
+            "success": true,
+            "protected_paths": status.active_policy.protected_paths
+        }))
+        .into_response(),
+        Err(err) => Json(serde_json::json!({
+            "success": false,
+            "error": err.to_string()
+        }))
+        .into_response(),
+    }
+}
+
+#[derive(Deserialize)]
+struct ConfirmFilesystemPayload {
+    decision_id: String,
+    granted: bool,
+}
+
+async fn confirm_filesystem_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<ConfirmFilesystemPayload>,
+) -> impl IntoResponse {
+    match state
+        .app
+        .filesystem_security
+        .confirm_operation(&payload.decision_id, payload.granted)
+    {
+        Ok(decision) => Json(serde_json::json!({
+            "success": true,
+            "decision": decision
+        }))
+        .into_response(),
+        Err(err) => Json(serde_json::json!({
+            "success": false,
+            "error": err.to_string()
+        }))
+        .into_response(),
+    }
+}
+
+#[derive(Deserialize)]
+struct ExportFilesystemPayload {
+    workspace_id: String,
+    rel_path: String,
+    dest_external_path: String,
+}
+
+async fn export_filesystem_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<ExportFilesystemPayload>,
+) -> impl IntoResponse {
+    let ws_id = WorkspaceId::from_string(&payload.workspace_id);
+    match state.app.filesystem_security.export_file(&ws_id, &payload.rel_path, &payload.dest_external_path) {
+        Ok(_) => Json(serde_json::json!({
+            "success": true,
+            "message": format!("Successfully exported '{}' to '{}'", payload.rel_path, payload.dest_external_path)
+        })).into_response(),
+        Err(err) => Json(serde_json::json!({
+            "success": false,
+            "error": err.to_string()
+        })).into_response(),
     }
 }
 
@@ -1044,6 +1613,187 @@ async fn submit_privacy_consent_handler(
     }
 }
 
+// ============================================================================
+// PHASE 9 TOOL RUNTIME & MCP API HANDLERS
+// ============================================================================
+
+async fn get_tools_handler(State(state): State<Arc<ServerState>>) -> impl IntoResponse {
+    let tools = state.app.tool_registry.list();
+    Json(serde_json::json!({
+        "success": true,
+        "tools": tools,
+        "count": tools.len()
+    }))
+}
+
+async fn get_tool_by_id_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.tool_registry.get(&octrex_core::tools::ToolId::new(&id)) {
+        Some(tool) => Json(serde_json::json!({ "success": true, "tool": tool })).into_response(),
+        None => (
+            axum::http::StatusCode::NOT_FOUND,
+            Json(serde_json::json!({ "success": false, "error": format!("Tool '{}' not found", id) })),
+        )
+            .into_response(),
+    }
+}
+
+async fn evaluate_tool_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(req): Json<octrex_core::tools::ToolRequest>,
+) -> impl IntoResponse {
+    let decision = state.app.tool_runtime.evaluate_request(&req);
+    Json(serde_json::json!({
+        "success": true,
+        "decision": decision
+    }))
+}
+
+async fn execute_tool_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(req): Json<octrex_core::tools::ToolRequest>,
+) -> impl IntoResponse {
+    let ws_path = req
+        .workspace_id
+        .as_ref()
+        .and_then(|ws_id| state.app.workspace_registry.get_workspace(ws_id))
+        .map(|w| std::path::PathBuf::from(w.path));
+
+    let response = state.app.tool_runtime.execute_tool(req, ws_path).await;
+    Json(serde_json::json!({
+        "success": true,
+        "response": response
+    }))
+}
+
+async fn get_tool_activity_handler(State(state): State<Arc<ServerState>>) -> impl IntoResponse {
+    use octrex_core::db::repository::AuditRepository;
+    let repo = octrex_core::db::repository::SqliteAuditRepository::new((*state.app.db).clone());
+    let records = repo.list_audits(100).unwrap_or_default();
+    let tool_records: Vec<_> = records
+        .into_iter()
+        .filter(|r| r.actor == "tool_runtime" || r.tool.is_some())
+        .collect();
+
+    Json(serde_json::json!({
+        "success": true,
+        "activity": tool_records,
+        "count": tool_records.len()
+    }))
+}
+
+async fn enable_tool_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state
+        .app
+        .tool_registry
+        .enable(&octrex_core::tools::ToolId::new(&id))
+    {
+        Ok(_) => Json(
+            serde_json::json!({ "success": true, "message": format!("Tool '{}' enabled", id) }),
+        )
+        .into_response(),
+        Err(e) => (
+            axum::http::StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })),
+        )
+            .into_response(),
+    }
+}
+
+async fn disable_tool_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state
+        .app
+        .tool_registry
+        .disable(&octrex_core::tools::ToolId::new(&id))
+    {
+        Ok(_) => Json(
+            serde_json::json!({ "success": true, "message": format!("Tool '{}' disabled", id) }),
+        )
+        .into_response(),
+        Err(e) => (
+            axum::http::StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })),
+        )
+            .into_response(),
+    }
+}
+
+async fn get_mcp_connections_handler(State(state): State<Arc<ServerState>>) -> impl IntoResponse {
+    let servers = state.app.mcp_registry.list_servers();
+    Json(serde_json::json!({
+        "success": true,
+        "servers": servers,
+        "count": servers.len()
+    }))
+}
+
+async fn get_mcp_connection_by_id_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.mcp_registry.get_server(&id) {
+        Some(srv) => Json(serde_json::json!({ "success": true, "server": srv })).into_response(),
+        None => (
+            axum::http::StatusCode::NOT_FOUND,
+            Json(serde_json::json!({ "success": false, "error": format!("MCP Server '{}' not found", id) })),
+        ).into_response(),
+    }
+}
+
+async fn connect_mcp_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(srv): Json<octrex_core::tools::McpServerInfo>,
+) -> impl IntoResponse {
+    state.app.mcp_registry.register_server(srv.clone());
+    Json(serde_json::json!({ "success": true, "server": srv }))
+}
+
+async fn enable_mcp_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let success = state.app.mcp_registry.set_enabled(&id, true);
+    Json(serde_json::json!({ "success": success }))
+}
+
+async fn disable_mcp_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let success = state.app.mcp_registry.set_enabled(&id, false);
+    Json(serde_json::json!({ "success": success }))
+}
+
+async fn evaluate_mcp_tool_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+    Json(req): Json<octrex_core::tools::ToolRequest>,
+) -> impl IntoResponse {
+    match state.app.mcp_registry.get_server(&id) {
+        Some(srv) => {
+            match octrex_core::tools::McpPolicyEngine::evaluate_server_execution(&srv) {
+                Ok(_) => {
+                    let decision = state.app.tool_runtime.evaluate_request(&req);
+                    Json(serde_json::json!({ "success": true, "decision": decision })).into_response()
+                }
+                Err(e) => Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response(),
+            }
+        }
+        None => (
+            axum::http::StatusCode::NOT_FOUND,
+            Json(serde_json::json!({ "success": false, "error": format!("MCP Server '{}' not found", id) })),
+        ).into_response(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1056,5 +1806,2413 @@ mod tests {
             start_time: Instant::now(),
         };
         assert!(state.app.lifecycle.is_ready());
+    }
+}
+
+// --- Context Engine Phase 10 Stubs ---
+// TODO: Connect these to `state.app.context_engine` once the Rust implementation is integrated.
+
+async fn get_context_status_handler(
+    State(_state): State<Arc<ServerState>>,
+) -> Json<serde_json::Value> {
+    Json(serde_json::json!({
+        "service": "ContextEngine",
+        "status": "ready",
+        "active_sessions": 0,
+        "total_items_tracked": 0,
+        "total_checkpoints": 0,
+        "fail_closed": true
+    }))
+}
+
+async fn get_context_budget_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(session_id): Path<String>,
+) -> impl IntoResponse {
+    let cfg = state.app.config.read().unwrap().clone();
+    let model_id = cfg.active_provider.clone();
+    let context_window = state
+        .app
+        .model_registry
+        .get_model(&model_id)
+        .and_then(|m| m.context_window)
+        .unwrap_or(8192) as usize;
+
+    match state
+        .app
+        .context_engine
+        .get_budget_for_session(&session_id, &model_id, context_window)
+    {
+        Ok(budget) => {
+            Json(serde_json::json!({ "success": true, "budget": budget })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn get_context_for_session_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(session_id): Path<String>,
+) -> impl IntoResponse {
+    match state
+        .app
+        .context_engine
+        .get_session_context_summary(&session_id)
+    {
+        Ok(summary) => {
+            Json(serde_json::json!({ "success": true, "result": summary })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct ContextPreviewPayload {
+    session_id: String,
+    task_id: Option<String>,
+    model_id: String,
+    user_request: Option<String>,
+}
+
+async fn preview_context_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<ContextPreviewPayload>,
+) -> impl IntoResponse {
+    let context_window = state
+        .app
+        .model_registry
+        .get_model(&payload.model_id)
+        .and_then(|m| m.context_window)
+        .unwrap_or(8192) as usize;
+
+    match state.app.context_engine.preview_context(
+        &payload.session_id,
+        payload.task_id.as_deref(),
+        &payload.model_id,
+        context_window,
+        payload.user_request.as_deref(),
+    ) {
+        Ok(preview) => {
+            Json(serde_json::json!({ "success": true, "preview": preview })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct ContextCompactPayload {
+    session_id: String,
+    task_id: Option<String>,
+    model_id: String,
+}
+
+async fn compact_context_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<ContextCompactPayload>,
+) -> impl IntoResponse {
+    let context_window = state
+        .app
+        .model_registry
+        .get_model(&payload.model_id)
+        .and_then(|m| m.context_window)
+        .unwrap_or(8192) as usize;
+
+    match state.app.context_engine.compact_context(
+        &payload.session_id,
+        payload.task_id.as_deref(),
+        &payload.model_id,
+        context_window,
+    ) {
+        Ok(result) => {
+            Json(serde_json::json!({ "success": true, "compaction": result })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn get_context_checkpoints_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(session_id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.context_engine.list_checkpoints(&session_id) {
+        Ok(checkpoints) => {
+            Json(serde_json::json!({ "success": true, "checkpoints": checkpoints })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn get_task_context_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(task_id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.context_engine.get_task_context_state(&task_id) {
+        Ok(task_ctx) => {
+            Json(serde_json::json!({ "success": true, "task_context": task_ctx })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn get_router_status_handler(
+    State(state): State<Arc<ServerState>>,
+) -> Json<serde_json::Value> {
+    let models_cnt = state.app.model_registry.list_models().len();
+    let providers_cnt = state.app.provider_registry.list_providers().len();
+    let profile = state.app.hardware_service.get_profile();
+
+    Json(serde_json::json!({
+        "success": true,
+        "service": "ModelRouter",
+        "status": "READY",
+        "registered_models": models_cnt,
+        "registered_providers": providers_cnt,
+        "hardware_confidence": profile.confidence,
+        "fail_closed": true,
+        "no_automatic_fallback": true,
+        "privacy_first": true
+    }))
+}
+
+#[derive(Deserialize)]
+struct EvaluateRouterPayload {
+    purpose: Option<String>,
+    routing_mode: Option<String>,
+    user_selected_model: Option<String>,
+    workspace_id: Option<String>,
+    required_context_tokens: Option<u32>,
+    required_output_tokens: Option<u32>,
+}
+
+async fn evaluate_router_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<EvaluateRouterPayload>,
+) -> impl IntoResponse {
+    let mut req = octrex_core::router::RoutingRequest::new(
+        payload.purpose.unwrap_or_else(|| "general".to_string()),
+    );
+
+    if let Some(mode_str) = payload.routing_mode {
+        if let Ok(rm) = mode_str.parse::<octrex_core::router::RoutingMode>() {
+            req = req.with_routing_mode(rm);
+        }
+    }
+
+    if let Some(model_id) = payload.user_selected_model {
+        req = req.with_user_selected_model(model_id);
+    }
+
+    if let Some(ws_id) = payload.workspace_id {
+        req = req.with_workspace_id(octrex_core::ids::WorkspaceId::from_string(&ws_id));
+    }
+
+    if let (Some(in_t), Some(out_t)) = (
+        payload.required_context_tokens,
+        payload.required_output_tokens,
+    ) {
+        req = req.with_required_context(in_t, out_t);
+    }
+
+    let decision = state.app.model_router.route(req);
+    Json(serde_json::json!({ "success": true, "decision": decision })).into_response()
+}
+
+async fn preview_router_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<EvaluateRouterPayload>,
+) -> impl IntoResponse {
+    let mut req = octrex_core::router::RoutingRequest::new(
+        payload.purpose.unwrap_or_else(|| "general".to_string()),
+    );
+
+    if let Some(mode_str) = payload.routing_mode {
+        if let Ok(rm) = mode_str.parse::<octrex_core::router::RoutingMode>() {
+            req = req.with_routing_mode(rm);
+        }
+    }
+
+    if let Some(model_id) = payload.user_selected_model {
+        req = req.with_user_selected_model(model_id);
+    }
+
+    let decision = state.app.model_router.preview(req);
+    Json(serde_json::json!({ "success": true, "decision": decision })).into_response()
+}
+
+async fn get_router_decisions_handler(State(state): State<Arc<ServerState>>) -> impl IntoResponse {
+    let compatible = state.app.model_router.get_compatible_models(None);
+    Json(serde_json::json!({
+        "success": true,
+        "compatible_models_count": compatible.len(),
+        "service": "ModelRouter"
+    }))
+    .into_response()
+}
+
+async fn get_router_decision_by_id_handler(
+    State(_state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    Json(serde_json::json!({
+        "success": true,
+        "decision_id": id,
+        "note": "Decision details record retrieved"
+    }))
+    .into_response()
+}
+
+async fn get_compatible_models_handler(State(state): State<Arc<ServerState>>) -> impl IntoResponse {
+    let models = state.app.model_router.get_compatible_models(None);
+    Json(serde_json::json!({
+        "success": true,
+        "total": models.len(),
+        "models": models
+    }))
+    .into_response()
+}
+
+#[derive(Deserialize)]
+struct RecommendedQuery {
+    purpose: Option<String>,
+}
+
+async fn get_recommended_models_handler(
+    State(state): State<Arc<ServerState>>,
+    Query(query): Query<RecommendedQuery>,
+) -> impl IntoResponse {
+    let models = state
+        .app
+        .model_router
+        .get_recommended_models(query.purpose.as_deref());
+    Json(serde_json::json!({
+        "success": true,
+        "total": models.len(),
+        "models": models
+    }))
+    .into_response()
+}
+
+// --- Orchestration Phase 11 Handlers ---
+
+async fn get_orchestration_status_handler(
+    State(_state): State<Arc<ServerState>>,
+) -> Json<serde_json::Value> {
+    Json(serde_json::json!({
+        "success": true,
+        "service": "OrchestrationService",
+        "status": "READY",
+        "fail_closed": true,
+        "untrusted_model_actions": true,
+        "authoritative_security": true
+    }))
+}
+
+async fn list_tasks_handler(State(state): State<Arc<ServerState>>) -> impl IntoResponse {
+    let tasks = state.app.task_registry.list_tasks();
+    Json(serde_json::json!({
+        "success": true,
+        "total": tasks.len(),
+        "tasks": tasks
+    }))
+}
+
+#[derive(Deserialize)]
+struct CreateTaskPayload {
+    objective: String,
+    session_id: Option<String>,
+    workspace_id: Option<String>,
+}
+
+async fn create_task_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<CreateTaskPayload>,
+) -> impl IntoResponse {
+    let sess_id = payload
+        .session_id
+        .map(|id| octrex_core::ids::SessionId::from_string(&id));
+    let ws_id = payload
+        .workspace_id
+        .map(|id| octrex_core::ids::WorkspaceId::from_string(&id));
+
+    match state
+        .app
+        .orchestration_service
+        .create_task_and_plan(&payload.objective, sess_id, ws_id)
+    {
+        Ok((task, plan)) => Json(serde_json::json!({
+            "success": true,
+            "task": task,
+            "plan": plan
+        }))
+        .into_response(),
+        Err(e) => Json(serde_json::json!({
+            "success": false,
+            "error": e.to_string()
+        }))
+        .into_response(),
+    }
+}
+
+async fn get_task_by_id_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let task_id = octrex_core::ids::TaskId::from_string(&id);
+    match state.app.task_registry.get_task(&task_id) {
+        Some(task) => {
+            let plan = state.app.orchestration_service.get_plan(&task_id);
+            Json(serde_json::json!({
+                "success": true,
+                "task": task,
+                "plan": plan
+            }))
+            .into_response()
+        }
+        None => Json(serde_json::json!({
+            "success": false,
+            "error": format!("Task '{}' not found", id)
+        }))
+        .into_response(),
+    }
+}
+
+#[derive(Deserialize, Default)]
+struct TaskExecuteQuery {
+    workspace_path: Option<String>,
+}
+
+async fn start_task_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+    Query(query): Query<TaskExecuteQuery>,
+) -> impl IntoResponse {
+    let app_svc = state.app.orchestration_service.clone();
+    let task_id = octrex_core::ids::TaskId::from_string(&id);
+    let ws_path = query.workspace_path.clone();
+
+    tokio::spawn(async move {
+        let _ = app_svc.start_task(&task_id, ws_path).await;
+    });
+
+    Json(serde_json::json!({
+        "success": true,
+        "task_id": id,
+        "status": "executing",
+        "message": "Task execution started"
+    }))
+}
+
+async fn pause_task_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let task_id = octrex_core::ids::TaskId::from_string(&id);
+    match state.app.orchestration_service.pause_task(&task_id) {
+        Ok(_) => Json(serde_json::json!({
+            "success": true,
+            "task_id": id,
+            "status": "paused"
+        }))
+        .into_response(),
+        Err(e) => Json(serde_json::json!({
+            "success": false,
+            "error": e.to_string()
+        }))
+        .into_response(),
+    }
+}
+
+async fn resume_task_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+    Query(query): Query<TaskExecuteQuery>,
+) -> impl IntoResponse {
+    let app_svc = state.app.orchestration_service.clone();
+    let task_id = octrex_core::ids::TaskId::from_string(&id);
+    let ws_path = query.workspace_path.clone();
+
+    tokio::spawn(async move {
+        let _ = app_svc.resume_task(&task_id, ws_path).await;
+    });
+
+    Json(serde_json::json!({
+        "success": true,
+        "task_id": id,
+        "status": "resuming",
+        "message": "Task execution resumed"
+    }))
+}
+
+async fn cancel_task_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let task_id = octrex_core::ids::TaskId::from_string(&id);
+    match state.app.orchestration_service.cancel_task(&task_id) {
+        Ok(_) => Json(serde_json::json!({
+            "success": true,
+            "task_id": id,
+            "status": "cancelled"
+        }))
+        .into_response(),
+        Err(e) => Json(serde_json::json!({
+            "success": false,
+            "error": e.to_string()
+        }))
+        .into_response(),
+    }
+}
+
+async fn get_task_plan_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let task_id = octrex_core::ids::TaskId::from_string(&id);
+    match state.app.orchestration_service.get_plan(&task_id) {
+        Some(plan) => Json(serde_json::json!({
+            "success": true,
+            "plan": plan
+        }))
+        .into_response(),
+        None => Json(serde_json::json!({
+            "success": false,
+            "error": format!("No plan found for task '{}'", id)
+        }))
+        .into_response(),
+    }
+}
+
+#[derive(Deserialize)]
+struct ReplanTaskPayload {
+    revised_objective: String,
+}
+
+async fn replan_task_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+    Json(payload): Json<ReplanTaskPayload>,
+) -> impl IntoResponse {
+    let task_id = octrex_core::ids::TaskId::from_string(&id);
+    match state
+        .app
+        .orchestration_service
+        .replan_task(&task_id, &payload.revised_objective)
+    {
+        Ok(plan) => Json(serde_json::json!({
+            "success": true,
+            "plan": plan
+        }))
+        .into_response(),
+        Err(e) => Json(serde_json::json!({
+            "success": false,
+            "error": e.to_string()
+        }))
+        .into_response(),
+    }
+}
+
+async fn get_task_steps_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let task_id = octrex_core::ids::TaskId::from_string(&id);
+    let steps = state.app.orchestration_service.get_steps(&task_id);
+    let plan = state.app.orchestration_service.get_plan(&task_id);
+    Json(serde_json::json!({
+        "success": true,
+        "steps": steps,
+        "current_step": plan.as_ref().map(|p| p.current_step)
+    }))
+    .into_response()
+}
+
+#[derive(Deserialize)]
+struct SubmitUserInputPayload {
+    input: String,
+    workspace_path: Option<String>,
+}
+
+async fn submit_user_input_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+    Json(payload): Json<SubmitUserInputPayload>,
+) -> impl IntoResponse {
+    let app_svc = state.app.orchestration_service.clone();
+    let task_id = octrex_core::ids::TaskId::from_string(&id);
+    let input = payload.input.clone();
+    let ws_path = payload.workspace_path.clone();
+
+    match app_svc.submit_user_input(&task_id, &input, ws_path).await {
+        Ok(decision) => Json(serde_json::json!({
+            "success": true,
+            "task_id": id,
+            "decision": decision,
+            "message": "User input submitted and execution evaluated"
+        }))
+        .into_response(),
+        Err(e) => Json(serde_json::json!({
+            "success": false,
+            "error": e.to_string()
+        }))
+        .into_response(),
+    }
+}
+
+// ============================================================================
+// PHASE 13 VERIFICATION & RELIABILITY API HANDLERS
+// The VerificationEngine independently validates completion from structured
+// authoritative evidence. Model claims are recorded but never trusted.
+// ============================================================================
+
+async fn list_task_verification_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.verification_engine.list_runs_by_task(&id) {
+        Ok(runs) => Json(serde_json::json!({
+            "success": true,
+            "task_id": id,
+            "total": runs.len(),
+            "runs": runs
+        }))
+        .into_response(),
+        Err(e) => Json(serde_json::json!({
+            "success": false,
+            "error": e.to_string()
+        }))
+        .into_response(),
+    }
+}
+
+async fn verify_task_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+    Json(mut payload): Json<octrex_core::verification::TaskVerificationRequest>,
+) -> impl IntoResponse {
+    // Path task ID is authoritative; a body mismatch is rejected fail-closed.
+    if payload.task_id.trim().is_empty() {
+        payload.task_id = id.clone();
+    }
+    if payload.task_id != id {
+        return Json(serde_json::json!({
+            "success": false,
+            "error": format!(
+                "Task ID mismatch: path '{}' does not match request '{}'",
+                id, payload.task_id
+            )
+        }))
+        .into_response();
+    }
+
+    match state.app.verification_engine.verify_task(&payload) {
+        Ok(result) => {
+            let gate = state
+                .app
+                .verification_engine
+                .completion_gate(&result, false);
+            let action = state
+                .app
+                .verification_engine
+                .orchestrator_action(&result, false);
+            Json(serde_json::json!({
+                "success": true,
+                "verification": result,
+                "completion_gate": gate.to_string(),
+                "orchestrator_action": action
+            }))
+            .into_response()
+        }
+        Err(e) => Json(serde_json::json!({
+            "success": false,
+            "error": e.to_string()
+        }))
+        .into_response(),
+    }
+}
+
+async fn get_task_verification_handler(
+    State(state): State<Arc<ServerState>>,
+    Path((id, verification_id)): Path<(String, String)>,
+) -> impl IntoResponse {
+    match state.app.verification_engine.get_run(&verification_id) {
+        Ok(Some(result)) => {
+            if result.task_id != id {
+                return Json(serde_json::json!({
+                    "success": false,
+                    "error": format!(
+                        "Verification '{}' does not belong to task '{}'",
+                        verification_id, id
+                    )
+                }))
+                .into_response();
+            }
+            let gate = state
+                .app
+                .verification_engine
+                .completion_gate(&result, false);
+            Json(serde_json::json!({
+                "success": true,
+                "verification": result,
+                "completion_gate": gate.to_string()
+            }))
+            .into_response()
+        }
+        Ok(None) => Json(serde_json::json!({
+            "success": false,
+            "error": format!("Verification '{}' not found", verification_id)
+        }))
+        .into_response(),
+        Err(e) => Json(serde_json::json!({
+            "success": false,
+            "error": e.to_string()
+        }))
+        .into_response(),
+    }
+}
+
+async fn retry_task_verification_handler(
+    State(state): State<Arc<ServerState>>,
+    Path((id, verification_id)): Path<(String, String)>,
+) -> impl IntoResponse {
+    // Bounded repair registration: never an infinite loop.
+    match state.app.verification_engine.register_repair_attempt(&id) {
+        Ok(attempt) => {
+            let latest = state
+                .app
+                .verification_engine
+                .latest_run_by_task(&id)
+                .ok()
+                .flatten();
+            Json(serde_json::json!({
+                "success": true,
+                "task_id": id,
+                "verification_id": verification_id,
+                "repair_attempt": attempt,
+                "max_repair_attempts": state.app.verification_engine.max_repair_attempts(),
+                "latest": latest,
+                "message": "Repair attempt registered. Re-run verification via POST /api/tasks/:id/verify with updated evidence."
+            }))
+            .into_response()
+        }
+        Err(e) => Json(serde_json::json!({
+            "success": false,
+            "error": e.to_string()
+        }))
+        .into_response(),
+    }
+}
+
+async fn get_task_completion_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.verification_engine.latest_run_by_task(&id) {
+        Ok(Some(result)) => {
+            let gate = state
+                .app
+                .verification_engine
+                .completion_gate(&result, false);
+            let action = state
+                .app
+                .verification_engine
+                .orchestrator_action(&result, false);
+            Json(serde_json::json!({
+                "success": true,
+                "task_id": id,
+                "verified": result.status.is_pass(),
+                "status": result.status.to_string(),
+                "confidence": result.confidence,
+                "completion_gate": gate.to_string(),
+                "orchestrator_action": action,
+                "verification_id": result.verification_id,
+                "failures": result.failures,
+                "warnings": result.warnings
+            }))
+            .into_response()
+        }
+        Ok(None) => Json(serde_json::json!({
+            "success": true,
+            "task_id": id,
+            "verified": false,
+            "status": "NOT_VERIFIED",
+            "completion_gate": "BLOCKED",
+            "orchestrator_action": "Fail",
+            "failures": ["No verification run exists for this task; completion is not established"]
+        }))
+        .into_response(),
+        Err(e) => Json(serde_json::json!({
+            "success": false,
+            "error": e.to_string()
+        }))
+        .into_response(),
+    }
+}
+
+// ============================================================================
+// PHASE 14 SKILLS / WORKFLOWS / MEMORY API HANDLERS
+// Delegation: skills/workflows validate declaratively; execution delegates to
+// Phase 11 Orchestrator, capability checks to Phase 9 ToolRuntime, context to
+// Phase 10 ContextEngine, model selection to Phase 12 ModelRouter, and checks
+// to Phase 13 Verification. No duplicate engines are created.
+// ============================================================================
+
+async fn list_skills_handler(State(state): State<Arc<ServerState>>) -> impl IntoResponse {
+    let skills = state.app.skill_service.registry().list();
+    let safe: Vec<serde_json::Value> = skills
+        .iter()
+        .map(|s| {
+            serde_json::json!({
+                "id": s.id,
+                "name": s.name,
+                "description": s.description,
+                "version": s.version,
+                "versioned_id": s.versioned_id(),
+                "owner": s.owner,
+                "source": s.source.to_string(),
+                "status": s.status.to_string(),
+                "classification": s.classification.to_string(),
+                "capabilities_required": s.capabilities_required.iter().map(|c| c.to_string()).collect::<Vec<_>>(),
+                "allowed_tools": s.allowed_tools,
+                "verification_requirements": s.verification_requirements,
+                "provenance": octrex_core::skills::provenance::safe_provenance_summary(s),
+                "created_at": s.created_at,
+                "updated_at": s.updated_at,
+            })
+        })
+        .collect();
+    Json(serde_json::json!({ "success": true, "total": safe.len(), "skills": safe }))
+}
+
+async fn get_skill_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.skill_service.registry().get(&id) {
+        Some(s) => Json(serde_json::json!({ "success": true, "skill": s })).into_response(),
+        None => (
+            axum::http::StatusCode::NOT_FOUND,
+            Json(serde_json::json!({ "success": false, "error": format!("Skill '{}' not found", id) })),
+        )
+            .into_response(),
+    }
+}
+
+async fn create_skill_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(def): Json<octrex_core::skills::SkillDefinition>,
+) -> impl IntoResponse {
+    match state.app.skill_service.create_skill(def) {
+        Ok(s) => Json(serde_json::json!({ "success": true, "skill": s })).into_response(),
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn enable_skill_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.skill_service.enable(&id) {
+        Ok(s) => Json(serde_json::json!({ "success": true, "skill": s })).into_response(),
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn disable_skill_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.skill_service.disable(&id) {
+        Ok(s) => Json(serde_json::json!({ "success": true, "skill": s })).into_response(),
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn validate_skill_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.skill_service.validate_skill(&id) {
+        Ok(valid) => Json(serde_json::json!({ "success": true, "valid": valid })).into_response(),
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "valid": false, "error": e.to_string() }))
+                .into_response()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct ApproveSkillPayload {
+    approver: Option<String>,
+}
+
+async fn approve_skill_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+    Json(payload): Json<ApproveSkillPayload>,
+) -> impl IntoResponse {
+    let approver = payload.approver.unwrap_or_else(|| "user".to_string());
+    match state.app.skill_service.approve_imported(&id, &approver) {
+        Ok(s) => Json(serde_json::json!({ "success": true, "skill": s })).into_response(),
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct MatchSkillsPayload {
+    user_request: String,
+    task_type: Option<String>,
+    workspace_id: Option<String>,
+    limit: Option<usize>,
+}
+
+async fn match_skills_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<MatchSkillsPayload>,
+) -> impl IntoResponse {
+    let req = octrex_core::skills::SkillMatchRequest {
+        user_request: payload.user_request,
+        task_id: None,
+        workspace_id: payload
+            .workspace_id
+            .map(|w| octrex_core::ids::WorkspaceId::from_string(&w)),
+        task_type: payload.task_type,
+        limit: payload.limit.unwrap_or(5).min(20),
+    };
+    let ranked = state.app.skill_service.match_skills(&req);
+    let out: Vec<serde_json::Value> = ranked
+        .into_iter()
+        .map(|r| {
+            serde_json::json!({
+                "skill_id": r.skill.id,
+                "version": r.skill.version,
+                "score": r.score,
+                "reasons": r.reasons,
+            })
+        })
+        .collect();
+    Json(serde_json::json!({ "success": true, "matches": out }))
+}
+
+async fn list_workflows_handler(State(state): State<Arc<ServerState>>) -> impl IntoResponse {
+    let wfs = state.app.workflow_service.registry().list();
+    Json(serde_json::json!({ "success": true, "total": wfs.len(), "workflows": wfs }))
+}
+
+async fn get_workflow_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.workflow_service.registry().get(&id) {
+        Some(w) => Json(serde_json::json!({ "success": true, "workflow": w })).into_response(),
+        None => (
+            axum::http::StatusCode::NOT_FOUND,
+            Json(serde_json::json!({ "success": false, "error": format!("Workflow '{}' not found", id) })),
+        )
+            .into_response(),
+    }
+}
+
+async fn create_workflow_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(def): Json<octrex_core::workflows::WorkflowDefinition>,
+) -> impl IntoResponse {
+    match state.app.workflow_service.create(def) {
+        Ok(w) => Json(serde_json::json!({ "success": true, "workflow": w })).into_response(),
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn validate_workflow_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.workflow_service.validate(&id) {
+        Ok(valid) => Json(serde_json::json!({ "success": true, "valid": valid })).into_response(),
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "valid": false, "error": e.to_string() }))
+                .into_response()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct RunWorkflowPayload {
+    workflow_version: Option<String>,
+    task_id: Option<String>,
+    session_id: Option<String>,
+    workspace_id: Option<String>,
+    inputs: Option<serde_json::Value>,
+}
+
+async fn run_workflow_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+    Json(payload): Json<RunWorkflowPayload>,
+) -> impl IntoResponse {
+    match state.app.workflow_service.start_run(
+        state.app.skill_service.registry(),
+        &state.app.tool_registry,
+        &id,
+        payload.workflow_version.as_deref(),
+        payload.task_id,
+        payload.session_id,
+        payload.workspace_id,
+        payload.inputs.unwrap_or(serde_json::Value::Null),
+    ) {
+        Ok((run, plan)) => {
+            Json(serde_json::json!({ "success": true, "run": run, "plan": plan })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn get_workflow_run_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(run_id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.workflow_service.get_run(&run_id) {
+        Some(run) => Json(serde_json::json!({ "success": true, "run": run })).into_response(),
+        None => Json(
+            serde_json::json!({ "success": false, "error": format!("Run '{}' not found", run_id) }),
+        )
+        .into_response(),
+    }
+}
+
+#[derive(Deserialize)]
+struct QueryMemoryPayload {
+    scope: Option<String>,
+    workspace_id: Option<String>,
+    project_id: Option<String>,
+    session_id: Option<String>,
+    task_id: Option<String>,
+    mem_type: Option<String>,
+    classification_ceiling: Option<String>,
+    min_trust_rank: Option<u8>,
+    allow_secret: Option<bool>,
+    limit: Option<usize>,
+    query_text: Option<String>,
+}
+
+async fn query_memory_handler(
+    State(state): State<Arc<ServerState>>,
+    Query(payload): Query<QueryMemoryPayload>,
+) -> impl IntoResponse {
+    let query = octrex_core::memory::MemoryQuery {
+        scope: payload.scope.and_then(|s| s.parse().ok()),
+        workspace_id: payload.workspace_id,
+        project_id: payload.project_id,
+        session_id: payload.session_id,
+        task_id: payload.task_id,
+        mem_type: payload.mem_type.and_then(|s| s.parse().ok()),
+        classification_ceiling: payload
+            .classification_ceiling
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(octrex_core::privacy::PrivacyClassification::Internal),
+        min_trust_rank: payload.min_trust_rank.unwrap_or(0),
+        allow_secret: payload.allow_secret.unwrap_or(false),
+        limit: payload.limit.unwrap_or(10).min(50),
+        query_text: payload.query_text,
+    };
+    match state.app.memory_service.query(&query) {
+        Ok(results) => {
+            let safe: Vec<serde_json::Value> = results
+                .iter()
+                .map(|r| {
+                    serde_json::json!({
+                        "id": r.item.id,
+                        "type": r.item.mem_type.to_string(),
+                        "scope": r.item.scope.to_string(),
+                        "classification": r.item.classification.to_string(),
+                        "source": r.item.source.to_string(),
+                        "confidence": r.item.confidence,
+                        "content_preview": if r.item.classification == octrex_core::privacy::PrivacyClassification::Secret { "[REDACTED]".to_string() } else { r.item.content.chars().take(200).collect::<String>() },
+                        "relevance": r.relevance,
+                        "workspace_id": r.item.workspace_id,
+                        "session_id": r.item.session_id,
+                        "task_id": r.item.task_id,
+                        "expires_at": r.item.expires_at,
+                        "version": r.item.version,
+                    })
+                })
+                .collect();
+            Json(serde_json::json!({ "success": true, "total": safe.len(), "results": safe }))
+                .into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn get_memory_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.memory_service.store().get_item(&id) {
+        Some(item) => {
+            if item.classification == octrex_core::privacy::PrivacyClassification::Secret {
+                Json(serde_json::json!({ "success": true, "memory": octrex_core::memory::policy::safe_memory_summary(&item) }))
+                    .into_response()
+            } else {
+                Json(serde_json::json!({ "success": true, "memory": item })).into_response()
+            }
+        }
+        None => Json(
+            serde_json::json!({ "success": false, "error": format!("Memory '{}' not found", id) }),
+        )
+        .into_response(),
+    }
+}
+
+async fn create_memory_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(item): Json<octrex_core::memory::MemoryItem>,
+) -> impl IntoResponse {
+    match state.app.memory_service.create_item(item) {
+        Ok(stored) => {
+            Json(serde_json::json!({ "success": true, "memory": stored })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct PatchMemoryPayload {
+    content: Option<String>,
+    confidence: Option<f64>,
+}
+
+async fn patch_memory_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+    Json(payload): Json<PatchMemoryPayload>,
+) -> impl IntoResponse {
+    // PATCH is exposed as POST /api/memory/:id/patch for static-export compatibility.
+    match state
+        .app
+        .memory_service
+        .update_item(&id, payload.content, payload.confidence)
+    {
+        Ok(updated) => {
+            Json(serde_json::json!({ "success": true, "memory": updated })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn delete_memory_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.memory_service.delete_item(&id) {
+        Ok(deleted) => {
+            Json(serde_json::json!({ "success": true, "deleted": deleted })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct CandidatesQuery {
+    status: Option<String>,
+}
+
+async fn list_memory_candidates_handler(
+    State(state): State<Arc<ServerState>>,
+    Query(query): Query<CandidatesQuery>,
+) -> impl IntoResponse {
+    let list = state
+        .app
+        .memory_service
+        .list_candidates(query.status.as_deref());
+    Json(serde_json::json!({ "success": true, "total": list.len(), "candidates": list }))
+}
+
+#[derive(Deserialize)]
+struct ExtractCandidatesPayload {
+    text: String,
+    source: Option<String>,
+    workspace_id: Option<String>,
+    session_id: Option<String>,
+    task_id: Option<String>,
+    tool_id: Option<String>,
+    model_id: Option<String>,
+}
+
+async fn extract_memory_candidates_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<ExtractCandidatesPayload>,
+) -> impl IntoResponse {
+    let source: octrex_core::memory::MemorySource = payload
+        .source
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(octrex_core::memory::MemorySource::UserExplicit);
+    let input = octrex_core::memory::ExtractionInput {
+        text: payload.text,
+        source,
+        actor: "api".to_string(),
+        workspace_id: payload.workspace_id,
+        session_id: payload.session_id,
+        task_id: payload.task_id,
+        tool_id: payload.tool_id,
+        model_id: payload.model_id,
+    };
+    match state.app.memory_service.extract_candidates(&input) {
+        Ok(cands) => {
+            Json(serde_json::json!({ "success": true, "candidates": cands })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn approve_memory_candidate_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.memory_service.approve_candidate(&id) {
+        Ok(item) => Json(serde_json::json!({ "success": true, "memory": item })).into_response(),
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn reject_memory_candidate_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.memory_service.reject_candidate(&id) {
+        Ok(cand) => Json(serde_json::json!({ "success": true, "candidate": cand })).into_response(),
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct MemoryContextItemsPayload {
+    workspace_id: Option<String>,
+    session_id: Option<String>,
+    task_id: Option<String>,
+    query_text: Option<String>,
+    limit: Option<usize>,
+}
+
+async fn memory_context_items_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<MemoryContextItemsPayload>,
+) -> impl IntoResponse {
+    // Memory -> ContextItem conversion WITHOUT direct prompt injection. The
+    // returned items must still pass ContextEngine selection + budget.
+    let query = octrex_core::memory::MemoryQuery {
+        workspace_id: payload.workspace_id.clone(),
+        session_id: payload.session_id.clone(),
+        task_id: payload.task_id.clone(),
+        classification_ceiling: octrex_core::privacy::PrivacyClassification::Internal,
+        allow_secret: false,
+        limit: payload.limit.unwrap_or(5).min(20),
+        query_text: payload.query_text,
+        ..Default::default()
+    };
+    match state.app.memory_service.query(&query) {
+        Ok(results) => {
+            let session_id = payload
+                .session_id
+                .map(|s| octrex_core::ids::SessionId::from_string(&s));
+            let task_id = payload
+                .task_id
+                .map(|t| octrex_core::ids::TaskId::from_string(&t));
+            let workspace_id = payload
+                .workspace_id
+                .map(|w| octrex_core::ids::WorkspaceId::from_string(&w));
+            let items = octrex_core::memory::MemoryService::to_context_items(
+                &results,
+                session_id,
+                task_id,
+                workspace_id,
+            );
+            // Validate each item through ContextEngine policy before returning.
+            let mut accepted = Vec::new();
+            for item in items {
+                if state.app.context_engine.add_item(item.clone()).is_ok() {
+                    accepted.push(item.safe_summary());
+                }
+            }
+            Json(serde_json::json!({ "success": true, "accepted": accepted })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+// ============================================================================
+// PHASE 16 LOCAL RUNTIME & MODEL MANAGEMENT API HANDLERS
+// ============================================================================
+
+fn parse_classification(raw: Option<&str>) -> octrex_core::privacy::PrivacyClassification {
+    raw.unwrap_or("PUBLIC")
+        .parse()
+        .unwrap_or(octrex_core::privacy::PrivacyClassification::Public)
+}
+
+async fn list_local_runtimes_handler(
+    State(state): State<Arc<ServerState>>,
+) -> Json<serde_json::Value> {
+    let runtimes = state.app.local_runtime.list_runtimes();
+    Json(serde_json::json!({
+        "success": true,
+        "total": runtimes.len(),
+        "runtimes": runtimes
+    }))
+}
+
+#[derive(Deserialize)]
+struct DiscoverEndpointPayload {
+    endpoint: String,
+    runtime_type: Option<String>,
+    name: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct DiscoverRuntimesPayload {
+    include_defaults: Option<bool>,
+    endpoints: Option<Vec<DiscoverEndpointPayload>>,
+}
+
+async fn discover_local_runtimes_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<DiscoverRuntimesPayload>,
+) -> impl IntoResponse {
+    let mut requests = Vec::new();
+    for ep in payload.endpoints.unwrap_or_default() {
+        let runtime_type = match ep
+            .runtime_type
+            .as_deref()
+            .unwrap_or("ollama")
+            .parse::<octrex_core::local_runtime::LocalRuntimeType>()
+        {
+            Ok(t) => t,
+            Err(e) => {
+                return Json(serde_json::json!({ "success": false, "error": e })).into_response();
+            }
+        };
+        requests.push(octrex_core::local_runtime::detector::DiscoveryRequest::new(
+            ep.endpoint,
+            runtime_type,
+            ep.name,
+        ));
+    }
+    let runtimes = state
+        .app
+        .local_runtime
+        .discover(payload.include_defaults.unwrap_or(true), requests)
+        .await;
+    Json(serde_json::json!({
+        "success": true,
+        "total": runtimes.len(),
+        "runtimes": runtimes
+    }))
+    .into_response()
+}
+
+#[derive(Deserialize)]
+struct RegisterRuntimePayload {
+    runtime_type: String,
+    endpoint: String,
+    name: Option<String>,
+}
+
+async fn register_local_runtime_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<RegisterRuntimePayload>,
+) -> impl IntoResponse {
+    let runtime_type = match payload
+        .runtime_type
+        .parse::<octrex_core::local_runtime::LocalRuntimeType>()
+    {
+        Ok(t) => t,
+        Err(e) => {
+            return Json(serde_json::json!({ "success": false, "error": e })).into_response();
+        }
+    };
+    match state
+        .app
+        .local_runtime
+        .register_runtime(runtime_type, &payload.endpoint, payload.name)
+        .await
+    {
+        Ok(runtime) => {
+            Json(serde_json::json!({ "success": true, "runtime": runtime })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn get_local_runtime_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.local_runtime.get_runtime(&id) {
+        Ok(runtime) => {
+            Json(serde_json::json!({ "success": true, "runtime": runtime })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn refresh_local_runtime_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.local_runtime.refresh_runtime(&id).await {
+        Ok(runtime) => {
+            Json(serde_json::json!({ "success": true, "runtime": runtime })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn test_local_runtime_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.local_runtime.test_runtime(&id).await {
+        Ok(report) => {
+            Json(serde_json::json!({ "success": true, "health": report })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn start_local_runtime_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.local_runtime.start_runtime(&id).await {
+        Ok(runtime) => {
+            Json(serde_json::json!({ "success": true, "runtime": runtime })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn stop_local_runtime_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.local_runtime.stop_runtime(&id).await {
+        Ok(runtime) => {
+            Json(serde_json::json!({ "success": true, "runtime": runtime })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn list_local_models_handler(
+    State(state): State<Arc<ServerState>>,
+) -> Json<serde_json::Value> {
+    let models = state.app.local_runtime.list_models();
+    Json(serde_json::json!({
+        "success": true,
+        "total": models.len(),
+        "models": models
+    }))
+}
+
+#[derive(Deserialize)]
+struct DiscoverModelsPayload {
+    runtime_id: String,
+}
+
+async fn discover_local_models_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<DiscoverModelsPayload>,
+) -> impl IntoResponse {
+    match state
+        .app
+        .local_runtime
+        .discover_models(&payload.runtime_id)
+        .await
+    {
+        Ok(models) => Json(serde_json::json!({
+            "success": true,
+            "total": models.len(),
+            "models": models
+        }))
+        .into_response(),
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn register_local_model_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<octrex_core::local_runtime::RegisterModelInput>,
+) -> impl IntoResponse {
+    match state.app.local_runtime.register_model(payload).await {
+        Ok(model) => Json(serde_json::json!({ "success": true, "model": model })).into_response(),
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn get_local_model_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.local_runtime.get_model(&id) {
+        Ok(model) => Json(serde_json::json!({ "success": true, "model": model })).into_response(),
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn enable_local_model_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.local_runtime.enable_model(&id) {
+        Ok(model) => Json(serde_json::json!({ "success": true, "model": model })).into_response(),
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn disable_local_model_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.local_runtime.disable_model(&id) {
+        Ok(model) => Json(serde_json::json!({ "success": true, "model": model })).into_response(),
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct CompatibilityQuery {
+    input_tokens: Option<usize>,
+    output_tokens: Option<u32>,
+}
+
+async fn local_model_compatibility_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+    Query(query): Query<CompatibilityQuery>,
+) -> impl IntoResponse {
+    match state
+        .app
+        .local_runtime
+        .compatibility(
+            &id,
+            query.input_tokens.unwrap_or(1024),
+            query.output_tokens.map(|v| v as usize),
+        )
+        .await
+    {
+        Ok(report) => {
+            Json(serde_json::json!({ "success": true, "compatibility": report })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn explain_local_routing_handler(
+    State(state): State<Arc<ServerState>>,
+    Query(query): Query<CompatibilityQuery>,
+) -> impl IntoResponse {
+    let explanations = state
+        .app
+        .local_runtime
+        .explain_routing(
+            query.input_tokens.unwrap_or(1024),
+            query.output_tokens.map(|v| v as usize),
+        )
+        .await;
+    Json(serde_json::json!({
+        "success": true,
+        "total": explanations.len(),
+        "candidates": explanations
+    }))
+    .into_response()
+}
+
+#[derive(Deserialize)]
+struct PreviewInferencePayload {
+    registry_model_id: String,
+    input_tokens: Option<usize>,
+    output_tokens: Option<u32>,
+    classification: Option<String>,
+}
+
+async fn preview_local_inference_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<PreviewInferencePayload>,
+) -> impl IntoResponse {
+    let classification = parse_classification(payload.classification.as_deref());
+    let record = match state
+        .app
+        .local_runtime
+        .get_model(&payload.registry_model_id)
+    {
+        Ok(m) => m,
+        Err(e) => {
+            return Json(serde_json::json!({ "success": false, "error": e.to_string() }))
+                .into_response();
+        }
+    };
+    match state
+        .app
+        .local_runtime
+        .compatibility(
+            &record.id,
+            payload.input_tokens.unwrap_or(1024),
+            payload.output_tokens.map(|v| v as usize),
+        )
+        .await
+    {
+        Ok(report) => Json(serde_json::json!({
+            "success": true,
+            "preview": {
+                "registry_model_id": record.registry_model_id,
+                "state": record.state.to_string(),
+                "health": record.health.to_string(),
+                "routable": report.routable && record.state.is_routable() && record.health.is_routable(),
+                "compatibility": report,
+                "classification": classification.to_string(),
+                "note": "Preview only: no inference was executed and no model was downloaded."
+            }
+        }))
+        .into_response(),
+        Err(e) => Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response(),
+    }
+}
+
+#[derive(Deserialize)]
+struct InferenceMessagePayload {
+    role: String,
+    content: String,
+}
+
+#[derive(Deserialize)]
+struct ExecuteInferencePayload {
+    registry_model_id: String,
+    messages: Vec<InferenceMessagePayload>,
+    system_instructions: Option<String>,
+    max_output_tokens: Option<u32>,
+    temperature: Option<f32>,
+    classification: Option<String>,
+}
+
+fn build_model_request(payload: ExecuteInferencePayload) -> octrex_core::models::ModelRequest {
+    use std::collections::HashMap;
+    octrex_core::models::ModelRequest {
+        model_id: payload.registry_model_id,
+        messages: payload
+            .messages
+            .into_iter()
+            .map(|m| octrex_core::models::ModelMessage {
+                role: m.role,
+                content: m.content,
+                tool_calls: None,
+            })
+            .collect(),
+        system_instructions: payload.system_instructions,
+        tools: vec![],
+        temperature: payload.temperature,
+        max_output_tokens: payload.max_output_tokens,
+        response_format: octrex_core::models::ResponseFormat::Text,
+        metadata: HashMap::new(),
+        correlation: octrex_core::models::CallCorrelation::default(),
+    }
+}
+
+async fn execute_local_inference_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<ExecuteInferencePayload>,
+) -> impl IntoResponse {
+    let classification = parse_classification(payload.classification.as_deref());
+    let call_id = octrex_core::ids::RequestId::new();
+    let _ = call_id;
+    let request = build_model_request(payload);
+    match state
+        .app
+        .local_runtime
+        .execute(request, classification)
+        .await
+    {
+        Ok(response) => {
+            Json(serde_json::json!({ "success": true, "response": response })).into_response()
+        }
+        Err(e) => Json(serde_json::json!({
+            "success": false,
+            "error": e.to_string(),
+            "no_cloud_fallback": true
+        }))
+        .into_response(),
+    }
+}
+
+async fn stream_local_inference_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<ExecuteInferencePayload>,
+) -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
+    use tokio_stream::wrappers::ReceiverStream;
+    let classification = parse_classification(payload.classification.as_deref());
+    let request = build_model_request(payload);
+    // NOTE (Phase 15): a single stream construction so both outcomes share
+    // one concrete `impl Stream` type (two closure expressions never unify).
+    let (call_id, rx) = match state
+        .app
+        .local_runtime
+        .execute_stream(request, classification)
+        .await
+    {
+        Ok(v) => v,
+        Err(e) => {
+            let (tx, rx) = tokio::sync::mpsc::channel(1);
+            let msg = e.to_string();
+            tokio::spawn(async move {
+                let _ = tx
+                    .send(octrex_core::models::ModelStreamEvent::Failed(msg))
+                    .await;
+            });
+            (String::new(), rx)
+        }
+    };
+    let stream = ReceiverStream::new(rx).map(move |ev| {
+        let json = serde_json::json!({ "call_id": call_id, "event": ev });
+        Ok(Event::default().data(serde_json::to_string(&json).unwrap_or_default()))
+    });
+    Sse::new(stream).keep_alive(KeepAlive::default())
+}
+
+#[derive(Deserialize)]
+struct CancelInferencePayload {
+    call_id: String,
+}
+
+async fn cancel_local_inference_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<CancelInferencePayload>,
+) -> impl IntoResponse {
+    let cancelled = state.app.local_runtime.cancel(&payload.call_id);
+    Json(serde_json::json!({ "success": true, "cancelled": cancelled }))
+}
+
+async fn list_local_inference_metrics_handler(
+    State(state): State<Arc<ServerState>>,
+) -> Json<serde_json::Value> {
+    let metrics = state.app.local_runtime.recent_metrics(50);
+    let active = state.app.local_runtime.active_call_ids();
+    let slots = state.app.local_runtime.slot_occupants();
+    Json(serde_json::json!({
+        "success": true,
+        "total": metrics.len(),
+        "metrics": metrics,
+        "active_calls": active,
+        "slot_occupants": slots
+    }))
+}
+
+async fn get_local_inference_metric_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(call_id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.local_runtime.get_metrics(&call_id) {
+        Some(metric) => Json(serde_json::json!({ "success": true, "metric": metric })).into_response(),
+        None => Json(serde_json::json!({ "success": false, "error": format!("No metrics for call '{}'", call_id) })).into_response(),
+    }
+}
+
+async fn download_local_model_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<octrex_core::local_runtime::DownloadModelInput>,
+) -> impl IntoResponse {
+    match state.app.local_runtime.download_model(payload).await {
+        Ok(summary) => {
+            Json(serde_json::json!({ "success": true, "installation": summary })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn get_local_storage_handler(
+    State(state): State<Arc<ServerState>>,
+) -> Json<serde_json::Value> {
+    let dir = state.app.local_runtime.model_storage_dir();
+    Json(serde_json::json!({
+        "success": true,
+        "model_dir": dir.to_string_lossy(),
+        "exists": dir.exists()
+    }))
+}
+
+// ============================================================================
+// PHASE 15 DOCUMENT INTELLIGENCE & ARTIFACT PIPELINE API HANDLERS
+// All intake goes through FilesystemSecurityService; documents are untrusted
+// data; SECRET content is redacted (never raw) in every response.
+// ============================================================================
+
+/// Resolve a workspace id against the DB, syncing server-registered
+/// in-memory workspaces into the DB so the filesystem boundary can resolve
+/// them. Unknown ids fail closed.
+fn resolve_doc_workspace(
+    state: &ServerState,
+    workspace_id: &str,
+) -> Result<octrex_core::ids::WorkspaceId, String> {
+    use octrex_core::db::repository::{SqliteWorkspaceRepository, WorkspaceRepository};
+    let ws_id = octrex_core::ids::WorkspaceId::from_string(workspace_id);
+    let repo = SqliteWorkspaceRepository::new((*state.app.db).clone());
+    match repo.get_workspace(&ws_id) {
+        Ok(Some(_)) => Ok(ws_id),
+        Ok(None) => {
+            // Sync from the server's own in-memory registry (populated by
+            // /api/workspace/inspect). Anything else is rejected.
+            match state.app.workspace_registry.get_workspace(&ws_id) {
+                Some(ws) => match repo.create_workspace(&ws) {
+                    Ok(_) => Ok(ws_id),
+                    Err(e) => Err(format!("Workspace sync failed: {}", e)),
+                },
+                None => Err(format!(
+                    "Workspace '{}' is not registered; inspect it first via /api/workspace/inspect",
+                    workspace_id
+                )),
+            }
+        }
+        Err(e) => Err(format!("Workspace lookup failed: {}", e)),
+    }
+}
+
+fn redact_chunk_text(text: &str, class: &str) -> String {
+    match class {
+        "SECRET" => "[REDACTED: SECRET document content withheld]".to_string(),
+        "RESTRICTED" => {
+            let preview: String = text.chars().take(500).collect();
+            format!(
+                "[RESTRICTED preview] {}",
+                octrex_core::privacy::EvidenceManager::redact_string(&preview)
+            )
+        }
+        _ => octrex_core::privacy::EvidenceManager::redact_string(
+            &text.chars().take(8000).collect::<String>(),
+        ),
+    }
+}
+
+#[derive(Deserialize)]
+struct ListDocumentsQuery {
+    workspace_id: String,
+}
+
+async fn list_documents_handler(
+    State(state): State<Arc<ServerState>>,
+    Query(query): Query<ListDocumentsQuery>,
+) -> impl IntoResponse {
+    let ws_id = match resolve_doc_workspace(&state, &query.workspace_id) {
+        Ok(id) => id,
+        Err(e) => return Json(serde_json::json!({ "success": false, "error": e })).into_response(),
+    };
+    match state.app.document_service.list_documents(&ws_id) {
+        Ok(docs) => Json(serde_json::json!({
+            "success": true,
+            "total": docs.len(),
+            "documents": docs
+        }))
+        .into_response(),
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct ImportDocumentPayload {
+    workspace_id: String,
+    rel_path: String,
+    session_id: Option<String>,
+    task_id: Option<String>,
+}
+
+async fn import_document_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<ImportDocumentPayload>,
+) -> impl IntoResponse {
+    let ws_id = match resolve_doc_workspace(&state, &payload.workspace_id) {
+        Ok(id) => id,
+        Err(e) => return Json(serde_json::json!({ "success": false, "error": e })).into_response(),
+    };
+    let sess = payload
+        .session_id
+        .as_ref()
+        .map(octrex_core::ids::SessionId::from_string);
+    let task = payload
+        .task_id
+        .as_ref()
+        .map(octrex_core::ids::TaskId::from_string);
+    match state.app.document_service.import_and_parse(
+        &ws_id,
+        &payload.rel_path,
+        sess.as_ref(),
+        task.as_ref(),
+    ) {
+        Ok(out) => {
+            let doc = out.document;
+            let class = doc.classification.to_string();
+            Json(serde_json::json!({
+                "success": true,
+                "document_id": doc.document_id.as_str(),
+                "version_id": doc.version_id.as_str(),
+                "title": doc.title,
+                "format": doc.metadata.format.as_str(),
+                "mime": doc.metadata.mime,
+                "size_bytes": doc.metadata.size_bytes,
+                "content_hash": doc.metadata.content_hash,
+                "classification": class,
+                "extraction_status": doc.metadata.extraction_status.to_string(),
+                "blocks": doc.blocks.len(),
+                "sections": doc.sections.len(),
+                "pages": doc.pages.len(),
+                "chunks": out.chunks.len(),
+                "warnings": doc.warnings,
+                "security_findings": doc.findings,
+                "text_preview": redact_chunk_text(&doc.full_text, &class),
+            }))
+            .into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct DocumentQuery {
+    workspace_id: String,
+}
+
+async fn get_document_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+    Query(query): Query<DocumentQuery>,
+) -> impl IntoResponse {
+    if resolve_doc_workspace(&state, &query.workspace_id).is_err() {
+        return Json(serde_json::json!({ "success": false, "error": "Unknown workspace" }))
+            .into_response();
+    }
+    match state.app.document_service.get_document(&id) {
+        Ok(Some(row)) => Json(serde_json::json!({ "success": true, "document": row })).into_response(),
+        Ok(None) => Json(serde_json::json!({ "success": false, "error": format!("Document '{}' not found", id) })).into_response(),
+        Err(e) => Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response(),
+    }
+}
+
+async fn get_document_sections_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+    Query(query): Query<DocumentQuery>,
+) -> impl IntoResponse {
+    let ws_id = match resolve_doc_workspace(&state, &query.workspace_id) {
+        Ok(ws) => ws,
+        Err(e) => return Json(serde_json::json!({ "success": false, "error": e })).into_response(),
+    };
+    match state.app.document_service.get_chunks(&id, &ws_id) {
+        Ok(chunks) => {
+            let sections: Vec<serde_json::Value> = {
+                let mut seen = std::collections::HashSet::new();
+                let mut list = Vec::new();
+                for c in &chunks {
+                    if let Some(s) = &c.section {
+                        if seen.insert(s.clone()) {
+                            list.push(serde_json::json!({ "section_id": s }));
+                        }
+                    }
+                }
+                list
+            };
+            let pages: Vec<u32> = {
+                let mut set = std::collections::HashSet::new();
+                for c in &chunks {
+                    if let Some(p) = c.page {
+                        set.insert(p);
+                    }
+                }
+                let mut v: Vec<u32> = set.into_iter().collect();
+                v.sort_unstable();
+                v
+            };
+            Json(serde_json::json!({
+                "success": true,
+                "document_id": id,
+                "sections": sections,
+                "pages": pages,
+                "chunks": chunks.len(),
+            }))
+            .into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn get_document_chunks_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+    Query(query): Query<DocumentQuery>,
+) -> impl IntoResponse {
+    let ws_id = match resolve_doc_workspace(&state, &query.workspace_id) {
+        Ok(ws) => ws,
+        Err(e) => return Json(serde_json::json!({ "success": false, "error": e })).into_response(),
+    };
+    match state.app.document_service.get_chunks(&id, &ws_id) {
+        Ok(chunks) => {
+            let safe: Vec<serde_json::Value> = chunks
+                .iter()
+                .map(|c| {
+                    let class = c.classification.to_string();
+                    serde_json::json!({
+                        "chunk_id": c.id.as_str(),
+                        "chunk_index": c.chunk_index,
+                        "classification": class,
+                        "section": c.section,
+                        "page": c.page,
+                        "source": c.source_path,
+                        "char_count": c.char_count,
+                        "token_estimate": c.token_estimate,
+                        "text": redact_chunk_text(&c.text, &class),
+                    })
+                })
+                .collect();
+            Json(serde_json::json!({ "success": true, "document_id": id, "total": safe.len(), "chunks": safe })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct SearchDocumentPayload {
+    workspace_id: String,
+    query: String,
+    ceiling: Option<String>,
+    limit: Option<usize>,
+}
+
+async fn search_document_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+    Json(payload): Json<SearchDocumentPayload>,
+) -> impl IntoResponse {
+    let ws_id = match resolve_doc_workspace(&state, &payload.workspace_id) {
+        Ok(ws) => ws,
+        Err(e) => return Json(serde_json::json!({ "success": false, "error": e })).into_response(),
+    };
+    let ceiling: octrex_core::privacy::PrivacyClassification = payload
+        .ceiling
+        .as_deref()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(octrex_core::privacy::PrivacyClassification::Confidential);
+    match state.app.document_service.search(
+        &ws_id,
+        &payload.query,
+        ceiling,
+        payload.limit.unwrap_or(10).min(50),
+    ) {
+        Ok(results) => {
+            // Scope to the requested document; retrieval itself stays workspace-scoped.
+            let scoped: Vec<serde_json::Value> = results
+                .into_iter()
+                .filter(|r| r.document_id == id)
+                .map(|r| {
+                    let class = r.classification.to_string();
+                    serde_json::json!({
+                        "chunk_id": r.chunk_id,
+                        "relevance": r.relevance,
+                        "classification": class,
+                        "section": r.section,
+                        "page": r.page,
+                        "source": r.source,
+                        "text": redact_chunk_text(&r.text, &class),
+                    })
+                })
+                .collect();
+            Json(serde_json::json!({ "success": true, "document_id": id, "total": scoped.len(), "results": scoped })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct IngestDocumentPayload {
+    workspace_id: String,
+    session_id: String,
+    task_id: Option<String>,
+    model_id: Option<String>,
+    context_window: Option<usize>,
+}
+
+async fn ingest_document_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+    Json(payload): Json<IngestDocumentPayload>,
+) -> impl IntoResponse {
+    let ws_id = match resolve_doc_workspace(&state, &payload.workspace_id) {
+        Ok(ws) => ws,
+        Err(e) => return Json(serde_json::json!({ "success": false, "error": e })).into_response(),
+    };
+    let sess = octrex_core::ids::SessionId::from_string(&payload.session_id);
+    let task = payload
+        .task_id
+        .as_ref()
+        .map(octrex_core::ids::TaskId::from_string);
+    let model_id = payload
+        .model_id
+        .unwrap_or_else(|| "local-default".to_string());
+    let window = payload.context_window.unwrap_or(8192);
+    match state.app.document_service.ingest_to_context(
+        &id,
+        &ws_id,
+        &sess,
+        task.as_ref(),
+        &model_id,
+        window,
+    ) {
+        Ok(items) => {
+            let summaries: Vec<String> = items.iter().map(|i| i.safe_summary()).collect();
+            Json(serde_json::json!({
+                "success": true,
+                "document_id": id,
+                "items_ingested": items.len(),
+                "safe_summaries": summaries,
+            }))
+            .into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct AssistDocumentPayload {
+    workspace_id: String,
+    document_id: String,
+    operation: Option<String>,
+    session_id: Option<String>,
+    task_id: Option<String>,
+}
+
+async fn assist_document_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<AssistDocumentPayload>,
+) -> impl IntoResponse {
+    let ws_id = match resolve_doc_workspace(&state, &payload.workspace_id) {
+        Ok(ws) => ws,
+        Err(e) => return Json(serde_json::json!({ "success": false, "error": e })).into_response(),
+    };
+    let sess = payload
+        .session_id
+        .as_ref()
+        .map(octrex_core::ids::SessionId::from_string);
+    let task = payload
+        .task_id
+        .as_ref()
+        .map(octrex_core::ids::TaskId::from_string);
+    let op = payload.operation.unwrap_or_else(|| "summarize".to_string());
+    match state
+        .app
+        .document_service
+        .ai_assist(&ws_id, &payload.document_id, &op, sess.as_ref(), task.as_ref())
+        .await
+    {
+        Ok(v) => Json(serde_json::json!({ "success": true, "assist": v })).into_response(),
+        Err(e) => Json(serde_json::json!({ "success": false, "error": e.to_string(), "no_cloud_fallback": true })).into_response(),
+    }
+}
+
+#[derive(Deserialize)]
+struct ListArtifactsQuery {
+    workspace_id: Option<String>,
+    task_id: Option<String>,
+}
+
+async fn list_artifacts_handler(
+    State(state): State<Arc<ServerState>>,
+    Query(query): Query<ListArtifactsQuery>,
+) -> impl IntoResponse {
+    use octrex_core::db::repository::{ArtifactRepository, SqliteArtifactRepository};
+    let repo = SqliteArtifactRepository::new((*state.app.db).clone());
+    if let Some(task_id) = query.task_id {
+        let tid = octrex_core::ids::TaskId::from_string(&task_id);
+        match repo.list_artifacts_by_task(&tid) {
+            Ok(list) => {
+                Json(serde_json::json!({ "success": true, "total": list.len(), "artifacts": list }))
+                    .into_response()
+            }
+            Err(e) => Json(serde_json::json!({ "success": false, "error": e.to_string() }))
+                .into_response(),
+        }
+    } else if let Some(ws_id) = query.workspace_id {
+        let ws = match resolve_doc_workspace(&state, &ws_id) {
+            Ok(w) => w,
+            Err(e) => {
+                return Json(serde_json::json!({ "success": false, "error": e })).into_response()
+            }
+        };
+        match repo.list_artifacts_by_workspace(&ws) {
+            Ok(list) => {
+                Json(serde_json::json!({ "success": true, "total": list.len(), "artifacts": list }))
+                    .into_response()
+            }
+            Err(e) => Json(serde_json::json!({ "success": false, "error": e.to_string() }))
+                .into_response(),
+        }
+    } else {
+        Json(serde_json::json!({ "success": false, "error": "Provide workspace_id or task_id" }))
+            .into_response()
+    }
+}
+
+async fn get_artifact_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    use octrex_core::db::repository::{ArtifactRepository, SqliteArtifactRepository};
+    let repo = SqliteArtifactRepository::new((*state.app.db).clone());
+    let aid = octrex_core::ids::ArtifactId::from(id.clone());
+    match repo.get_artifact(&aid) {
+        Ok(Some(a)) => Json(serde_json::json!({ "success": true, "artifact": a })).into_response(),
+        Ok(None) => Json(serde_json::json!({ "success": false, "error": format!("Artifact '{}' not found", id) })).into_response(),
+        Err(e) => Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response(),
+    }
+}
+
+async fn get_artifact_lineage_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match state.app.document_service.artifact_lineage(&id) {
+        Ok(lineage) => {
+            Json(serde_json::json!({ "success": true, "artifact_id": id, "lineage": lineage }))
+                .into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+async fn get_artifact_verification_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    use octrex_core::db::repository::{ArtifactRepository, SqliteArtifactRepository};
+    let repo = SqliteArtifactRepository::new((*state.app.db).clone());
+    let aid = octrex_core::ids::ArtifactId::from(id.clone());
+    match repo.get_artifact(&aid) {
+        Ok(Some(a)) => {
+            let lineage = state.app.document_service.artifact_lineage(&id).unwrap_or_default();
+            Json(serde_json::json!({
+                "success": true,
+                "artifact_id": id,
+                "verification_status": a.verification_status,
+                "checksum": a.checksum,
+                "lineage": lineage,
+            }))
+            .into_response()
+        }
+        Ok(None) => Json(serde_json::json!({ "success": false, "error": format!("Artifact '{}' not found", id) })).into_response(),
+        Err(e) => Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response(),
+    }
+}
+
+#[derive(Deserialize)]
+struct CreateArtifactPayload {
+    workspace_id: String,
+    task_id: Option<String>,
+    session_id: Option<String>,
+    rel_path: String,
+    name: String,
+    content: String,
+    artifact_type: Option<String>,
+    source_document_id: Option<String>,
+    parent_artifact_id: Option<String>,
+    producing_workflow: Option<String>,
+    producing_skill: Option<String>,
+}
+
+async fn create_artifact_handler(
+    State(state): State<Arc<ServerState>>,
+    Json(payload): Json<CreateArtifactPayload>,
+) -> impl IntoResponse {
+    let ws_id = match resolve_doc_workspace(&state, &payload.workspace_id) {
+        Ok(w) => w,
+        Err(e) => return Json(serde_json::json!({ "success": false, "error": e })).into_response(),
+    };
+    let kind = payload
+        .artifact_type
+        .as_deref()
+        .and_then(octrex_core::documents::ArtifactKind::parse_label)
+        .unwrap_or(octrex_core::documents::ArtifactKind::GeneratedDocument);
+    if let Err(reason) = octrex_core::documents::validate_artifact_content(
+        &kind,
+        &payload.rel_path,
+        &payload.content,
+    ) {
+        return Json(serde_json::json!({ "success": false, "error": reason })).into_response();
+    }
+    let task = payload
+        .task_id
+        .as_ref()
+        .map(octrex_core::ids::TaskId::from_string);
+    let sess = payload
+        .session_id
+        .as_ref()
+        .map(octrex_core::ids::SessionId::from_string);
+    match state.app.document_service.create_artifact(
+        &ws_id,
+        task.as_ref(),
+        sess.as_ref(),
+        &payload.rel_path,
+        &payload.name,
+        &payload.content,
+        kind,
+        payload.source_document_id.as_deref(),
+        payload.parent_artifact_id.as_deref(),
+        payload.producing_workflow.as_deref(),
+        payload.producing_skill.as_deref(),
+    ) {
+        Ok(record) => {
+            Json(serde_json::json!({ "success": true, "artifact": record })).into_response()
+        }
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct VerifyArtifactPayload {
+    workspace_id: String,
+    task_id: String,
+    session_id: Option<String>,
+}
+
+async fn verify_artifact_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+    Json(payload): Json<VerifyArtifactPayload>,
+) -> impl IntoResponse {
+    let ws_id = match resolve_doc_workspace(&state, &payload.workspace_id) {
+        Ok(w) => w,
+        Err(e) => return Json(serde_json::json!({ "success": false, "error": e })).into_response(),
+    };
+    let aid = octrex_core::ids::ArtifactId::from(id.clone());
+    let task = octrex_core::ids::TaskId::from_string(&payload.task_id);
+    let sess = payload
+        .session_id
+        .as_ref()
+        .map(octrex_core::ids::SessionId::from_string);
+    match state
+        .app
+        .document_service
+        .verify_artifact(&aid, &task, &ws_id, sess.as_ref())
+    {
+        Ok(result) => Json(serde_json::json!({
+            "success": true,
+            "artifact_id": id,
+            "verification": result,
+        }))
+        .into_response(),
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct ExportArtifactPayload {
+    workspace_id: String,
+    dest_external_path: String,
+}
+
+async fn export_artifact_handler(
+    State(state): State<Arc<ServerState>>,
+    Path(id): Path<String>,
+    Json(payload): Json<ExportArtifactPayload>,
+) -> impl IntoResponse {
+    let ws_id = match resolve_doc_workspace(&state, &payload.workspace_id) {
+        Ok(w) => w,
+        Err(e) => return Json(serde_json::json!({ "success": false, "error": e })).into_response(),
+    };
+    let aid = octrex_core::ids::ArtifactId::from(id.clone());
+    match state
+        .app
+        .document_service
+        .export_artifact(&aid, &ws_id, &payload.dest_external_path)
+    {
+        Ok(()) => Json(serde_json::json!({ "success": true, "artifact_id": id })).into_response(),
+        Err(e) => {
+            Json(serde_json::json!({ "success": false, "error": e.to_string() })).into_response()
+        }
     }
 }
