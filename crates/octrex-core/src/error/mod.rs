@@ -116,6 +116,17 @@ pub enum OctrexError {
 
     #[error("Internal Engine Error: {message}")]
     Internal { message: String },
+
+    #[error("Orchestration Error: {message}")]
+    Orchestration { message: String },
+}
+
+impl From<crate::orchestration::OrchestrationError> for OctrexError {
+    fn from(err: crate::orchestration::OrchestrationError) -> Self {
+        OctrexError::Orchestration {
+            message: err.to_string(),
+        }
+    }
 }
 
 impl OctrexError {
@@ -140,6 +151,7 @@ impl OctrexError {
             OctrexError::Timeout { .. } => ErrorCode::Timeout,
             OctrexError::Cancelled => ErrorCode::Cancelled,
             OctrexError::Internal { .. } => ErrorCode::InternalError,
+            OctrexError::Orchestration { .. } => ErrorCode::InternalError,
         }
     }
 
