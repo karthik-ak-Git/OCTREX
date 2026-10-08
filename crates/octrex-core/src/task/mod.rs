@@ -9,6 +9,14 @@ use std::time::{SystemTime, UNIX_EPOCH};
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum TaskStatus {
     Created,
+    Planning,
+    PlanReady,
+    Executing,
+    WaitingForTool,
+    WaitingForUser,
+    Verifying,
+    Retrying,
+    Blocked,
     Running,
     Paused,
     Cancelled,

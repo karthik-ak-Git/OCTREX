@@ -8,6 +8,7 @@ pub struct Workspace {
     pub id: WorkspaceId,
     pub name: String,
     pub path: PathBuf,
+    pub classification: String,
     pub created_at: u64,
     pub updated_at: u64,
 }
@@ -23,6 +24,7 @@ impl Workspace {
             id: WorkspaceId::new(),
             name: name.into(),
             path,
+            classification: "PUBLIC".to_string(),
             created_at: now,
             updated_at: now,
         }
