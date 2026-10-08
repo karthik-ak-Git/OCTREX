@@ -208,6 +208,34 @@ impl HardwareProfile {
     }
 }
 
+impl Default for HardwareProfile {
+    fn default() -> Self {
+        Self {
+            os: OperatingSystem::Unknown("unknown".to_string()),
+            os_detail: None,
+            arch: Architecture::Unknown("unknown".to_string()),
+            cpu: CpuInfo {
+                architecture: Architecture::Unknown("unknown".to_string()),
+                logical_cores: 4,
+                physical_cores: None,
+                vendor: None,
+                model_name: None,
+                features: vec![],
+            },
+            memory: MemoryInfo {
+                total_bytes: 8 * 1024 * 1024 * 1024,
+                available_bytes: Some(4 * 1024 * 1024 * 1024),
+                used_bytes: Some(4 * 1024 * 1024 * 1024),
+                is_unified_memory: false,
+            },
+            gpus: vec![],
+            detected_at_timestamp: 0,
+            confidence: DetectionConfidence::Estimated,
+            source: HardwareSource::Unknown,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct GpuSnapshot {
     pub device_index: u32,

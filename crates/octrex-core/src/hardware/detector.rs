@@ -206,6 +206,16 @@ impl HardwareService {
         }
     }
 
+    pub fn get_profile(&self) -> HardwareProfile {
+        {
+            let guard = self.cached_profile.read().unwrap();
+            if let Some(p) = guard.as_ref() {
+                return p.clone();
+            }
+        }
+        HardwareProfile::default()
+    }
+
     pub async fn profile(&self) -> Result<HardwareProfile, HardwareError> {
         {
             let guard = self.cached_profile.read().unwrap();
