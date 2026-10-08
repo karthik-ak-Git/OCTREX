@@ -1,28 +1,13 @@
 use crate::config::{AppConfig, ProviderConfig, ProviderType};
+use crate::providers::types::{ProviderHealthCheck, ProviderHealthStatus};
 use reqwest::Client;
-use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub enum ProviderHealthStatus {
-    Connected { models: Vec<String> },
-    MissingApiKey,
-    AuthError { message: String },
-    Offline { reason: String },
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ProviderHealthCheck {
-    pub provider_id: String,
-    pub status: ProviderHealthStatus,
-    pub latency_ms: u128,
-}
-
-pub struct ProviderGateway {
+pub struct HealthChecker {
     http_client: Client,
 }
 
-impl Default for ProviderGateway {
+impl Default for HealthChecker {
     fn default() -> Self {
         let http_client = Client::builder()
             .timeout(Duration::from_secs(8))
@@ -32,12 +17,11 @@ impl Default for ProviderGateway {
     }
 }
 
-impl ProviderGateway {
+impl HealthChecker {
     pub fn new() -> Self {
         Self::default()
     }
 
-    /// Check live health status against actual remote / local provider endpoints
     pub async fn check_health(
         &self,
         provider_id: &str,
@@ -63,7 +47,6 @@ impl ProviderGateway {
     }
 
     async fn check_opencode(&self, config: &ProviderConfig) -> ProviderHealthStatus {
-        // OpenCode free models router
         let base_url = config
             .base_url
             .as_deref()
@@ -72,11 +55,11 @@ impl ProviderGateway {
 
         if let Ok(resp) = self.http_client.get(&endpoint).send().await {
             if resp.status().is_success() {
-                #[derive(Deserialize)]
+                #[derive(serde::Deserialize)]
                 struct ModelItem {
                     id: String,
                 }
-                #[derive(Deserialize)]
+                #[derive(serde::Deserialize)]
                 struct ModelsResponse {
                     data: Vec<ModelItem>,
                 }
@@ -87,7 +70,6 @@ impl ProviderGateway {
             }
         }
 
-        // Default OpenCode free routing models list
         ProviderHealthStatus::Connected {
             models: vec![
                 "opencode-free-router".to_string(),
@@ -108,18 +90,20 @@ impl ProviderGateway {
         match self.http_client.get(&endpoint).send().await {
             Ok(resp) => {
                 if resp.status().is_success() {
-                    #[derive(Deserialize)]
+                    #[derive(serde::Deserialize)]
                     struct OllamaModel {
                         name: String,
                     }
-                    #[derive(Deserialize)]
+                    #[derive(serde::Deserialize)]
                     struct OllamaResponse {
                         models: Vec<OllamaModel>,
                     }
 
                     if let Ok(data) = resp.json::<OllamaResponse>().await {
                         let model_names = data.models.into_iter().map(|m| m.name).collect();
-                        ProviderHealthStatus::Connected { models: model_names }
+                        ProviderHealthStatus::Connected {
+                            models: model_names,
+                        }
                     } else {
                         ProviderHealthStatus::Connected {
                             models: vec![config.default_model.clone()],
@@ -149,20 +133,17 @@ impl ProviderGateway {
             .unwrap_or("https://api.openai.com/v1");
         let endpoint = format!("{}/models", base_url.trim_end_matches('/'));
 
-        let request = self
-            .http_client
-            .get(&endpoint)
-            .bearer_auth(api_key);
+        let request = self.http_client.get(&endpoint).bearer_auth(api_key);
 
         match request.send().await {
             Ok(resp) => {
                 let status_code = resp.status();
                 if status_code.is_success() {
-                    #[derive(Deserialize)]
+                    #[derive(serde::Deserialize)]
                     struct ModelItem {
                         id: String,
                     }
-                    #[derive(Deserialize)]
+                    #[derive(serde::Deserialize)]
                     struct ModelsResponse {
                         data: Vec<ModelItem>,
                     }
@@ -206,11 +187,11 @@ impl ProviderGateway {
             Ok(resp) => {
                 let status_code = resp.status();
                 if status_code.is_success() {
-                    #[derive(Deserialize)]
+                    #[derive(serde::Deserialize)]
                     struct GeminiModel {
                         name: String,
                     }
-                    #[derive(Deserialize)]
+                    #[derive(serde::Deserialize)]
                     struct GeminiResponse {
                         models: Vec<GeminiModel>,
                     }
@@ -224,7 +205,10 @@ impl ProviderGateway {
                         ProviderHealthStatus::Connected { models }
                     } else {
                         ProviderHealthStatus::Connected {
-                            models: vec!["gemini-1.5-pro".to_string(), "gemini-1.5-flash".to_string()],
+                            models: vec![
+                                "gemini-1.5-pro".to_string(),
+                                "gemini-1.5-flash".to_string(),
+                            ],
                         }
                     }
                 } else if status_code.as_u16() == 400 || status_code.as_u16() == 403 {
