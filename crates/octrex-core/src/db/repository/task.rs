@@ -32,6 +32,14 @@ impl TaskRepository for SqliteTaskRepository {
 
             let status_str = match task.status {
                 TaskStatus::Created => "CREATED",
+                TaskStatus::Planning => "PLANNING",
+                TaskStatus::PlanReady => "PLAN_READY",
+                TaskStatus::Executing => "EXECUTING",
+                TaskStatus::WaitingForTool => "WAITING_FOR_TOOL",
+                TaskStatus::WaitingForUser => "WAITING_FOR_USER",
+                TaskStatus::Verifying => "VERIFYING",
+                TaskStatus::Retrying => "RETRYING",
+                TaskStatus::Blocked => "BLOCKED",
                 TaskStatus::Running => "RUNNING",
                 TaskStatus::Paused => "PAUSED",
                 TaskStatus::Cancelled => "CANCELLED",
@@ -87,6 +95,14 @@ impl TaskRepository for SqliteTaskRepository {
                 let err_msg: Option<String> = row.get(9)?;
 
                 let status = match status_str.to_uppercase().as_str() {
+                    "PLANNING" => TaskStatus::Planning,
+                    "PLAN_READY" => TaskStatus::PlanReady,
+                    "EXECUTING" => TaskStatus::Executing,
+                    "WAITING_FOR_TOOL" => TaskStatus::WaitingForTool,
+                    "WAITING_FOR_USER" => TaskStatus::WaitingForUser,
+                    "VERIFYING" => TaskStatus::Verifying,
+                    "RETRYING" => TaskStatus::Retrying,
+                    "BLOCKED" => TaskStatus::Blocked,
                     "RUNNING" => TaskStatus::Running,
                     "PAUSED" => TaskStatus::Paused,
                     "CANCELLED" => TaskStatus::Cancelled,
@@ -271,6 +287,14 @@ impl TaskRepository for SqliteTaskRepository {
         self.db.with_conn(|conn| {
             let status_str = match task.status {
                 TaskStatus::Created => "CREATED",
+                TaskStatus::Planning => "PLANNING",
+                TaskStatus::PlanReady => "PLAN_READY",
+                TaskStatus::Executing => "EXECUTING",
+                TaskStatus::WaitingForTool => "WAITING_FOR_TOOL",
+                TaskStatus::WaitingForUser => "WAITING_FOR_USER",
+                TaskStatus::Verifying => "VERIFYING",
+                TaskStatus::Retrying => "RETRYING",
+                TaskStatus::Blocked => "BLOCKED",
                 TaskStatus::Running => "RUNNING",
                 TaskStatus::Paused => "PAUSED",
                 TaskStatus::Cancelled => "CANCELLED",

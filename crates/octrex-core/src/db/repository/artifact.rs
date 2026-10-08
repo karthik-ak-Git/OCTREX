@@ -12,6 +12,11 @@ pub trait ArtifactRepository: Send + Sync {
         &self,
         workspace_id: &WorkspaceId,
     ) -> Result<Vec<ArtifactRecord>, OctrexError>;
+    fn update_verification_status(
+        &self,
+        id: &ArtifactId,
+        status: &str,
+    ) -> Result<bool, OctrexError>;
     fn delete_artifact(&self, id: &ArtifactId) -> Result<bool, OctrexError>;
 }
 
@@ -178,6 +183,24 @@ impl ArtifactRepository for SqliteArtifactRepository {
                 list.push(r.map_err(|e| OctrexError::Internal { message: e.to_string() })?);
             }
             Ok(list)
+        })
+    }
+
+    fn update_verification_status(
+        &self,
+        id: &ArtifactId,
+        status: &str,
+    ) -> Result<bool, OctrexError> {
+        self.db.with_conn(|conn| {
+            let count = conn
+                .execute(
+                    "UPDATE artifacts SET verification_status = ?1 WHERE id = ?2",
+                    params![status, id.as_str()],
+                )
+                .map_err(|e| OctrexError::Internal {
+                    message: e.to_string(),
+                })?;
+            Ok(count > 0)
         })
     }
 

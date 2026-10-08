@@ -27,11 +27,12 @@ impl WorkspaceRepository for SqliteWorkspaceRepository {
     fn create_workspace(&self, ws: &Workspace) -> Result<Workspace, OctrexError> {
         self.db.with_conn(|conn| {
             conn.execute(
-                "INSERT INTO workspaces (id, name, path, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+                "INSERT INTO workspaces (id, name, path, classification, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
                 params![
                     ws.id.as_str(),
                     ws.name,
                     ws.path.to_string_lossy().to_string(),
+                    ws.classification,
                     ws.created_at,
                     ws.updated_at
                 ],
@@ -47,7 +48,7 @@ impl WorkspaceRepository for SqliteWorkspaceRepository {
         self.db.with_conn(|conn| {
             let mut stmt = conn
                 .prepare(
-                    "SELECT id, name, path, created_at, updated_at FROM workspaces WHERE id = ?1",
+                    "SELECT id, name, path, COALESCE(classification, 'PUBLIC'), created_at, updated_at FROM workspaces WHERE id = ?1",
                 )
                 .map_err(|e| OctrexError::Internal {
                     message: e.to_string(),
@@ -57,13 +58,15 @@ impl WorkspaceRepository for SqliteWorkspaceRepository {
                 let id_str: String = row.get(0)?;
                 let name: String = row.get(1)?;
                 let path_str: String = row.get(2)?;
-                let created_at: u64 = row.get(3)?;
-                let updated_at: u64 = row.get(4)?;
+                let classification: String = row.get(3)?;
+                let created_at: u64 = row.get(4)?;
+                let updated_at: u64 = row.get(5)?;
 
                 Ok(Workspace {
                     id: WorkspaceId::from(id_str),
                     name,
                     path: PathBuf::from(path_str),
+                    classification,
                     created_at,
                     updated_at,
                 })
@@ -82,7 +85,7 @@ impl WorkspaceRepository for SqliteWorkspaceRepository {
     fn list_workspaces(&self) -> Result<Vec<Workspace>, OctrexError> {
         self.db.with_conn(|conn| {
             let mut stmt = conn
-                .prepare("SELECT id, name, path, created_at, updated_at FROM workspaces ORDER BY updated_at DESC")
+                .prepare("SELECT id, name, path, COALESCE(classification, 'PUBLIC'), created_at, updated_at FROM workspaces ORDER BY updated_at DESC")
                 .map_err(|e| OctrexError::Internal { message: e.to_string() })?;
 
             let rows = stmt
@@ -90,13 +93,15 @@ impl WorkspaceRepository for SqliteWorkspaceRepository {
                     let id_str: String = row.get(0)?;
                     let name: String = row.get(1)?;
                     let path_str: String = row.get(2)?;
-                    let created_at: u64 = row.get(3)?;
-                    let updated_at: u64 = row.get(4)?;
+                    let classification: String = row.get(3)?;
+                    let created_at: u64 = row.get(4)?;
+                    let updated_at: u64 = row.get(5)?;
 
                     Ok(Workspace {
                         id: WorkspaceId::from(id_str),
                         name,
                         path: PathBuf::from(path_str),
+                        classification,
                         created_at,
                         updated_at,
                     })
@@ -115,10 +120,11 @@ impl WorkspaceRepository for SqliteWorkspaceRepository {
         self.db.with_conn(|conn| {
             let count = conn
                 .execute(
-                    "UPDATE workspaces SET name = ?1, path = ?2, updated_at = ?3 WHERE id = ?4",
+                    "UPDATE workspaces SET name = ?1, path = ?2, classification = ?3, updated_at = ?4 WHERE id = ?5",
                     params![
                         ws.name,
                         ws.path.to_string_lossy().to_string(),
+                        ws.classification,
                         ws.updated_at,
                         ws.id.as_str()
                     ],
