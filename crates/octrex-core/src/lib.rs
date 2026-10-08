@@ -1,31 +1,76 @@
 pub mod agent;
 pub mod app;
 pub mod config;
+pub mod context;
 pub mod db;
+pub mod documents;
 pub mod error;
 pub mod events;
+pub mod filesystem;
 pub mod hardware;
 pub mod ids;
 pub mod ipc;
+pub mod local_runtime;
 pub mod logging;
+pub mod memory;
 pub mod models;
 pub mod network;
+pub mod orchestration;
 pub mod permissions;
 pub mod privacy;
 pub mod providers;
+pub mod router;
 pub mod security;
 pub mod services;
 pub mod session;
+pub mod skills;
 pub mod task;
+pub mod tools;
+pub mod verification;
+pub mod workflows;
 pub mod workspace;
 
+pub use orchestration::{
+    CancellationManager, DefaultModelRouterInterface, ExecutionDecision, ExecutionRequest,
+    ModelRouterInterface, ModelSelectionTarget, OrchestrationError, OrchestrationService,
+    OrchestratorCoordinator, OrchestratorLimits, OrchestratorPolicyEvaluator,
+    OrchestratorStateMachine, PlanStatus, PlanValidator, RetryDecision, RetryManager,
+    StepActionType, StepStatus, TaskExecutor, TaskPlan, TaskPlanner, TaskRecoveryManager, TaskStep,
+    VerificationService,
+};
+
 pub use db::{DatabaseManager, DatabaseState, DatabaseStatus, DbConfig};
+pub use tools::{
+    CapabilityGrant, CapabilityScope, McpClient, McpPolicyEngine, McpRegistry, McpServerInfo,
+    McpTrustLevel, RiskLevel, ToolAuditLogger, ToolCapability, ToolConsentManager,
+    ToolConsentRecord, ToolDescriptor, ToolError, ToolExecutionContext, ToolExecutionStatus,
+    ToolId, ToolPolicyEvaluator, ToolRegistry, ToolRequest, ToolResponse, ToolRuntime, ToolSource,
+    ToolValidator,
+};
 
 pub use agent::{AgentEngine, AgentExecutionRequest, AgentExecutionResponse};
 pub use app::{AppLifecycleState, ApplicationState, LifecycleManager};
 pub use config::{AppConfig, ProviderConfig, ProviderType};
+pub use context::{
+    AssembledContext, BudgetPolicy, CompactionEngine, CompactionResult, ContextAssembler,
+    ContextCheckpoint, ContextError, ContextInclusionReason, ContextItem, ContextItemId,
+    ContextRole, ContextSecurityPolicy, ContextSelector, ContextService, ContextSource,
+    ContextTokenCounter, ContextTrustLevel, SelectionResult, TaskContextState, TokenBudget,
+    TokenCountKind,
+};
+pub use documents::{
+    chunk_document, DocumentChunk, DocumentExtractionStatus, DocumentFormat, DocumentId,
+    DocumentMetadata, DocumentRetrievalResult, DocumentService, NormalizedDocument,
+};
 pub use error::{AppErrorResponse, ErrorCode, OctrexError};
 pub use events::{EventBus, EventEnvelope, EventType};
+pub use filesystem::{
+    FileCategory, FileValidator, FilesystemDecision, FilesystemDisposition, FilesystemError,
+    FilesystemLimits, FilesystemOperation, FilesystemPermissionEngine, FilesystemSecurityService,
+    OperationRisk, PathValidator, PolicyEvaluator, ProcessSandboxBoundary, ProtectedPath,
+    ProtectedPathAction, SafeOperations, SymlinkValidator, WorkspaceSecurityPolicy,
+    WorkspaceSecurityStatus, WorkspaceSecurityValidator,
+};
 pub use hardware::{
     AcceleratorCategory, Architecture, CompatibilityReason, CompatibilityResult,
     CompatibilityStatus, CpuInfo, DetectionConfidence, GpuInfo, GpuSnapshot, GpuVendor,
@@ -36,6 +81,18 @@ pub use hardware::{
 pub use ids::{EventId, RequestId, SessionId, TaskId, WorkspaceId};
 pub use ipc::{
     ApplicationInfo, BackendHealth, ConfigurationSummary, IpcCommandHandler, RuntimeStatus,
+};
+pub use local_runtime::{
+    DownloadModelInput, DownloadSummary, ExecutionSlots, LocalCompatibilityReport,
+    LocalExecutionMode, LocalInferenceMetrics, LocalModelRecord, LocalModelState,
+    LocalRuntimeConfig, LocalRuntimeDescriptor, LocalRuntimeError, LocalRuntimeHealth,
+    LocalRuntimeHealthReport, LocalRuntimeService, LocalRuntimeType, LocalStreamEvent,
+    RegisterModelInput, ResourceEstimate,
+};
+pub use memory::{
+    ExtractionInput, MemoryCandidate, MemoryError, MemoryExtractor, MemoryItem, MemoryPolicy,
+    MemoryProvenance, MemoryQuery, MemoryResult, MemoryScope, MemoryService, MemorySource,
+    MemoryStore, MemoryType,
 };
 pub use models::{
     CallCorrelation, DefaultTokenizer, FinishReason, HardwareRequirement, ModelAvailability,
@@ -62,9 +119,32 @@ pub use providers::{
     ExecutionMode, ModelProvider, ProviderDescriptor, ProviderGateway, ProviderHealth,
     ProviderHealthCheck, ProviderHealthStatus, ProviderId, ProviderRegistry, ProviderStatus,
 };
+pub use router::{
+    CandidateEliminationReason, CandidateEvaluation, FallbackGuard, ModelRouter, RouterAuditLogger,
+    RouterError, RouterEventNotifier, RoutingDecision, RoutingDecisionBuilder,
+    RoutingDecisionState, RoutingEvidence, RoutingMode, RoutingRequest,
+};
 pub use services::{ServiceDescriptor, ServiceRegistry, ServiceStatus};
 pub use session::{Session, SessionRegistry, SessionStatus};
+pub use skills::{
+    RankedSkill, SkillDefinition, SkillError, SkillExecutor, SkillMatchRequest, SkillMatcher,
+    SkillMetrics, SkillProvenance, SkillRegistry, SkillService, SkillSource, SkillStatus,
+    SkillStep, SkillStepKind,
+};
 pub use task::{Task, TaskRegistry, TaskStatus};
+pub use verification::{
+    CheckSeverity, CheckStatus, CommandEvidenceInput, CommandKind, CompletionDecision,
+    CompletionGate, ExpectedArtifact, ExpectedFile, StepEvidenceInput, TaskConstraint,
+    TaskVerificationRequest, ToolEvidenceInput, UserRequirement, VerificationAction,
+    VerificationCheck, VerificationCheckType, VerificationEngine, VerificationError,
+    VerificationEvidence, VerificationPolicy, VerificationResult, VerificationStatus,
+    MAX_COMMAND_OUTPUT_CHARS, MAX_FILE_PREVIEW_CHARS,
+};
+pub use workflows::{
+    WorkflowDefinition, WorkflowError, WorkflowExecutor, WorkflowPlanner, WorkflowRegistry,
+    WorkflowRun, WorkflowRunStatus, WorkflowService, WorkflowStatus, WorkflowStep,
+    WorkflowStepKind,
+};
 pub use workspace::{FileEntry, WorkspaceInfo, WorkspaceManager, WorkspaceRegistry};
 
 #[cfg(test)]
