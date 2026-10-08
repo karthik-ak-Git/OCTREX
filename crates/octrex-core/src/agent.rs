@@ -83,6 +83,79 @@ impl AgentEngine {
         })
     }
 
+    /// Execute prompt via production ModelRouter and ModelRuntime
+    pub async fn execute_via_router(
+        &self,
+        router: &crate::router::ModelRouter,
+        runtime: &ModelRuntime,
+        routing_req: crate::router::RoutingRequest,
+        prompt: &str,
+    ) -> anyhow::Result<AgentExecutionResponse> {
+        let decision = router.route(routing_req);
+
+        if !decision.is_selected() {
+            anyhow::bail!(
+                "Model Router rejected execution: {:?} - {}",
+                decision.state,
+                decision.reason
+            );
+        }
+
+        let selected_model = decision
+            .selected_model_id
+            .ok_or_else(|| anyhow::anyhow!("Selected model ID missing in routing decision"))?;
+
+        self.execute_via_runtime(runtime, &selected_model, prompt)
+            .await
+    }
+
+    /// Execute prompt with ContextEngine integration (ingests request, checks budget, ingests response)
+    pub async fn execute_with_context(
+        &self,
+        runtime: &ModelRuntime,
+        model_id: &str,
+        prompt: &str,
+        context_engine: &crate::context::ContextService,
+        session_id: Option<crate::ids::SessionId>,
+        task_id: Option<crate::ids::TaskId>,
+    ) -> anyhow::Result<AgentExecutionResponse> {
+        let start = std::time::Instant::now();
+
+        // 1. Ingest prompt into context engine
+        let mut user_item = crate::context::ContextItem::new(
+            crate::context::ContextSource::UserRequest,
+            crate::context::ContextRole::User,
+            prompt,
+        )
+        .with_session(session_id.clone())
+        .with_task(task_id.clone());
+
+        user_item.priority = 10;
+        let _ = context_engine.add_item(user_item);
+
+        // 2. Execute request via runtime
+        let resp = self.execute_via_runtime(runtime, model_id, prompt).await?;
+
+        // 3. Ingest model response into context engine
+        let _ = context_engine.ingest_model_output(
+            &resp.output,
+            model_id,
+            crate::privacy::PrivacyClassification::Public,
+            session_id,
+            task_id,
+        );
+
+        let execution_time_ms = start.elapsed().as_millis();
+
+        Ok(AgentExecutionResponse {
+            task_id: resp.task_id,
+            provider_used: model_id.to_string(),
+            output: resp.output,
+            success: true,
+            execution_time_ms,
+        })
+    }
+
     /// Execute prompt directly against the configured live provider API endpoint.
     pub async fn execute(
         &self,
