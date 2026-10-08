@@ -37,6 +37,7 @@ import {
   FolderPlus
 } from 'lucide-react';
 import { NetworkSecurityModal, NetworkSecurityBadge } from '../components/NetworkSecurityModal';
+import { ContextBudgetIndicator } from '../components/ContextBudgetIndicator';
 
 import Link from 'next/link';
 import { PrivacyBadge } from '../components/PrivacyBadge';
@@ -154,6 +155,36 @@ export default function App() {
   const [workspaceClassification, setWorkspaceClassification] = useState<string>('PUBLIC');
   const [activePrivacyDecision, setActivePrivacyDecision] = useState<any | null>(null);
   const [activeConsentRequest, setActiveConsentRequest] = useState<any | null>(null);
+
+  // Verification State (Phase 13) — independent completion evidence.
+  // A model stating "done" never marks a task verified; only the
+  // VerificationEngine result does.
+  const [lastTaskId, setLastTaskId] = useState<string | null>(null);
+  const [taskCompletion, setTaskCompletion] = useState<{
+    verified: boolean;
+    status: string;
+    completion_gate: string;
+    failures: string[];
+  } | null>(null);
+
+  const fetchTaskCompletion = async (taskId: string) => {
+    try {
+      const res = await fetch(`/api/tasks/${encodeURIComponent(taskId)}/completion`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setTaskCompletion({
+            verified: data.verified,
+            status: data.status,
+            completion_gate: data.completion_gate,
+            failures: data.failures || [],
+          });
+        }
+      }
+    } catch (e) {
+      console.log('Error fetching task completion:', e);
+    }
+  };
 
   const fetchPrivacySettings = async () => {
     try {
@@ -457,6 +488,10 @@ export default function App() {
       let assistantMsgObj;
       if (res.ok) {
         const data = await res.json();
+        if (data.task_id) {
+          setLastTaskId(data.task_id);
+          fetchTaskCompletion(data.task_id);
+        }
         assistantMsgObj = {
           role: 'assistant' as const,
           content: data.output || 'Execution complete.',
@@ -826,6 +861,13 @@ export default function App() {
 
         {/* Settings & Security Footer */}
         <div className="pt-3 border-t border-slate-200/60 space-y-1">
+          <Link
+            href="/tasks"
+            className="flex items-center space-x-2.5 p-2 rounded-2xl text-slate-700 hover:bg-white/80 hover:text-slate-900 font-semibold text-xs transition-all"
+          >
+            <Layers className="w-4 h-4 text-blue-500" />
+            <span>Task Orchestration</span>
+          </Link>
           <div 
             onClick={() => setIsNetworkModalOpen(true)}
             className="flex items-center space-x-2.5 p-2 rounded-2xl text-slate-700 hover:bg-white/80 hover:text-slate-900 cursor-pointer font-semibold text-xs transition-all"
@@ -929,7 +971,14 @@ export default function App() {
         </div>
 
         {/* Floating Command Bar */}
-        <div className="p-4 bg-white/40 border-t border-slate-200/60">
+        <div className="p-4 bg-white/40 border-t border-slate-200/60 space-y-2">
+          <ContextBudgetIndicator
+            usedTokens={1024}
+            usableBudget={6568}
+            contextWindow={8192}
+            tokenCountKind="estimated"
+            modelId={activeModel}
+          />
           <div className="bg-white border border-slate-200/90 rounded-2xl p-2.5 shadow-sm flex items-center space-x-2">
             <input 
               type="text" 
@@ -1033,6 +1082,44 @@ export default function App() {
                 <div className="p-3 rounded-xl bg-white border border-slate-200/70 text-center text-slate-400 font-medium text-xs">
                   No files generated in current session
                 </div>
+              </div>
+
+              {/* Verification (Phase 13) */}
+              <div>
+                <div className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider mb-2">VERIFICATION</div>
+                {!lastTaskId ? (
+                  <div className="p-3 rounded-xl bg-white border border-slate-200/70 text-center text-slate-400 font-medium text-xs">
+                    No task executed yet — completion is never assumed
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-xl bg-white border border-slate-200/70 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-900">
+                        {taskCompletion?.verified ? '✓ Verified' : '○ Not verified'}
+                      </span>
+                      <span className="text-[10px] font-mono text-slate-500">
+                        {taskCompletion?.status || 'NOT_VERIFIED'}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 font-mono truncate" title={lastTaskId}>
+                      {lastTaskId}
+                    </div>
+                    {taskCompletion && (
+                      <div className="text-[11px] text-slate-600">
+                        Gate: <span className="font-mono font-semibold">{taskCompletion.completion_gate}</span>
+                        {taskCompletion.failures.length > 0 && (
+                          <span className="text-rose-600"> · {taskCompletion.failures.length} failure(s)</span>
+                        )}
+                      </div>
+                    )}
+                    <Link
+                      href={`/tasks/verification?taskId=${encodeURIComponent(lastTaskId)}`}
+                      className="inline-block text-[11px] font-bold text-cyan-700 hover:text-cyan-900 hover:underline"
+                    >
+                      Open verification evidence →
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           )}
