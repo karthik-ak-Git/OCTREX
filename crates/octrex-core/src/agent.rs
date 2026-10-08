@@ -1,4 +1,7 @@
 use crate::config::{AppConfig, ProviderConfig, ProviderType};
+use crate::models::{
+    CallCorrelation, ModelMessage, ModelRequest, ModelResponse, ModelRuntime, ResponseFormat,
+};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
@@ -38,8 +41,49 @@ impl AgentEngine {
         Self::default()
     }
 
+    /// Execute prompt via normalized ModelRuntime when provided
+    pub async fn execute_via_runtime(
+        &self,
+        runtime: &ModelRuntime,
+        model_id: &str,
+        prompt: &str,
+    ) -> anyhow::Result<AgentExecutionResponse> {
+        let start = std::time::Instant::now();
+
+        let req = ModelRequest {
+            model_id: model_id.to_string(),
+            messages: vec![ModelMessage {
+                role: "user".to_string(),
+                content: prompt.to_string(),
+                tool_calls: None,
+            }],
+            system_instructions: Some("You are Octrex AI software engineer.".to_string()),
+            tools: vec![],
+            temperature: Some(0.3),
+            max_output_tokens: Some(4096),
+            response_format: ResponseFormat::Text,
+            metadata: std::collections::HashMap::new(),
+            correlation: CallCorrelation::default(),
+        };
+
+        let resp: ModelResponse = runtime
+            .invoke(req)
+            .await
+            .map_err(|e| anyhow::anyhow!("{}", e))?;
+
+        let task_id = format!("task-{}", uuid::Uuid::new_v4().simple());
+        let execution_time_ms = start.elapsed().as_millis();
+
+        Ok(AgentExecutionResponse {
+            task_id,
+            provider_used: model_id.to_string(),
+            output: resp.content,
+            success: true,
+            execution_time_ms,
+        })
+    }
+
     /// Execute prompt directly against the configured live provider API endpoint.
-    /// NO dummy fallback data is returned if connection or key is missing.
     pub async fn execute(
         &self,
         config: &AppConfig,
@@ -61,7 +105,8 @@ impl AgentEngine {
             | ProviderType::NvidiaNim
             | ProviderType::Groq
             | ProviderType::Custom => {
-                self.execute_openai_compatible(provider_cfg, &req.prompt).await?
+                self.execute_openai_compatible(provider_cfg, &req.prompt)
+                    .await?
             }
             ProviderType::Ollama => self.execute_ollama(provider_cfg, &req.prompt).await?,
             ProviderType::Google => self.execute_google(provider_cfg, &req.prompt).await?,
@@ -155,7 +200,12 @@ impl AgentEngine {
             "stream": false
         });
 
-        let resp = self.http_client.post(&endpoint).json(&payload).send().await?;
+        let resp = self
+            .http_client
+            .post(&endpoint)
+            .json(&payload)
+            .send()
+            .await?;
 
         if !resp.status().is_success() {
             let err_text = resp.text().await.unwrap_or_default();
@@ -193,7 +243,12 @@ impl AgentEngine {
             }]
         });
 
-        let resp = self.http_client.post(&endpoint).json(&payload).send().await?;
+        let resp = self
+            .http_client
+            .post(&endpoint)
+            .json(&payload)
+            .send()
+            .await?;
 
         if !resp.status().is_success() {
             let err_text = resp.text().await.unwrap_or_default();

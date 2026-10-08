@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::fs;
 use std::path::PathBuf;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -22,7 +21,95 @@ pub struct ProviderConfig {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RuntimeConfig {
+    pub host: String,
+    pub port: u16,
+    pub protocol_version: String,
+}
+
+impl Default for RuntimeConfig {
+    fn default() -> Self {
+        Self {
+            host: "127.0.0.1".to_string(),
+            port: 3000,
+            protocol_version: "1.0.0".to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StorageConfig {
+    pub base_dir: PathBuf,
+    pub db_path: PathBuf,
+}
+
+impl Default for StorageConfig {
+    fn default() -> Self {
+        let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
+        let base = home.join(".octrex");
+        Self {
+            db_path: base.join("octrex.db"),
+            base_dir: base,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NetworkConfig {
+    pub allow_offline: bool,
+    pub proxy_url: Option<String>,
+}
+
+impl Default for NetworkConfig {
+    fn default() -> Self {
+        Self {
+            allow_offline: true,
+            proxy_url: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SecurityConfig {
+    pub enforcement_level: String,
+    pub privacy_mode: String,
+}
+
+impl Default for SecurityConfig {
+    fn default() -> Self {
+        Self {
+            enforcement_level: "standard".to_string(),
+            privacy_mode: "strict_local".to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PrivacyConfig {
+    pub mode: String,
+    pub confidential_mode: bool,
+    pub consent_behavior: String,
+    pub enforcement_level: String,
+}
+
+impl Default for PrivacyConfig {
+    fn default() -> Self {
+        Self {
+            mode: "local_only".to_string(),
+            confidential_mode: false,
+            consent_behavior: "require_consent".to_string(),
+            enforcement_level: "strict".to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
+    pub runtime: RuntimeConfig,
+    pub storage: StorageConfig,
+    pub network: NetworkConfig,
+    pub security: SecurityConfig,
+    pub privacy: PrivacyConfig,
     pub providers: HashMap<String, ProviderConfig>,
     pub active_provider: String,
     pub active_workspace: Option<PathBuf>,
@@ -31,12 +118,14 @@ pub struct AppConfig {
 impl Default for AppConfig {
     fn default() -> Self {
         let mut providers = HashMap::new();
-        
+
         providers.insert(
             "opencode".to_string(),
             ProviderConfig {
                 provider_type: ProviderType::OpenCode,
-                api_key: std::env::var("OPENCODE_API_KEY").ok().or(Some("free-opencode-router".to_string())),
+                api_key: std::env::var("OPENCODE_API_KEY")
+                    .ok()
+                    .or(Some("free-opencode-router".to_string())),
                 base_url: Some("https://api.opencode.ai/v1".to_string()),
                 default_model: "opencode-free-router".to_string(),
             },
@@ -83,67 +172,14 @@ impl Default for AppConfig {
         );
 
         Self {
+            runtime: RuntimeConfig::default(),
+            storage: StorageConfig::default(),
+            network: NetworkConfig::default(),
+            security: SecurityConfig::default(),
+            privacy: PrivacyConfig::default(),
             providers,
             active_provider: "opencode".to_string(),
             active_workspace: None,
-        }
-    }
-}
-
-impl AppConfig {
-    pub fn config_path() -> PathBuf {
-        let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
-        home.join(".octrex").join("config.json")
-    }
-
-    pub fn load() -> Self {
-        let path = Self::config_path();
-        if path.exists() {
-            if let Ok(content) = fs::read_to_string(&path) {
-                if let Ok(config) = serde_json::from_str::<AppConfig>(&content) {
-                    return config;
-                }
-            }
-        }
-        Self::default()
-    }
-
-    pub fn save(&self) -> anyhow::Result<()> {
-        let path = Self::config_path();
-        if let Some(parent) = path.parent() {
-            fs::create_dir_all(parent)?;
-        }
-        let json = serde_json::to_string_pretty(self)?;
-        fs::write(path, json)?;
-        Ok(())
-    }
-
-    pub fn set_api_key(&mut self, provider: &str, key: String) -> anyhow::Result<()> {
-        if let Some(cfg) = self.providers.get_mut(provider) {
-            cfg.api_key = Some(key);
-            self.save()?;
-            Ok(())
-        } else {
-            // Allow auto-insert if unknown
-            let ptype = match provider {
-                "opencode" => ProviderType::OpenCode,
-                "nvidia-nim" => ProviderType::NvidiaNim,
-                "google" => ProviderType::Google,
-                "groq" => ProviderType::Groq,
-                "local" => ProviderType::Ollama,
-                _ => ProviderType::Custom,
-            };
-            self.providers.insert(
-                provider.to_string(),
-                ProviderConfig {
-                    provider_type: ptype,
-                    api_key: Some(key),
-                    base_url: None,
-                    default_model: "default".to_string(),
-                },
-            );
-            self.save()?;
-            Ok(())
         }
     }
 }
