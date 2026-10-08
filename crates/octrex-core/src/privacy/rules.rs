@@ -1,0 +1,103 @@
+use super::types::{PolicyAction, PolicyRule, PolicyScope, PolicySource, PrivacyClassification};
+use crate::providers::ExecutionMode;
+
+pub fn get_default_policy_rules() -> Vec<PolicyRule> {
+    vec![
+        PolicyRule {
+            id: "SYS-001".to_string(),
+            name: "System Fail-Closed Boundary".to_string(),
+            source: PolicySource::System,
+            priority: 100,
+            enabled: true,
+            scope: PolicyScope::Global,
+            target_classification: Some(PrivacyClassification::Secret),
+            target_mode: Some(ExecutionMode::Cloud),
+            forbidden_providers: Vec::new(),
+            forbidden_models: Vec::new(),
+            action: PolicyAction::Deny,
+            reason: "System security boundary prohibits online processing for SECRET data classification."
+                .to_string(),
+            version: 1,
+        },
+        PolicyRule {
+            id: "CMP-001".to_string(),
+            name: "Company Confidential Workspace Protection".to_string(),
+            source: PolicySource::Company,
+            priority: 80,
+            enabled: true,
+            scope: PolicyScope::Global,
+            target_classification: Some(PrivacyClassification::Confidential),
+            target_mode: Some(ExecutionMode::Cloud),
+            forbidden_providers: Vec::new(),
+            forbidden_models: Vec::new(),
+            action: PolicyAction::Deny,
+            reason: "Company policy prohibits online model execution for confidential workspaces or data."
+                .to_string(),
+            version: 1,
+        },
+        PolicyRule {
+            id: "CMP-002".to_string(),
+            name: "Company Restricted Data Boundary".to_string(),
+            source: PolicySource::Company,
+            priority: 80,
+            enabled: true,
+            scope: PolicyScope::Global,
+            target_classification: Some(PrivacyClassification::Restricted),
+            target_mode: Some(ExecutionMode::Cloud),
+            forbidden_providers: Vec::new(),
+            forbidden_models: Vec::new(),
+            action: PolicyAction::Deny,
+            reason: "Company policy strictly prohibits online processing of restricted industrial data."
+                .to_string(),
+            version: 1,
+        },
+        PolicyRule {
+            id: "SEC-001".to_string(),
+            name: "Security Credential Protection".to_string(),
+            source: PolicySource::Security,
+            priority: 60,
+            enabled: true,
+            scope: PolicyScope::Global,
+            target_classification: None,
+            target_mode: Some(ExecutionMode::Cloud),
+            forbidden_providers: Vec::new(),
+            forbidden_models: Vec::new(),
+            action: PolicyAction::Deny,
+            reason: "Security policy blocks cloud payloads containing credential-like material."
+                .to_string(),
+            version: 1,
+        },
+        PolicyRule {
+            id: "PRV-001".to_string(),
+            name: "Privacy Online Explicit Consent".to_string(),
+            source: PolicySource::Privacy,
+            priority: 40,
+            enabled: true,
+            scope: PolicyScope::Global,
+            target_classification: Some(PrivacyClassification::Internal),
+            target_mode: Some(ExecutionMode::Cloud),
+            forbidden_providers: Vec::new(),
+            forbidden_models: Vec::new(),
+            action: PolicyAction::RequireConsent,
+            reason: "Privacy policy requires explicit user consent before sending internal data online."
+                .to_string(),
+            version: 1,
+        },
+        PolicyRule {
+            id: "USR-001".to_string(),
+            name: "User Preference Default".to_string(),
+            source: PolicySource::User,
+            priority: 20,
+            enabled: true,
+            scope: PolicyScope::Global,
+            target_classification: Some(PrivacyClassification::Public),
+            target_mode: None,
+            forbidden_providers: Vec::new(),
+            forbidden_models: Vec::new(),
+            action: PolicyAction::Allow,
+            reason: "User preference permits request execution within allowed parameters."
+                .to_string(),
+            version: 1,
+        },
+    ]
+}
