@@ -116,16 +116,6 @@ pub fn is_cloud_metadata_endpoint(host: &str) -> bool {
     false
 }
 
-trait EndsWithMetadata {
-    fn ends_metadata(&self) -> bool;
-}
-
-impl EndsWithMetadata for str {
-    fn ends_metadata(&self) -> bool {
-        self.ends_with(".metadata.google.internal") || self == "metadata.google.internal"
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

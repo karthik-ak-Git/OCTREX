@@ -43,14 +43,12 @@ impl NetworkEndpoint {
             })?
             .to_lowercase();
 
-        let port = parsed
-            .port_or_known_default()
-            .unwrap_or(match protocol {
-                NetworkProtocol::Http => 80,
-                NetworkProtocol::Https => 443,
-                NetworkProtocol::WebSocket => 80,
-                NetworkProtocol::Tcp => 80,
-            });
+        let port = parsed.port_or_known_default().unwrap_or(match protocol {
+            NetworkProtocol::Http => 80,
+            NetworkProtocol::Https => 443,
+            NetworkProtocol::WebSocket => 80,
+            NetworkProtocol::Tcp => 80,
+        });
 
         let path = parsed.path().to_string();
         let has_query = parsed.query().is_some();
